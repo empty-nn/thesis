@@ -1,24 +1,40 @@
-import pymupdf4llm
+from contextlib import asynccontextmanager
+import uvicorn
+from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+from routers import data_building_router
+import logging
+import urllib3
 
-from ingestion.split_chunk import prepare_markdown_for_rag
+urllib3.disable_warnings()
 
-pdf_path = r"pdfs\beginner_guide.pdf"
+logger = logging.getLogger(__name__)
 
-raw_md = pymupdf4llm.to_markdown(pdf_path)
-
-chunks = prepare_markdown_for_rag(
-    raw_md=raw_md,
-    source_file=r"pdfs\beginner_guide.pdf",
-    chunk_size=1200,
-    chunk_overlap=150,
-    keep_picture_text=True,
-    min_picture_text_chars=80,
-    separate_picture_text=True,
+# setup_logging()
+app = FastAPI(
+    title="Variance Cost Calculation API",
+    description="API for running single and bulk RFC cost calculations.",
+    version="1.0.0",
+    docs_url="/api",
+    redoc_url="/redoc",
+    openapi_url="/api/openapi.json",
 )
 
-print("Total chunks:", len(chunks))
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["X-Filename"]
+)
 
-for chunk in chunks[:3]:
-    print("\n--- CHUNK ---")
-    print(chunk["metadata"])
-    print(chunk["content"])
+app.include_router(data_building_router)
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",             
+        host="localhost",
+        port=8001,
+        reload=True,             
+    )

@@ -1,7 +1,3 @@
-import json
-import traceback
-import ollama
-
 from config.vocab import ALLOWED_CHUNK_TOPICS, ALLOWED_PLACE_TYPES, ALLOWED_TRAVEL_STYLES
 from ingestion.normalize_data import normalize_metadata
 from schemas.metadata_schema import TourismMetadata
