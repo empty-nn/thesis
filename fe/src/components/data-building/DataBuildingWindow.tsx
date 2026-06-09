@@ -18,6 +18,7 @@ import type {
   StepOptionValue,
   StepStatus,
 } from "./types";
+import ThemeSwitcher from "../ThemeSwitcher";
 
 type DataBuildingWindowProps = {
   activeStep: DataBuildingStep;
@@ -118,8 +119,8 @@ function DataBuildingWindow({
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-app-background text-app-foreground">
-      <header className="flex h-14 items-center justify-between border-b border-app-border px-5">
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-app-background text-app-foreground">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-app-border px-5">
         <div>
           <h1 className="text-sm font-medium">{activeStep.label}</h1>
           <p className="text-xs text-muted-foreground">
@@ -127,7 +128,7 @@ function DataBuildingWindow({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-auto">
           <span className="rounded-full border border-app-border px-3 py-1 text-xs text-muted-foreground">
             {activeStepStatus}
           </span>
@@ -146,12 +147,13 @@ function DataBuildingWindow({
           <Button size="sm" disabled={!activeStepResult}>
             Save edited result
           </Button>
+          <ThemeSwitcher />
         </div>
       </header>
 
-      <section className="grid flex-1 grid-cols-1 gap-4 p-5 lg:grid-cols-[1fr_360px]">
-        <div className="flex min-h-0 flex-col rounded-xl border border-app-border bg-chat-assistant shadow-sm">
-          <div className="border-b border-app-border px-4 py-3">
+      <section className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden p-5 lg:grid-cols-[1fr_360px]">
+        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-app-border bg-chat-assistant shadow-sm">
+          <div className="shrink-0 border-b border-app-border px-4 py-3">
             <h2 className="text-sm font-medium">Editable result</h2>
             <p className="text-xs text-muted-foreground">
               Remove unrelated information here before running the next step.
@@ -162,11 +164,11 @@ function DataBuildingWindow({
             value={activeStepResult}
             onChange={(event) => onUpdateResult(event.target.value)}
             placeholder="Run a step from the sidebar. The result will appear here."
-            className="min-h-[calc(100vh-210px)] flex-1 resize-none rounded-none border-0 bg-transparent p-4 font-mono text-sm leading-6 text-app-foreground shadow-none focus-visible:ring-0"
+            className="min-h-0 flex-1 resize-none overflow-y-auto rounded-none border-0 bg-transparent p-4 font-mono text-sm leading-6 text-app-foreground shadow-none focus-visible:ring-0"
           />
         </div>
 
-        <aside className="rounded-xl border border-app-border bg-chat-assistant p-4 shadow-sm">
+        <aside className="min-h-0 overflow-y-auto rounded-xl border border-app-border bg-chat-assistant p-4 shadow-sm">
           <h3 className="text-sm font-medium">Processing options</h3>
 
           <p className="mt-1 text-xs text-muted-foreground">

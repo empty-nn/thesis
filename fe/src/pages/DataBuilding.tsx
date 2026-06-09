@@ -17,7 +17,9 @@ import type {
   StepOptionValue,
   StepResultMap,
   StepStatusMap,
+  DataSourceType,
 } from "../components/data-building/types";
+import { cleanMarkdown, convertHtmlUrl, convertPdfUpload, type HtmlConvertMethod, type PdfConvertMethod } from "@/api/dataBuildingApi";
 
 const dataBuildingSteps: DataBuildingStep[] = [
   {
@@ -27,6 +29,16 @@ const dataBuildingSteps: DataBuildingStep[] = [
     resultType: "markdown",
     icon: FileUp,
     options: [
+      {
+        id: "extractMethod",
+        label: "Extract methodt",
+        type: "select",
+        defaultValue: "pymupdf",
+        options: [
+          { label: "pymupdf", value: "pymupdf" },
+          { label: "docling", value: "docling" },
+        ],
+      },
       {
         id: "outputFormat",
         label: "Output format",
@@ -216,23 +228,18 @@ function createInitialOptions(): StepOptionMap {
 function DataBuilding() {
   const [htmlUrl, setHtmlUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
   const [activeStepId, setActiveStepId] = useState(dataBuildingSteps[0].id);
-
-  const [stepStatuses, setStepStatuses] = useState<StepStatusMap>(
-    createInitialStatuses
-  );
-
+  const [stepStatuses, setStepStatuses] = useState<StepStatusMap>(createInitialStatuses);
   const [stepResults, setStepResults] = useState<StepResultMap>({});
-
   const [stepOptions, setStepOptions] = useState<StepOptionMap>(
     createInitialOptions
   );
+  const [sourceType, setSourceType] = useState<DataSourceType>("html-url");
 
   const timerRef = useRef<number | null>(null);
   const runningStepRef = useRef<string | null>(null);
 
-  const hasDataSource = htmlUrl.trim().length > 0 || selectedFile !== null;
+  const hasDataSource = sourceType === "html-url" ? htmlUrl.trim().length > 0 : selectedFile !== null;
 
   const activeStep =
     dataBuildingSteps.find((step) => step.id === activeStepId) ??
@@ -250,12 +257,23 @@ function DataBuilding() {
     setStepResults({});
     setActiveStepId(dataBuildingSteps[0].id);
   }
+  const handleSourceTypeChange = (type: DataSourceType) => {
+    setSourceType(type);
 
+    if (type === "html-url") {
+      setSelectedFile(null);
+    }
+
+    if (type === "pdf-upload") {
+      setHtmlUrl("");
+    }
+  };
   function handleUrlChange(value: string) {
     setHtmlUrl(value);
 
     if (value.trim().length > 0) {
       setSelectedFile(null);
+      setSourceType("html-url");
     }
 
     resetPipelineState();
@@ -268,6 +286,7 @@ function DataBuilding() {
 
     setSelectedFile(file);
     setHtmlUrl("");
+    setSourceType("pdf-upload");
     resetPipelineState();
   }
 
@@ -276,19 +295,13 @@ function DataBuilding() {
     if (runningStepRef.current) return false;
 
     if (stepIndex === 0) return true;
-
     const previousStep = dataBuildingSteps[stepIndex - 1];
 
     return stepStatuses[previousStep.id] === "completed";
   }
 
-  function handleRunStep(step: DataBuildingStep, stepIndex: number) {
+  async function handleRunStep(step: DataBuildingStep, stepIndex: number) {
     if (!canRunStep(stepIndex)) return;
-
-    const currentOptions = stepOptions[step.id];
-
-    console.log("Run step:", step.id);
-    console.log("Step options:", currentOptions);
 
     runningStepRef.current = step.id;
     setActiveStepId(step.id);
@@ -303,6 +316,8 @@ function DataBuilding() {
       [step.id]: "Processing...",
     }));
 
+    const result = await getFakeStepResult(step.id);
+
     timerRef.current = window.setTimeout(() => {
       setStepStatuses((current) => ({
         ...current,
@@ -311,7 +326,7 @@ function DataBuilding() {
 
       setStepResults((current) => ({
         ...current,
-        [step.id]: getFakeStepResult(step.id),
+        [step.id]: result,
       }));
 
       runningStepRef.current = null;
@@ -347,11 +362,7 @@ function DataBuilding() {
     }));
   }
 
-  function handleUpdateStepOption(
-    stepId: string,
-    optionId: string,
-    value: StepOptionValue
-  ) {
+  function handleUpdateStepOption(stepId: string, optionId: string, value: StepOptionValue) {
     setStepOptions((current) => ({
       ...current,
       [stepId]: {
@@ -361,114 +372,71 @@ function DataBuilding() {
     }));
   }
 
-  function getFakeStepResult(stepId: string) {
+  async function handleExtract(method: PdfConvertMethod | HtmlConvertMethod) {
+    if (sourceType === "pdf-upload") {
+      if (!selectedFile) {
+        throw new Error("No PDF file selected");
+      }
+
+      const result = await convertPdfUpload(
+        selectedFile,
+        method as PdfConvertMethod
+      );
+
+      return result.markdown.markdown;
+    }
+
+    if (sourceType === "html-url") {
+      if (!htmlUrl.trim()) {
+        throw new Error("No HTML URL provided");
+      }
+
+      const result = await convertHtmlUrl(
+        htmlUrl,
+        method as HtmlConvertMethod
+      );
+
+      return result.markdown;
+    }
+
+    throw new Error("Invalid data source type");
+  }
+
+  async function handleCleanMarkdown(md: string) {
+    try {
+      const result = await cleanMarkdown(md);
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function getFakeStepResult(stepId: string) {
     const options = stepOptions[stepId];
 
     switch (stepId) {
       case "extract":
-        return selectedFile
-          ? `# Extracted Markdown
+        const method =
+          sourceType === "pdf-upload"
+            ? (options["extractMethod"] as PdfConvertMethod)
+            : (options["htmlExtractMethod"] as HtmlConvertMethod);
 
-Source PDF: ${selectedFile.name}
+        const markdown = await handleExtract(method);
 
-Options:
-- outputFormat: ${options.outputFormat}
-- extractMainOnly: ${options.extractMainOnly}
-- keepImages: ${options.keepImages}
-
-## Hanoi Old Quarter
-
-This is fake extracted Markdown from the selected PDF.
-
-## Unrelated content
-
-Subscribe to our newsletter.
-
-Advertisement: Book your hotel now.`
-          : `# Extracted Markdown
-
-Source URL: ${htmlUrl}
-
-Options:
-- outputFormat: ${options.outputFormat}
-- extractMainOnly: ${options.extractMainOnly}
-- keepImages: ${options.keepImages}
-
-## Hanoi Old Quarter
-
-This is fake extracted Markdown from the HTML page.
-
-## Unrelated content
-
-Subscribe to our newsletter.
-
-Advertisement: Book your hotel now.`;
-
+        return markdown;
       case "clean":
-        return `# Cleaned Markdown
-
-Input used from previous step:
-${stepResults.extract ? "Extracted Markdown was found." : "No extracted Markdown found."}
-
-Options:
-- removeAds: ${options.removeAds}
-- removeRepeatedLines: ${options.removeRepeatedLines}
-- minRepeatCount: ${options.minRepeatCount}
-- keepPictureText: ${options.keepPictureText}
-
-## Hanoi Old Quarter
-
-Useful tourism content only.
-
-Unrelated menus, ads, and repeated text were removed.`;
+        const md = stepResults['extract']
+        const clean_result = await  handleCleanMarkdown(md)
+        return clean_result
 
       case "metadata":
-        return `{
-  "country": "Vietnam",
-  "city": "Hanoi",
-  "place_name": "Hanoi Old Quarter",
-  "place_type": "attraction",
-  "ai_tags": ["history", "culture", "food"],
-  "ai_activities": ["walking tour", "street food", "sightseeing"],
-  "ai_travel_styles": ["cultural exploration", "food travel"],
-  "ai_suitable_for": ["first-time visitors", "culture lovers"],
-  "chunk_topic": "travel_guide",
-  "summary": "Hanoi Old Quarter is a historic area known for traditional streets, shops, food, and local culture.",
-  "model": "${options.model}",
-  "confidence_threshold": ${options.confidenceThreshold},
-  "strict_json": ${options.strictJson},
-  "confidence": 0.91
-}`;
+        return ``;
 
       case "chunk":
-        return `[
-  {
-    "chunk_id": "chunk_001",
-    "section": "Hanoi Old Quarter",
-    "text": "Hanoi Old Quarter is a historic area known for traditional streets, shops, food, and local culture.",
-    "metadata": {
-      "city": "Hanoi",
-      "place_type": "attraction"
-    },
-    "chunk_size": ${options.chunkSize},
-    "overlap": ${options.overlap},
-    "split_by_heading": ${options.splitByHeading}
-  }
-]`;
+        return ``;
 
       case "store":
-        return `Fake result: document and chunks were saved into PostgreSQL.
-
-Options:
-- overwriteExisting: ${options.overwriteExisting}
-- markAsVerified: ${options.markAsVerified}`;
-
-      case "embedding":
-        return `Fake result: embeddings were created and saved for retrieval.
-
-Options:
-- embeddingModel: ${options.embeddingModel}
-- batchSize: ${options.batchSize}`;
+        return ``;
 
       default:
         return "";
@@ -481,6 +449,7 @@ Options:
         steps={dataBuildingSteps}
         activeStepId={activeStepId}
         stepStatuses={stepStatuses}
+        sourceType={sourceType}
         htmlUrl={htmlUrl}
         selectedFile={selectedFile}
         hasDataSource={hasDataSource}
@@ -489,6 +458,7 @@ Options:
         onRunStep={handleRunStep}
         onStopStep={handleStopStep}
         onResetPipeline={resetPipelineState}
+        onSourceTypeChange={handleSourceTypeChange}
         onUrlChange={handleUrlChange}
         onFileChange={handleFileChange}
       />

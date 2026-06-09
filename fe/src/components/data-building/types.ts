@@ -7,6 +7,7 @@ export type StepResultType = "markdown" | "json" | "text";
 export type StepOptionType = "text" | "number" | "select" | "checkbox";
 
 export type StepOptionValue = string | number | boolean;
+export type DataSourceType = "html-url" | "pdf-upload";
 
 export type StepOption = {
   id: string;

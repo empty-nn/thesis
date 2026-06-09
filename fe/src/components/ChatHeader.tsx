@@ -1,13 +1,4 @@
-
-
-
-
-
-
-
-
-
-import ThemeSwitcher from "../ThemeSwitcher";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 function ChatHeader() {
   return (
