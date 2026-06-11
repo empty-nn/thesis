@@ -14,32 +14,55 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type {
   DataBuildingStep,
+  DataSourceType,
   StepOption,
+  StepOptionMap,
   StepOptionValue,
+  StepResultMap,
   StepStatus,
 } from "./types";
+
 import ThemeSwitcher from "../ThemeSwitcher";
 
 type DataBuildingWindowProps = {
   activeStep: DataBuildingStep;
-  activeStepResult: string;
   activeStepStatus: StepStatus;
-  activeStepOptions: Record<string, StepOptionValue>;
-  onUpdateResult: (value: string) => void;
+  sourceType: DataSourceType;
+  stepResults: StepResultMap;
+  stepOptions: StepOptionMap;
+  onUpdateStepResult: (stepId: string, value: string) => void;
   onUpdateStepOption: (optionId: string, value: StepOptionValue) => void;
 };
 
 function DataBuildingWindow({
   activeStep,
-  activeStepResult,
   activeStepStatus,
-  activeStepOptions,
-  onUpdateResult,
+  sourceType,
+  stepResults,
+  stepOptions,
+  onUpdateStepResult,
   onUpdateStepOption,
 }: DataBuildingWindowProps) {
   const [jsonError, setJsonError] = useState("");
 
   const isJson = activeStep.resultType === "json";
+
+  const activeStepRawResult = stepResults[activeStep.id] ?? "";
+  const activeStepResult =
+    typeof activeStepRawResult === "string"
+      ? activeStepRawResult
+      : JSON.stringify(activeStepRawResult, null, 2);
+
+  const activeStepOptions = stepOptions[activeStep.id] ?? {};
+  const visibleOptions =
+  activeStep.options?.filter((option) => {
+    if (!option.visibleFor) return true;
+
+    return option.visibleFor.includes(sourceType);
+  }) ?? [];
+  function onUpdateResult(value: string) {
+    onUpdateStepResult(activeStep.id, value);
+  }
 
   function handleFormatJson() {
     setJsonError("");
@@ -60,7 +83,9 @@ function DataBuildingWindow({
       return (
         <Input
           value={String(value)}
-          onChange={(event) => onUpdateStepOption(option.id, event.target.value)}
+          onChange={(event) =>
+            onUpdateStepOption(option.id, event.target.value)
+          }
         />
       );
     }
@@ -98,7 +123,9 @@ function DataBuildingWindow({
       return (
         <Select
           value={String(value)}
-          onValueChange={(nextValue) => onUpdateStepOption(option.id, nextValue)}
+          onValueChange={(nextValue) =>
+            onUpdateStepOption(option.id, nextValue)
+          }
         >
           <SelectTrigger>
             <SelectValue placeholder="Select option" />
@@ -147,6 +174,7 @@ function DataBuildingWindow({
           <Button size="sm" disabled={!activeStepResult}>
             Save edited result
           </Button>
+
           <ThemeSwitcher />
         </div>
       </header>
@@ -176,8 +204,8 @@ function DataBuildingWindow({
           </p>
 
           <div className="mt-4 space-y-4">
-            {activeStep.options && activeStep.options.length > 0 ? (
-              activeStep.options.map((option) => (
+            {visibleOptions.length > 0 ? (
+              visibleOptions.map((option) => (
                 <div key={option.id} className="space-y-2">
                   <div>
                     <label className="text-sm font-medium">

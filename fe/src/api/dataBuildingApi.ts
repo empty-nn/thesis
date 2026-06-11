@@ -1,13 +1,9 @@
 // src/api/dataBuildingApi.ts
 
+import type { HtmlConvertMethod, PdfConvertMethod } from "@/components/data-building/types";
 import { axiosClient } from "./axiosClient";
 
-export type PdfConvertMethod = "pymupdf" | "docling";
-export type HtmlConvertMethod =    | "trafilatura"
-  | "readability"
-  | "justext"
-  | "boilerpy3"
-  | "inscriptis";
+
 
 export async function convertPdfUpload(
   file: File,
