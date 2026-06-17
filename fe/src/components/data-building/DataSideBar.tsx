@@ -75,7 +75,7 @@ function DataSideBar({
       return <Loader2 className="h-4 w-4 animate-spin text-sidebar-muted" />;
     }
 
-    if (status === "completed") {
+    if (status === "completed" || status === "saved") {
       return <CheckCircle2 className="h-4 w-4 text-green-500" />;
     }
 

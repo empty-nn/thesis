@@ -30,6 +30,19 @@ export async function convertHtmlUrl(
   return response.data;
 }
 
+export type ExtractionInfo = {
+  documentType: string;
+  sourceLocation: string;
+  rawMarkdown: string;
+  extractionMethod: string;
+};
+
+export async function saveExtraction(extracitonInfo: ExtractionInfo) {
+  const response = await axiosClient.post("/save-extraction-info", extracitonInfo);
+
+  return response;
+}
+
 export async function cleanMarkdown(md: string) {
   const response = await axiosClient.post("/clean-markdown", {
     md,

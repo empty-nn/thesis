@@ -63,8 +63,8 @@ langchain-protocol==0.0.16
 langchain-text-splitters==1.1.2
 langsmith==0.8.8
 latex2mathml==3.81.0
-lxml==6.1.1
-lxml_html_clean==0.4.5
+lxml>=5.4.0,<6.1.0
+lxml_html_clean==0.4.4
 mail-parser==4.3.0
 markdown-it-py==4.2.0
 markdownify==1.2.2

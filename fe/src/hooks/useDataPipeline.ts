@@ -4,6 +4,8 @@ import {
   cleanMarkdown,
   convertHtmlUrl,
   convertPdfUpload,
+  saveExtraction,
+  type ExtractionInfo,
 } from "@/api/dataBuildingApi";
 
 import {
@@ -39,6 +41,8 @@ function createInitialOptions(): StepOptionMap {
 
 
 export function useDataPipeline() {
+  const [documentId, setDocumentId] = useState("")
+  const [sourceLocation, setSourceLocation] = useState("")
   const [htmlUrl, setHtmlUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -136,7 +140,7 @@ export function useDataPipeline() {
 
     const previousStep = dataBuildingSteps[stepIndex - 1];
 
-    return stepStatuses[previousStep.id] === "completed";
+    return stepStatuses[previousStep.id] === "saved";
   }
 
   async function handleRunStep(
@@ -224,6 +228,57 @@ export function useDataPipeline() {
     }));
   }
 
+  async function handleSaveResult(stepId: string) {
+    const options = stepOptions[stepId];
+
+    switch (stepId) {
+      case "extract": {
+        const method =
+          sourceType === "pdf-upload"
+            ? (options["pdfExtractMethod"] as string)
+            : (options["htmlExtractMethod"] as string);
+
+        const data : ExtractionInfo = {
+          documentType: sourceType,
+          sourceLocation: sourceLocation,
+          rawMarkdown: stepResults["extract"],
+          extractionMethod: method,
+        }
+
+        const result = await saveExtraction(data)
+        setDocumentId(result.data);
+        setStepStatuses((current) => ({
+          ...current,
+          [stepId]: "saved",
+        }));
+        return;
+      }
+
+      case "clean": {
+        const md = stepResults["extract"];
+
+        if (typeof md !== "string" || !md.trim()) {
+          throw new Error("No extracted Markdown found.");
+        }
+
+        const cleanResult = await handleCleanMarkdown(md);
+
+        return cleanResult;
+      }
+
+      case "metadata":
+        return "";
+
+      case "chunk":
+        return "";
+
+      case "store":
+        return "";
+
+      default:
+        return "";
+    }
+  }
   function handleUpdateStepOption(
     stepId: string,
     optionId: string,
@@ -241,19 +296,16 @@ export function useDataPipeline() {
   async function handleExtract(
     method: PdfConvertMethod | HtmlConvertMethod
   ) {
+    let result;
     if (sourceType === "pdf-upload") {
       if (!selectedFile) {
         throw new Error("No PDF file selected");
       }
 
-      const result = await convertPdfUpload(
+      result = await convertPdfUpload(
         selectedFile,
         method as PdfConvertMethod
       );
-
-      // Better backend shape should be result.markdown.
-      // Keep this if your current backend returns nested markdown.
-      return result.markdown.markdown;
     }
 
     if (sourceType === "html-url") {
@@ -261,16 +313,26 @@ export function useDataPipeline() {
         throw new Error("No HTML URL provided");
       }
 
-      const result = await convertHtmlUrl(
+      result = await convertHtmlUrl(
         htmlUrl,
         method as HtmlConvertMethod
       );
-
-      return result.markdown;
-    }
-
+    } 
+    setSourceLocation(result.sourceLocation)
+    return result;
     throw new Error("Invalid data source type");
   }
+
+  // async function handleSaveExtract(rawMarkdown: string, method: string) {
+  //   const data : ExtractionInfo = {
+  //     documentType: sourceType,
+  //     sourceLocation: sourceLocation,
+  //     rawMarkdown: rawMarkdown,
+  //     extractionMethod: method
+  //   }
+  //   const result = await saveExtraction(data)
+  //   setDocumentId(result.data);
+  // }
 
   async function handleCleanMarkdown(md: string) {
     const result = await cleanMarkdown(md);
@@ -288,8 +350,7 @@ export function useDataPipeline() {
             : (options["htmlExtractMethod"] as HtmlConvertMethod);
 
         const markdown = await handleExtract(method);
-
-        return markdown;
+        return markdown.rawMarkdown;
       }
 
       case "clean": {
@@ -338,6 +399,7 @@ export function useDataPipeline() {
       handleUrlChange,
       handleFileChange,
       canRunStep,
+      handleSaveResult,
       handleRunStep,
       handleStopStep,
       handleUpdateStepResult,

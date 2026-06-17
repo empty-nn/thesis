@@ -32,6 +32,7 @@ function DataBuilding() {
         sourceType={pipeline.state.sourceType}
         stepResults={pipeline.state.stepResults}
         stepOptions={pipeline.state.stepOptions}
+        onHandleSaveResult={pipeline.actions.handleSaveResult}
         onUpdateStepResult={pipeline.actions.handleUpdateStepResult}
         onUpdateStepOption={(optionId, value) =>
           pipeline.actions.handleUpdateStepOption(

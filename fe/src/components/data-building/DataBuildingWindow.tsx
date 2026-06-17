@@ -30,6 +30,7 @@ type DataBuildingWindowProps = {
   sourceType: DataSourceType;
   stepResults: StepResultMap;
   stepOptions: StepOptionMap;
+  onHandleSaveResult: (stepId: string) => void;
   onUpdateStepResult: (stepId: string, value: string) => void;
   onUpdateStepOption: (optionId: string, value: StepOptionValue) => void;
 };
@@ -42,6 +43,7 @@ function DataBuildingWindow({
   stepOptions,
   onUpdateStepResult,
   onUpdateStepOption,
+  onHandleSaveResult,
 }: DataBuildingWindowProps) {
   const [jsonError, setJsonError] = useState("");
 
@@ -171,7 +173,7 @@ function DataBuildingWindow({
             </Button>
           )}
 
-          <Button size="sm" disabled={!activeStepResult}>
+          <Button size="sm" disabled={!activeStepResult} onClick={() => onHandleSaveResult(activeStep.id)}>
             Save edited result
           </Button>
 

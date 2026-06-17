@@ -135,9 +135,7 @@ class RagChunkORM(Base):
         nullable=False,
         index=True,
     )
-
     chunk_text = Column(Text, nullable=False)
-
     word_count = Column(Integer, nullable=True)
 
     # Citation / display support
@@ -147,34 +145,17 @@ class RagChunkORM(Base):
 
     # Location metadata
     country = Column(Text, nullable=True, index=True)
-
     city = Column(Text, nullable=True, index=True)
-
     province = Column(Text, nullable=True, index=True)
-
     place_name = Column(Text, nullable=True, index=True)
-
     place_type = Column(Text, nullable=True, index=True)
 
     # AI-supported metadata
     ai_summary = Column(Text, nullable=True)
-
     ai_topic = Column(Text, nullable=True)
-
-    ai_tags = Column(
-        ARRAY(String),
-        nullable=True,
-    )
-
-    ai_activities = Column(
-        ARRAY(String),
-        nullable=True,
-    )
-
-    ai_travel_styles = Column(
-        ARRAY(String),
-        nullable=True,
-    )
+    ai_tags = Column(ARRAY(String), nullable=True,)
+    ai_activities = Column(ARRAY(String), nullable=True,)
+    ai_travel_styles = Column(ARRAY(String), nullable=True,)
 
     ai_suitable_for = Column(
         ARRAY(String),
@@ -189,7 +170,6 @@ class RagChunkORM(Base):
     )
 
     embedding_model = Column(Text, nullable=True)
-
     importance_score = Column(Float, nullable=True)
 
     verified = Column(

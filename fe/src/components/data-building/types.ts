@@ -187,7 +187,7 @@ export const dataBuildingSteps: DataBuildingStep[] = [
     ],
   },
 ];
-export type StepStatus = "idle" | "running" | "completed" | "stopped";
+export type StepStatus = "idle" | "running" | "completed" | "stopped" | "saved";
 
 export type StepResultType = "markdown" | "json" | "text";
 

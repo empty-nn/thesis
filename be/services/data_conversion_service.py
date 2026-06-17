@@ -66,25 +66,6 @@ class HtmlConversionService:
 
         return cleaner.clean(method=method)
 
-    def convert_url_to_markdown_with_fallback(
-        self,
-        url: str,
-        timeout: int = 30,
-        min_chars: int = 300,
-    ) -> HtmlCleanerResult:
-        html_text = self.fetch_html(
-            url=url,
-            timeout=timeout,
-        )
-
-        cleaner = HtmlCleaner(
-            html_text=html_text,
-            source_name=url,
-            source_url=url,
-        )
-
-        return cleaner.clean_with_fallback(min_chars=min_chars)
-
     def convert_html_text_to_markdown(
         self,
         html_text: str,
