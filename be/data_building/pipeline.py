@@ -4,10 +4,12 @@ from typing import Any, Dict, List
 import re
 import hashlib
 import traceback
-import pymupdf4llm
 
+import trafilatura
+
+from data_building.loaders import fetch_html, HtmlConverter, PdfConverter
 from db.session import SessionLocal
-from db.full_model import Document, RagChunkORM
+from db.full_model import Document, RagChunkORM, URLSource, URLStatus
 
 from data_building.chunking.markdown_chunker import MarkdownChunker
 from data_building.clean_markdown.clean_markdown import clean_markdown_general
@@ -19,61 +21,103 @@ from data_building.extract_metadata.extract_service import process_chunks_by_bat
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 INCLUDE_EMBEDDING = True
 
-
 def normalize_for_hash(text: str) -> str:
     text = text.lower()
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-
 def generate_chunk_hash(text: str) -> str:
     normalized = normalize_for_hash(text)
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
+def process_url_to_md(url, method):
+    html_text = fetch_html(url=url, timeout=30,)
 
-def process_pdf_to_db(
-    pdf_path: str | Path,
+    markdown = trafilatura.extract(
+        html_text,
+        url=url,
+        output_format="markdown",
+        include_comments=False,
+        include_tables=True,
+        include_links=True,
+        include_images=True,
+        include_formatting=True,
+        deduplicate=True,
+    )
+
+    return markdown.strip()
+
+def process_pdf_to_md(file_path, method):
+    converter = PdfConverter(str(file_path))
+    result = converter.to_markdown(method=method)
+
+    return result.markdown
+
+def process_to_db(
+    extract_method: str = "trafilatura",
+    pdf_path: str | Path = None,
+    url: str = None,
 ) -> Dict[str, Any]:
     """
     PDF -> Markdown -> Clean -> Chunk -> Batch AI metadata -> Embedding -> PostgreSQL
     """
-
     db = SessionLocal()
-    pdf_path_obj = Path(pdf_path)
-    file_hash = hash_file(pdf_path_obj)
+    file_hash = None
 
     try:
-        print("\n===================================================")
-        print(f"Processing PDF: {pdf_path_obj}")
-        print("===================================================")
-
+        print(f"Processing")
+  
         print("[1] PDF to Markdown")
-        raw_markdown = pymupdf4llm.to_markdown(str(pdf_path_obj))
+        if pdf_path is not None:
+            raw_markdown = process_pdf_to_md(pdf_path, extract_method)
+            pdf_path_obj = Path(pdf_path)
+            file_hash = hash_file(pdf_path_obj)
+        else:
+            raw_markdown = process_url_to_md(url, extract_method)
 
         print("[2] Clean Markdown")
         cleaned_markdown = clean_markdown_general(raw_markdown)
 
         print("[3] Chunk Markdown")
-        chunker = MarkdownChunker()
+        chunker = MarkdownChunker(
+            chunk_size=1200,
+            chunk_overlap=150,
+            min_chunk_chars=150,
+            include_heading_context=True,
+        )
+
         prepared = chunker.chunk(cleaned_markdown)
 
-        prepared_dict = asdict(prepared)
-        chunks = prepared_dict["chunks"]
+        if not prepared.success:
+            raise RuntimeError(
+                f"Failed to chunk Markdown: {prepared.error}"
+            )
 
-        print(f"Prepared chunks: {len(chunks)}")
+        chunks = [
+            asdict(chunk)
+            for chunk in prepared.chunks
+            if chunk.word_count > 18
+        ]
 
-        print("[4] Create document row")
+        if not chunks:
+            raise ValueError(
+                "No valid chunks remained after Markdown cleaning and chunking"
+            )
+
+        
+        source_location = url if url else str(pdf_path_obj)
+        document_type = "pdf" if pdf_path is not None else "html"
 
         document = Document(
-            document_type="pdf",
-            source_location=str(pdf_path_obj),
+            document_type=document_type,
+            source_location=source_location,
             file_hash=file_hash,
             raw_markdown=raw_markdown,
             cleaned_markdown=cleaned_markdown,
             ingestion_status="processing",
-            extraction_method="pymupdf4llm",
+            extraction_method=extract_method,
             chunking_method="langchain_markdown_chunker",
-            embedding_model=EMBEDDING_MODEL_NAME if INCLUDE_EMBEDDING else None,
+            embedding_model=EMBEDDING_MODEL_NAME,
             language="english",
         )
 
@@ -82,27 +126,17 @@ def process_pdf_to_db(
 
         print("[5] Batch AI metadata extraction")
 
-        enriched_chunks = process_chunks_by_batch(
-            chunks=chunks,
-            batch_size=10,
-        )
+        enriched_chunks = process_chunks_by_batch(chunks=chunks, batch_size=7)
 
         print(f"Enriched chunks: {len(enriched_chunks)}")
-
         print("[6] Generate embeddings and save chunks")
 
         for chunk in enriched_chunks:
             chunk_text = chunk["chunk_text"]
 
-            embedding = None
-            if INCLUDE_EMBEDDING:
-                embedding = generate_embedding(
-                    text=chunk_text,
-                    model=EMBEDDING_MODEL_NAME,
-                )
+            embedding = generate_embedding(text=chunk_text)
 
             chunk_hash = chunk.get("chunk_hash") or generate_chunk_hash(chunk_text)
-
             chunk_row = RagChunkORM(
                 document_id=document.id,
 
@@ -129,36 +163,39 @@ def process_pdf_to_db(
                 ai_suitable_for=safe_list(chunk.get("ai_suitable_for")),
 
                 ai_metadata={
-                    "confidence": safe_float(
-                        chunk.get("metadata_confidence")
-                        or chunk.get("confidence")
-                    ),
-                    "reasoning": (
-                        chunk.get("metadata_reasoning")
-                        or chunk.get("reasoning")
-                    ),
+                    "confidence": safe_float(chunk.get("metadata_confidence") or chunk.get("confidence")),
+                    "reasoning": (chunk.get("metadata_reasoning") or chunk.get("reasoning")),
                     "header_metadata": chunk.get("header_metadata", {}),
                 },
 
                 embedding=embedding,
-                embedding_model=EMBEDDING_MODEL_NAME if embedding else None,
+                embedding_model=EMBEDDING_MODEL_NAME,
             )
 
             db.add(chunk_row)
 
         document.ingestion_status = "completed"
 
-        # commit ONCE after document + all chunks
         db.commit()
         db.refresh(document)
 
+        print("[7] Save Markdown file")
+
+        documents_folder = Path("documents")
+        documents_folder.mkdir(parents=True, exist_ok=True)
+
+        markdown_path = documents_folder / f"{document.id}.md"
+        markdown_path.write_text(
+            cleaned_markdown,
+            encoding="utf-8",
+        )
+
+        print(f"Markdown saved to: {markdown_path}")
         print("[DONE]")
-        print(f"Document ID: {document.id}")
 
         return {
             "success": True,
             "document_id": str(document.id),
-            "file": str(pdf_path_obj),
             "total_chunks": len(chunks),
             "saved_chunks": len(enriched_chunks),
         }
@@ -172,7 +209,6 @@ def process_pdf_to_db(
 
         return {
             "success": False,
-            "file": str(pdf_path_obj),
             "error": str(e),
         }
 
@@ -205,13 +241,41 @@ def process_pdf_folder_to_db(
     results = []
 
     for pdf_file in pdf_files:
-        result = process_pdf_to_db(pdf_file)
+        result = process_to_db(pdf_file, extract_method="pymupdf")
         results.append(result)
 
     return results
 
+
+def process_url_list_to_db() -> List[Dict[str, Any]]:
+    results = []
+    db = SessionLocal()
+    try:
+        url_list = db.query(URLSource).filter(URLSource.status != URLStatus.COMPLETED).all()
+
+        for url in url_list:
+            url_str = url.url
+            print(f"Processing URL: {url_str} (ID: {url.id})")
+            result = process_to_db(url=url_str)
+
+            db.query(URLSource).filter(URLSource.id == url.id).update({
+                "status": URLStatus.COMPLETED if result.get("success") else URLStatus.FAILED,
+                "error_message": result.get("error") if not result.get("success") else None,
+            })
+
+            db.commit() 
+            results.append(result)
+
+    except Exception as e:
+        print("[URL LIST PROCESSING FAILED]")
+        print(e)
+        traceback.print_exc()
+        db.rollback()
+    finally:
+        db.close()
+
+    return results
+
 if __name__ == "__main__":
-    process_pdf_folder_to_db(
-        input_dir=r"E:\Thesis_all\be\pdfs",
-        recursive=True,
-    )
+    process_url_list_to_db()
+    print("URL list processing completed.")

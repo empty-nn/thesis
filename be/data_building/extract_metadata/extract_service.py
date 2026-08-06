@@ -1,11 +1,38 @@
 from data_building.extract_metadata.extractor import safe_extract_ai_metadata_batch
 from schemas.metadata_schema import TourismMetadata
 
-def batch_items(items, batch_size=10):
-    for i in range(0, len(items), batch_size):
-        yield items[i:i + batch_size]
+from typing import Any, Dict, List
+
+
+def batch_items(
+    items: List[Dict[str, Any]],
+    batch_size: int = 7,
+    min_last_batch_size: int = 4,
+) -> List[List[Dict[str, Any]]]:
+    if batch_size <= 0:
+        raise ValueError("batch_size must be greater than 0")
+
+    if min_last_batch_size <= 0:
+        raise ValueError(
+            "min_last_batch_size must be greater than 0"
+        )
+
+    batches = [
+        items[index:index + batch_size]
+        for index in range(0, len(items), batch_size)
+    ]
+
+    # Merge a very small final batch into the previous batch.
+    if (
+        len(batches) > 1
+        and len(batches[-1]) < min_last_batch_size
+    ):
+        small_last_batch = batches.pop()
+        batches[-1].extend(small_last_batch)
+
+    return batches
         
-def process_chunks_by_batch(chunks, batch_size=10):
+def process_chunks_by_batch(chunks, batch_size=7):
     enriched_chunks = []
 
     previous_summary = None
@@ -13,7 +40,13 @@ def process_chunks_by_batch(chunks, batch_size=10):
     previous_country = None
     previous_city = None
 
-    for batch in batch_items(chunks, batch_size):
+    batches = batch_items(
+        items=chunks,
+        batch_size=batch_size,
+        min_last_batch_size=4,
+    )
+
+    for batch in batches:
         start_index = batch[0]["chunk_index"]
         end_index = batch[-1]["chunk_index"]
 
@@ -30,7 +63,7 @@ def process_chunks_by_batch(chunks, batch_size=10):
             metadata_by_index = safe_extract_ai_metadata_batch(
                 batch_chunks=batch,
                 context=context,
-                provider="gemini",
+                provider="deepseek",
             )
             
         except Exception as e:
@@ -67,6 +100,5 @@ def process_chunks_by_batch(chunks, batch_size=10):
             previous_country = metadata.country or previous_country
             previous_city = metadata.city or previous_city
 
-            print(f"[OK] Chunk {chunk_index}")
-    print(enriched_chunks)
+
     return enriched_chunks

@@ -1,5 +1,6 @@
-from boilerpy3 import extractors
 from __future__ import annotations
+
+from boilerpy3 import extractors
 from markdownify import markdownify
 import re
 import time
@@ -12,7 +13,6 @@ from inscriptis import get_text
 @dataclass
 class HtmlCleanerResult:
     method: str
-    source_name: str
     markdown: str
     success: bool
     error: Optional[str] = None
@@ -51,7 +51,6 @@ class TrafilaturaCleaner(HtmlCleanerStrategy):
             include_links=False,
             favor_precision=True,
         )
-
         return markdown.strip() if markdown else ""
 
 
@@ -166,14 +165,12 @@ class HtmlConverter:
     def __init__(
         self,
         html_text: str,
-        source_name: str = "html_string",
         source_url: Optional[str] = None,
     ):
         if not html_text or not html_text.strip():
             raise ValueError("HTML content is empty")
 
         self.html_text = html_text
-        self.source_name = source_name
         self.source_url = source_url
 
     def clean(
@@ -194,7 +191,6 @@ class HtmlConverter:
 
             return HtmlCleanerResult(
                 method=strategy.method_name,
-                source_name=self.source_name,
                 markdown=markdown,
                 success=bool(markdown.strip()),
                 error=None if markdown.strip() else "Empty extracted markdown",
@@ -207,7 +203,6 @@ class HtmlConverter:
 
             return HtmlCleanerResult(
                 method=method,
-                source_name=self.source_name,
                 markdown="",
                 success=False,
                 error=str(e),
