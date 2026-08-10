@@ -126,7 +126,7 @@ def process_to_db(
 
         print("[5] Batch AI metadata extraction")
 
-        enriched_chunks = process_chunks_by_batch(chunks=chunks, batch_size=7)
+        enriched_chunks = process_chunks_by_batch(chunks=chunks, batch_size=10)
 
         print(f"Enriched chunks: {len(enriched_chunks)}")
         print("[6] Generate embeddings and save chunks")

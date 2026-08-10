@@ -250,6 +250,7 @@ def extract_gemini_metadata(
         raise ValueError("Gemini returned empty response")
 
     raw_text = response.text
+    print(raw_text)
     # data = json.loads(raw_text)
     ai_json = json.loads(response.text)
 
@@ -409,7 +410,7 @@ def extract_deepseek_metadata_batch(
     Returns {chunk_index: TourismMetadata}.
     """
     deepseek_client = get_deepseek_client()
-    # Build the same prompt you use for Gemini batch extraction
+
     prompt = build_batch_metadata_prompt_deepseek(
         batch_chunks=batch_chunks,
         context=context,
@@ -483,12 +484,6 @@ def extract_metadata_batch(
     context: Dict[str, Any],
     provider: Optional[str] = None,
 ) -> Dict[int, TourismMetadata]:
-    """
-    Returns:
-        {
-            chunk_index: TourismMetadata(...)
-        }
-    """
 
     selected_provider = (provider or METADATA_PROVIDER).lower()
 

@@ -1,5 +1,4 @@
-# db/models.py
-
+from datetime import datetime
 import uuid
 
 from sqlalchemy import (
@@ -26,11 +25,148 @@ from db.base import Base
 from sqlalchemy.sql import func
 import enum
 
+# =========================================================
+# 1. USER
+# =========================================================
+
+
+class UserORM(Base):
+    __tablename__ = "users"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+
+    username = Column(
+        String,
+        unique=True,
+        nullable=True,
+        index=True
+    )
+
+    email = Column(
+        String,
+        unique=True,
+        nullable=True,
+        index=True
+    )
+
+    display_name = Column(
+        String,
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
+
+    is_active = Column(
+        Boolean,
+        default=True
+    )
+
+    # Relationships
+    conversations = relationship(
+        "ConversationORM",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    memories = relationship(
+        "UserMemoryORM",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+
+# =========================================================
+# 2. CONVERSATION
+# =========================================================
+
+class ConversationORM(Base):
+    __tablename__ = "conversations"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    title = Column(String, nullable=True)
+
+    summary = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("UserORM", back_populates="conversations")
+
+    messages = relationship("MessageORM",
+        back_populates="conversation",
+        cascade="all, delete-orphan"
+    )
+
+
+# =========================================================
+# 3. MESSAGE
+# =========================================================
+
+class MessageORM(Base):
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    conversation_id = Column(String, ForeignKey("conversations.id"), nullable=False, index=True)
+    role = Column(String, nullable=False)
+    # user
+    # assistant
+    # system
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    conversation = relationship("ConversationORM", back_populates="messages")
+
+
+# =========================================================
+# 4. USER MEMORY
+# =========================================================
+class UserMemoryORM(Base):
+    __tablename__ = "user_memories"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+
+    memory_type = Column(String, nullable=False)
+    # preference
+    # constraint
+    # interest
+    # personal_fact
+    # trip_history
+
+    content = Column(Text, nullable=False)
+    embedding = Column(Vector(384), nullable=True)
+    importance = Column(Float, default=0.5)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_accessed_at = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True)
+    # Relationships
+    user = relationship("UserORM", back_populates="memories")
+
+
 class URLStatus(str, enum.Enum):
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
     FAILED = "failed"
+
 
 class URLSource(Base):
     __tablename__ = "url_sources"
@@ -41,13 +177,15 @@ class URLSource(Base):
     added_at = Column(DateTime(timezone=True), server_default=func.now())
     processed_at = Column(DateTime(timezone=True), nullable=True)
     error_message = Column(Text, nullable=True)
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=True)
+    document_id = Column(UUID(as_uuid=True), ForeignKey(
+        "documents.id"), nullable=True)
     # Optional: store raw fetched HTML or cleaned markdown for reproducibility
     raw_html = Column(Text, nullable=True)
-    
+
 # =========================================================
 # DOCUMENT TABLE
 # =========================================================
+
 
 class Document(Base):
     __tablename__ = "documents"
@@ -126,6 +264,7 @@ class Document(Base):
 # RAG CHUNK TABLE
 # =========================================================
 
+
 class RagChunkORM(Base):
     __tablename__ = "rag_chunks"
 
@@ -175,6 +314,13 @@ class RagChunkORM(Base):
 
     place_type = Column(Text, nullable=True, index=True)
 
+    latitude = Column(Float, nullable=True)
+
+    longitude = Column(Float, nullable=True)
+
+    geocoding_source = Column(Text, nullable=True)
+
+    geocoded_at = Column(DateTime(timezone=True), nullable=True)
     # AI-supported metadata
     ai_summary = Column(Text, nullable=True)
 

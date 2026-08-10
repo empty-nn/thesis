@@ -1,5 +1,31 @@
 # Data Building Workflow: From Raw Tourism Data to Intelligent Retrieval
 
+# WEB 
+NEXT
+│
+├── 1. Hue
+│      visithue.vn
+│
+├── 2. Nha Trang
+│      nhatrang-travel.com/en
+│
+├── 3. Ha Long
+│      halongtourism.com.vn/en
+│      halongbay.com.vn/en
+│
+├── 4. Ninh Binh
+│      dulichninhbinh.com.vn/en
+│
+├── 5. Hoi An
+│      hoianworldheritage.org.vn/en
+│      UNESCO
+│
+├── 6. Ho Chi Minh City
+│      visithcmc.vn
+│
+└── 7. Hanoi
+       Vietnam.travel
+       + official attraction websites
 # 1. Purpose of the Data Building Pipeline
 
 The quality of a Retrieval-Augmented Generation (RAG) system depends heavily on the quality of its data pipeline.
