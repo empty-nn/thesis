@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+import json
+
+from data_building.extract_metadata.extractor import (
+    DEEPSEEK_METADATA_MODEL,
+    get_deepseek_client,
+)
 from schemas.chat import (
     ChatRequest,
     ChatResponse,
@@ -7,9 +13,6 @@ from schemas.chat import (
 )
 from schemas.pipeline import (
     EvidenceItem,
-    ItineraryDay,
-    ItineraryStop,
-    StructuredItinerary,
 )
 from services.pipeline_runner import (
     run_retrieval_pipeline,
@@ -47,119 +50,98 @@ def build_evidence(documents) -> list[EvidenceItem]:
     return evidence
 
 
-def draft_itinerary_mock(
+def generate_answer(
+    query: str,
+    rewritten_query: str,
     parsed,
     evidence: list[EvidenceItem],
-) -> StructuredItinerary:
-    """
-    This intentionally remains the notebook's mock drafting step.
-
-    Replace this function later with an evidence-grounded DeepSeek generation
-    call. Retrieval and debugging are already productionized; generation is
-    not silently invented here because it was not implemented in the notebook.
-    """
-    number_of_days = (
-        parsed.constraints.duration_days
-        or 1
-    )
-
-    destination = (
-        parsed.location.city
-    )
-
-    days: list[ItineraryDay] = []
-
-    evidence_index = 0
-
-    for day_number in range(
-        1,
-        number_of_days + 1,
-    ):
-        stops: list[
-            ItineraryStop
-        ] = []
-
-        for _ in range(2):
-            if (
-                evidence_index
-                >= len(evidence)
-            ):
-                break
-
-            item = evidence[
-                evidence_index
-            ]
-            evidence_index += 1
-
-            stops.append(
-                ItineraryStop(
-                    place_name=(
-                        item.place_name
-                        or "Recommended place"
-                    ),
-                    evidence_ids=[
-                        item.evidence_id
-                    ],
-                )
-            )
-
-        days.append(
-            ItineraryDay(
-                day=day_number,
-                stops=stops,
-            )
-        )
-
-    return StructuredItinerary(
-        destination=destination,
-        days=days,
-    )
-
-
-def render_itinerary(
-    itinerary: StructuredItinerary,
+    conversation_history: list[dict],
+    memory,
+    model: str = DEEPSEEK_METADATA_MODEL,
 ) -> str:
-    lines: list[str] = []
-
-    if itinerary.destination:
-        lines.append(
-            f"## Trip to {itinerary.destination}"
+    evidence_text = "\n\n".join(
+        (
+            f"[{item.evidence_id}]\n"
+            f"Place: {item.place_name or 'Unknown'}\n"
+            f"Source: {item.metadata.get('source_location') or 'Unknown'}\n"
+            f"Content:\n{item.content}"
         )
-    else:
-        lines.append(
-            "## Travel recommendations"
-        )
-
-    for day in itinerary.days:
-        lines.append(
-            f"\n### Day {day.day}"
-        )
-
-        if not day.stops:
-            lines.append(
-                "- No sufficiently ranked evidence was returned."
-            )
-
-        for stop in day.stops:
-            citation_text = ""
-
-            if stop.evidence_ids:
-                citation_text = (
-                    " ["
-                    + ", ".join(
-                        stop.evidence_ids
-                    )
-                    + "]"
-                )
-
-            lines.append(
-                f"- **{stop.place_name}**"
-                f"{citation_text}"
-            )
-
-    return "\n".join(
-        lines
+        for item in evidence
     )
+
+    history_text = "\n".join(
+        f"{message.get('role', 'unknown')}: "
+        f"{message.get('content', '')}"
+        for message in conversation_history[-6:]
+    )
+
+    system_prompt = """
+You are a personalized Vietnam travel assistant.
+
+Answer the user's question using the provided retrieved evidence.
+
+Rules:
+- Base factual travel claims on the provided evidence.
+- Do not invent places, prices, opening hours, distances, or facts.
+- If the evidence is insufficient, say so clearly.
+- Answer naturally instead of copying the evidence.
+- Adapt the response to the parsed intent.
+- For an itinerary, organize the answer by day.
+- For recommendations, give a ranked or grouped recommendation.
+- For a factual question, answer it directly.
+- Use the user's preferences only when relevant.
+- Cite factual claims with evidence IDs such as [E1] or [E1][E2].
+- Use only evidence IDs that appear in the retrieved evidence.
+- Do not mention retrieval, chunks, vector search, BM25, or internal systems.
+""".strip()
+
+    user_prompt = f"""
+Original user query:
+{query}
+
+Standalone retrieval query:
+{rewritten_query}
+
+Parsed query:
+{json.dumps(parsed.model_dump(), ensure_ascii=False, indent=2)}
+
+User memory:
+{json.dumps(memory.model_dump(), ensure_ascii=False, indent=2)}
+
+Recent conversation:
+{history_text or "None"}
+
+Retrieved evidence:
+{evidence_text or "No evidence was retrieved."}
+
+Generate the best final answer for the user.
+""".strip()
+
+    client = get_deepseek_client()
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {
+                "role": "system",
+                "content": system_prompt,
+            },
+            {
+                "role": "user",
+                "content": user_prompt,
+            },
+        ],
+        temperature=0.2,
+        max_tokens=1200,
+    )
+
+    content = response.choices[0].message.content
+
+    if not content or not content.strip():
+        raise ValueError(
+            "DeepSeek returned an empty answer"
+        )
+
+    return content.strip()
 
 
 def _chat_sources(
@@ -169,26 +151,14 @@ def _chat_sources(
         ChatSource
     ] = []
 
-    seen: set[str] = set()
-
     for item in evidence:
         url = item.metadata.get(
             "source_location"
         )
 
-        source_id = (
-            item.document_id
-            or item.chunk_id
-        )
-
-        if source_id in seen:
-            continue
-
-        seen.add(source_id)
-
         result.append(
             ChatSource(
-                id=source_id,
+                id=item.evidence_id,
                 title=(
                     item.place_name
                     or source_name(url)
@@ -221,15 +191,15 @@ def run_chat_pipeline(
         artifacts.reranked_docs
     )
 
-    itinerary = (
-        draft_itinerary_mock(
-            parsed=artifacts.parsed,
-            evidence=evidence,
-        )
-    )
-
-    answer = render_itinerary(
-        itinerary
+    answer = generate_answer(
+        query=request.message,
+        rewritten_query=(
+            artifacts.rewritten_query
+        ),
+        parsed=artifacts.parsed,
+        evidence=evidence,
+        conversation_history=history,
+        memory=artifacts.memory,
     )
 
     return ChatResponse(
