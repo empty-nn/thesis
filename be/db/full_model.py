@@ -53,6 +53,18 @@ class UserORM(Base):
         index=True
     )
 
+    google_subject = Column(
+        String,
+        unique=True,
+        nullable=True,
+        index=True,
+    )
+
+    profile_picture_url = Column(
+        Text,
+        nullable=True,
+    )
+
     display_name = Column(
         String,
         nullable=True
@@ -67,6 +79,11 @@ class UserORM(Base):
         DateTime,
         default=datetime.utcnow,
         onupdate=datetime.utcnow
+    )
+
+    last_login_at = Column(
+        DateTime,
+        nullable=True,
     )
 
     is_active = Column(

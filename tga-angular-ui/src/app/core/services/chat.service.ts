@@ -7,10 +7,12 @@ import {
   ChatApiResponse,
   ChatMessage,
 } from '../models/chat.models';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
 
   readonly messages = signal<ChatMessage[]>([
     {
@@ -51,7 +53,10 @@ export class ChatService {
         : await firstValueFrom(
             this.http.post<ChatApiResponse>(
               `${environment.apiBaseUrl}/chat`,
-              { message: trimmed },
+              {
+                message: trimmed,
+                user_id: this.auth.currentUser()?.id,
+              },
             ),
           );
 

@@ -15,6 +15,9 @@
           <p class="mt-1 text-sm text-zinc-500">
             Inspect the chunks returned at every retrieval stage.
           </p>
+          <p class="mt-2 text-xs text-zinc-600">
+            Memory user: {{ auth.currentUser()?.email || 'anonymous' }}
+          </p>
         </div>
 
         @if (runResult(); as result) {

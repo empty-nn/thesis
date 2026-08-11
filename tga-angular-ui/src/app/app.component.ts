@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   RouterLink,
   RouterLinkActive,
@@ -9,9 +9,12 @@ import {
   LucideDatabase,
   LucideMenu,
   LucideMessageSquare,
+  LucideLogIn,
+  LucideLogOut,
   LucidePlus,
   LucideX,
 } from '@lucide/angular';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -23,12 +26,15 @@ import {
     LucideDatabase,
     LucideMenu,
     LucideMessageSquare,
+    LucideLogIn,
+    LucideLogOut,
     LucidePlus,
     LucideX,
   ],
   templateUrl: './app.component.html',
 })
 export class AppComponent {
+  protected readonly auth = inject(AuthService);
   protected readonly mobileSidebarOpen = signal(false);
 
   protected closeSidebar(): void {

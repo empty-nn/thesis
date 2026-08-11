@@ -13,12 +13,12 @@ type RetrievalDebugApiResponse = Omit<RetrievalDebugRun, 'createdAt'> & {
 export class RetrievalDebugService {
   private readonly http = inject(HttpClient);
 
-  run(query: string): Promise<RetrievalDebugRun> {
+  run(query: string, userId?: string): Promise<RetrievalDebugRun> {
     return firstValueFrom(
       this.http
         .post<RetrievalDebugApiResponse>(
           `${environment.apiBaseUrl}/retrieval/debug`,
-          { query },
+          { query, user_id: userId },
         )
         .pipe(
           map((response) => ({

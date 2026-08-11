@@ -72,12 +72,45 @@
     </nav>
 
     <div class="border-t border-white/8 p-3">
-      <div class="rounded-xl bg-white/[0.035] px-3 py-3">
-        <div class="text-xs font-medium text-zinc-300">Development mode</div>
-        <div class="mt-1 text-[11px] leading-5 text-zinc-500">
-          Mock responses are enabled until FastAPI is connected.
+      @if (auth.currentUser(); as user) {
+        <div class="flex items-center gap-3 rounded-xl bg-white/[0.035] p-2">
+          @if (user.profilePictureUrl) {
+            <img
+              class="size-9 rounded-full object-cover"
+              [src]="user.profilePictureUrl"
+              alt=""
+              referrerpolicy="no-referrer"
+            >
+          } @else {
+            <div class="grid size-9 place-items-center rounded-full bg-emerald-500 text-sm font-semibold text-zinc-950">
+              {{ (user.displayName || user.email || 'U').charAt(0).toUpperCase() }}
+            </div>
+          }
+          <div class="min-w-0 flex-1">
+            <div class="truncate text-xs font-medium text-zinc-300">
+              {{ user.displayName || 'Google user' }}
+            </div>
+            <div class="truncate text-[10px] text-zinc-600">{{ user.email }}</div>
+          </div>
+          <button
+            type="button"
+            class="grid size-8 place-items-center rounded-lg text-zinc-500 hover:bg-white/8 hover:text-white"
+            aria-label="Sign out"
+            (click)="auth.logout()"
+          >
+            <svg lucideLogOut class="size-4"></svg>
+          </button>
         </div>
-      </div>
+      } @else {
+        <a
+          routerLink="/login"
+          class="flex h-10 items-center gap-3 rounded-xl bg-emerald-500 px-3 text-sm font-semibold text-zinc-950 hover:bg-emerald-400"
+          (click)="closeSidebar()"
+        >
+          <svg lucideLogIn class="size-4"></svg>
+          Sign in with Google
+        </a>
+      }
     </div>
   </aside>
 

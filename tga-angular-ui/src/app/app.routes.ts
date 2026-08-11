@@ -2,6 +2,13 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/google-auth-page.component').then(
+        (module) => module.GoogleAuthPageComponent,
+      ),
+  },
+  {
     path: 'chat',
     loadComponent: () =>
       import('./features/chat/chat-page.component').then(

@@ -19,6 +19,7 @@ import {
   RetrievalStage,
 } from '../../core/models/retrieval.models';
 import { RetrievalDebugService } from '../../core/services/retrieval-debug.service';
+import { AuthService } from '../../core/services/auth.service';
 import { PreprocessingDetailsComponent } from './preprocessing-details.component';
 
 @Component({
@@ -40,6 +41,7 @@ import { PreprocessingDetailsComponent } from './preprocessing-details.component
 })
 export class RetrievalDebugPageComponent {
   private readonly retrieval = inject(RetrievalDebugService);
+  protected readonly auth = inject(AuthService);
 
   protected readonly stageTabs: {
     value: RetrievalStage;
@@ -145,7 +147,12 @@ export class RetrievalDebugPageComponent {
     this.selectedChunk.set(null);
 
     try {
-      this.runResult.set(await this.retrieval.run(value));
+      this.runResult.set(
+        await this.retrieval.run(
+          value,
+          this.auth.currentUser()?.id,
+        ),
+      );
     } catch (error) {
       console.error(error);
       this.errorMessage.set(this.describeError(error));
