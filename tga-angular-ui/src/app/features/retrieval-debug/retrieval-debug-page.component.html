@@ -49,10 +49,75 @@
           {{ loading() ? 'Running…' : 'Run retrieval' }}
         </button>
       </div>
+
+      @if (errorMessage(); as message) {
+        <div
+          class="mt-4 max-w-4xl rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200"
+          role="alert"
+        >
+          {{ message }}
+        </div>
+      }
     </div>
   </div>
 
   <div class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+    @if (runResult(); as result) {
+      <app-preprocessing-details
+        [diagnostics]="result.diagnostics"
+      ></app-preprocessing-details>
+
+      <section class="mb-6 overflow-x-auto rounded-xl border border-white/8 bg-[#222222] p-4">
+        <div class="flex min-w-[1460px] items-center">
+          @for (step of pipelineSteps(); track step.label; let last = $last) {
+            <button
+              type="button"
+              class="group flex min-w-28 items-center gap-2 text-left disabled:cursor-default"
+              [disabled]="!step.stage"
+              (click)="selectStage(step.stage)"
+            >
+              <span
+                [class]="
+                  'grid size-7 shrink-0 place-items-center rounded-full border text-[11px] font-semibold ' +
+                  (step.stage && activeStage() === step.stage
+                    ? 'border-emerald-400 bg-emerald-400 text-zinc-950'
+                    : 'border-white/10 text-zinc-500')
+                "
+              >
+                {{ $index + 1 }}
+              </span>
+              <span>
+                <span class="block text-xs font-medium text-zinc-300">{{ step.label }}</span>
+                <span class="block font-mono text-[10px] text-zinc-600">
+                  {{ step.durationMs }} ms
+                </span>
+              </span>
+            </button>
+            @if (!last) {
+              <div class="mx-3 h-px min-w-8 flex-1 bg-white/8"></div>
+            }
+          }
+        </div>
+      </section>
+
+      <section class="mb-6 overflow-hidden rounded-2xl border border-emerald-400/15 bg-[#222222]">
+        <div class="flex items-center justify-between gap-4 border-b border-white/7 px-5 py-4">
+          <div>
+            <div class="text-sm font-semibold text-zinc-200">DeepSeek final answer</div>
+            <div class="mt-1 text-xs text-zinc-600">
+              Generated from the final reranked evidence with inline evidence citations.
+            </div>
+          </div>
+          <span class="shrink-0 font-mono text-xs text-emerald-400">
+            {{ result.diagnostics.generationDurationMs }} ms
+          </span>
+        </div>
+        <div class="assistant-markdown p-5 text-[15px] leading-7 text-zinc-200">
+          <markdown [data]="result.answer"></markdown>
+        </div>
+      </section>
+    }
+
     <div
       class="overflow-hidden rounded-2xl border border-white/8 bg-[#222222]"
     >

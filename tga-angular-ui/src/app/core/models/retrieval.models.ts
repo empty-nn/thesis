@@ -6,7 +6,7 @@ export type RetrievalStage =
   | 'final';
 
 export interface RetrievalChunkMetadata {
-  country: string;
+  country?: string;
   province?: string;
   city?: string;
   placeName?: string;
@@ -18,7 +18,7 @@ export interface RetrievalChunkMetadata {
 }
 
 export interface RetrievalChunk {
-  id: number;
+  id: string;
   rank: number;
   score: number;
   vectorScore?: number;
@@ -45,5 +45,29 @@ export interface RetrievalDebugRun {
   query: string;
   createdAt: Date;
   totalDurationMs: number;
+  answer: string;
   stages: Record<RetrievalStage, RetrievalStageResult>;
+  diagnostics: RetrievalDebugDiagnostics;
+}
+
+export interface RetrievalConfidence {
+  level: string;
+  score: number;
+  evidence_count: number;
+  top_score?: number;
+  score_gap?: number;
+}
+
+export interface RetrievalDebugDiagnostics {
+  originalQuery: string;
+  rewrittenQuery: string;
+  parsedQuery: Record<string, unknown>;
+  userMemory: Record<string, unknown>;
+  filters: Record<string, unknown>;
+  retrievalConfidence?: RetrievalConfidence;
+  rewriteDurationMs: number;
+  parseDurationMs: number;
+  memoryDurationMs: number;
+  filterDurationMs: number;
+  generationDurationMs: number;
 }

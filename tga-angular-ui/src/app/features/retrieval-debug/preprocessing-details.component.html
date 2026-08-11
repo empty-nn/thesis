@@ -1,0 +1,67 @@
+<section class="mb-6 grid gap-3 xl:grid-cols-3">
+  <article class="rounded-xl border border-white/8 bg-[#222222] p-4">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+        Query rewrite
+      </h2>
+      <span class="font-mono text-[10px] text-zinc-600">
+        {{ diagnostics().rewriteDurationMs }} ms
+      </span>
+    </div>
+
+    <div class="mt-4 space-y-4">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-zinc-600">Original</div>
+        <p class="mt-1 text-sm leading-6 text-zinc-400">
+          {{ diagnostics().originalQuery }}
+        </p>
+      </div>
+      <div class="border-t border-white/7 pt-4">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-500/70">Standalone</div>
+        <p class="mt-1 text-sm leading-6 text-zinc-200">
+          {{ diagnostics().rewrittenQuery }}
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <article class="overflow-hidden rounded-xl border border-white/8 bg-[#222222]">
+    <div class="flex items-center justify-between gap-3 border-b border-white/7 px-4 py-3">
+      <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+        Parsed query
+      </h2>
+      <span class="font-mono text-[10px] text-zinc-600">
+        {{ diagnostics().parseDurationMs }} ms
+      </span>
+    </div>
+    <pre class="max-h-72 overflow-auto p-4 font-mono text-[11px] leading-5 text-sky-300/80">{{ parsedQueryJson() }}</pre>
+  </article>
+
+  <article class="overflow-hidden rounded-xl border border-white/8 bg-[#222222]">
+    <div class="flex items-center justify-between gap-3 border-b border-white/7 px-4 py-3">
+      <h2 class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+        User memory
+      </h2>
+      <span class="font-mono text-[10px] text-zinc-600">
+        {{ diagnostics().memoryDurationMs }} ms
+      </span>
+    </div>
+    <pre class="max-h-72 overflow-auto p-4 font-mono text-[11px] leading-5 text-amber-300/80">{{ userMemoryJson() }}</pre>
+  </article>
+
+  @if (diagnostics().retrievalConfidence; as confidence) {
+    <div class="flex items-center justify-between rounded-xl border border-white/8 bg-[#222222] px-4 py-3 xl:col-span-3">
+      <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+        Retrieval confidence
+      </span>
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-semibold capitalize text-emerald-400">
+          {{ confidence.level }}
+        </span>
+        <span class="font-mono text-[11px] text-zinc-500">
+          {{ confidence.score }} · {{ confidence.evidence_count }} results
+        </span>
+      </div>
+    </div>
+  }
+</section>

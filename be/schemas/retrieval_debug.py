@@ -119,6 +119,7 @@ class RetrievalDebugDiagnostics(BaseModel):
     originalQuery: str
     rewrittenQuery: str
     parsedQuery: dict[str, Any]
+    userMemory: dict[str, Any]
     filters: dict[str, Any]
     retrievalConfidence: dict[str, Any] | None = None
 
@@ -126,12 +127,14 @@ class RetrievalDebugDiagnostics(BaseModel):
     parseDurationMs: float = 0
     memoryDurationMs: float = 0
     filterDurationMs: float = 0
+    generationDurationMs: float = 0
 
 
 class RetrievalDebugResponse(BaseModel):
     query: str
     createdAt: datetime
     totalDurationMs: float
+    answer: str
 
     stages: dict[
         RetrievalStageName,

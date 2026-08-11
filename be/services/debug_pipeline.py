@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from time import perf_counter
 
 from langchain_core.documents import Document
 
@@ -16,6 +17,10 @@ from schemas.retrieval_debug import (
 from services.pipeline_runner import (
     filters_to_dict,
     run_retrieval_pipeline,
+)
+from services.answer_pipeline import (
+    build_evidence,
+    generate_answer,
 )
 from services.retrieval import (
     source_name,
@@ -280,6 +285,28 @@ def run_debug_pipeline(
         artifacts.reranked_docs
     )
 
+    generation_start = perf_counter()
+    answer = generate_answer(
+        query=request.query,
+        rewritten_query=(
+            artifacts.rewritten_query
+        ),
+        parsed=artifacts.parsed,
+        evidence=build_evidence(
+            final_docs
+        ),
+        conversation_history=history,
+        memory=artifacts.memory,
+    )
+    generation_duration_ms = round(
+        (
+            perf_counter()
+            - generation_start
+        )
+        * 1000,
+        3,
+    )
+
     stages = {
         "vector": _stage(
             "vector",
@@ -320,7 +347,9 @@ def run_debug_pipeline(
         ),
         totalDurationMs=(
             artifacts.timings.total_ms
+            + generation_duration_ms
         ),
+        answer=answer,
         stages=stages,
         diagnostics=(
             RetrievalDebugDiagnostics(
@@ -332,6 +361,9 @@ def run_debug_pipeline(
                 ),
                 parsedQuery=(
                     artifacts.parsed.model_dump()
+                ),
+                userMemory=(
+                    artifacts.memory.model_dump()
                 ),
                 filters=filters_to_dict(
                     artifacts.filters
@@ -351,6 +383,9 @@ def run_debug_pipeline(
                 ),
                 filterDurationMs=(
                     artifacts.timings.filter_ms
+                ),
+                generationDurationMs=(
+                    generation_duration_ms
                 ),
             )
         ),
