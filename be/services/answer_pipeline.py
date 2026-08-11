@@ -20,6 +20,7 @@ from services.pipeline_runner import (
 from services.retrieval import (
     source_name,
 )
+from services.conversation_memory import get_conversation_memory
 
 
 def build_evidence(documents) -> list[EvidenceItem]:
@@ -57,6 +58,7 @@ def generate_answer(
     evidence: list[EvidenceItem],
     conversation_history: list[dict],
     memory,
+    conversation_memory=None,
     model: str = DEEPSEEK_METADATA_MODEL,
 ) -> str:
     evidence_text = "\n\n".join(
@@ -90,6 +92,7 @@ Rules:
 - For recommendations, give a ranked or grouped recommendation.
 - For a factual question, answer it directly.
 - Use the user's preferences only when relevant.
+- Use the current conversation trip state for this chat only; do not treat it as a permanent preference.
 - Cite factual claims with evidence IDs such as [E1] or [E1][E2].
 - Use only evidence IDs that appear in the retrieved evidence.
 - Do not mention retrieval, chunks, vector search, BM25, or internal systems.
@@ -107,6 +110,15 @@ Parsed query:
 
 User memory:
 {json.dumps(memory.model_dump(), ensure_ascii=False, indent=2)}
+
+Current conversation trip state:
+{json.dumps(
+    conversation_memory.model_dump()
+    if conversation_memory is not None
+    else {},
+    ensure_ascii=False,
+    indent=2,
+)}
 
 Recent conversation:
 {history_text or "None"}
@@ -179,10 +191,31 @@ def run_chat_pipeline(
         in request.conversation_history
     ]
 
+    conversation_memory = get_conversation_memory(
+        user_id=request.user_id,
+        conversation_id=request.conversation_id,
+    )
+
+    retrieval_history = history[-5:]
+    if conversation_memory.summary:
+        retrieval_history = [
+            *retrieval_history,
+            {
+                "role": "system",
+                "content": (
+                    "Current conversation trip context: "
+                    + json.dumps(
+                        conversation_memory.model_dump(),
+                        ensure_ascii=False,
+                    )
+                ),
+            },
+        ]
+
     artifacts = (
         run_retrieval_pipeline(
             query=request.message,
-            conversation_history=history,
+            conversation_history=retrieval_history,
             user_id=request.user_id,
         )
     )
@@ -200,6 +233,7 @@ def run_chat_pipeline(
         evidence=evidence,
         conversation_history=history,
         memory=artifacts.memory,
+        conversation_memory=conversation_memory,
     )
 
     return ChatResponse(

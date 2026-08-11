@@ -71,6 +71,16 @@
         Retrieval Debug
       </a>
 
+      <a
+        routerLink="/memory"
+        routerLinkActive="bg-white/8 text-white"
+        class="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        (click)="closeSidebar()"
+      >
+        <svg lucideDatabase class="size-4"></svg>
+        Travel Memory
+      </a>
+
       @if (chat.conversations().length) {
         <p class="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
           Recent chats

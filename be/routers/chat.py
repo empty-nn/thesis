@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from db.session import get_db
 from services.session_auth import require_session_user_id
@@ -15,6 +15,8 @@ from schemas.chat import (
     ConversationSummary,
 )
 from services.answer_pipeline import run_chat_pipeline
+from services.memory import analyze_and_save_user_memory
+from services.conversation_memory import update_conversation_memory
 
 router = APIRouter(tags=["chat"])
 
@@ -51,6 +53,7 @@ def conversation_detail(
 def chat(
     request: ChatRequest,
     http_request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ) -> ChatResponse:
     """
@@ -71,6 +74,18 @@ def chat(
                 user_message=request.message,
                 assistant_message=result.answer,
                 conversation_id=request.conversation_id,
+            )
+            background_tasks.add_task(
+                analyze_and_save_user_memory,
+                request.user_id,
+                request.message,
+            )
+            background_tasks.add_task(
+                update_conversation_memory,
+                request.user_id,
+                result.conversation_id,
+                request.message,
+                result.answer,
             )
         return result
     except ValueError as exc:

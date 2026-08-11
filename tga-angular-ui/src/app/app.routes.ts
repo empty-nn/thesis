@@ -34,6 +34,14 @@ export const routes: Routes = [
       ).then((module) => module.RetrievalDebugPageComponent),
   },
   {
+    path: 'memory',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/memory/memory-page.component').then(
+        (module) => module.MemoryPageComponent,
+      ),
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'chat',

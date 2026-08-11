@@ -117,6 +117,7 @@ class ConversationORM(Base):
     title = Column(String, nullable=True)
 
     summary = Column(Text, nullable=True)
+    conversation_state = Column(JSONB, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
