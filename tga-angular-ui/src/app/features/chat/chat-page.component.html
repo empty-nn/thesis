@@ -1,0 +1,146 @@
+<section class="relative flex min-h-screen flex-col bg-[#212121]">
+  <div class="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 pb-36 pt-8 sm:px-6 md:pt-14">
+    @if (chat.messages().length === 0) {
+      <div class="grid flex-1 place-items-center">
+        <div class="max-w-lg text-center">
+          <div class="mx-auto grid size-12 place-items-center rounded-2xl bg-emerald-500 text-zinc-950">
+            <svg lucideSparkles class="size-5"></svg>
+          </div>
+          <h1 class="mt-5 text-2xl font-semibold tracking-tight">
+            How can I help with your Vietnam trip?
+          </h1>
+          <p class="mt-2 text-sm leading-6 text-zinc-500">
+            Ask about destinations, food, transport, activities, or itinerary planning.
+          </p>
+        </div>
+      </div>
+    } @else {
+      <div class="space-y-8">
+        @for (message of chat.messages(); track message.id) {
+          <article
+            class="group flex gap-4"
+            [class.justify-end]="message.role === 'user'"
+          >
+            @if (message.role === 'assistant') {
+              <div
+                class="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg bg-emerald-500 text-zinc-950"
+              >
+                <svg lucideBot class="size-4"></svg>
+              </div>
+            }
+
+            <div class="min-w-0 max-w-[85%]">
+              @if (message.role === 'user') {
+                <div
+                  class="rounded-[22px] bg-[#303030] px-4 py-2.5 text-[15px] leading-6 text-zinc-100"
+                >
+                  {{ message.content }}
+                </div>
+              } @else {
+                <div class="assistant-markdown text-[15px] leading-7 text-zinc-200">
+                  <markdown [data]="message.content"></markdown>
+                </div>
+
+                @if (message.sources?.length) {
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    @for (source of message.sources; track source.id) {
+                      <span
+                        class="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-zinc-500"
+                      >
+                        {{ source.title }}
+                      </span>
+                    }
+                  </div>
+                }
+
+                <div
+                  class="mt-2 flex items-center gap-1 opacity-0 transition group-hover:opacity-100"
+                >
+                  <button
+                    type="button"
+                    class="grid size-8 place-items-center rounded-lg text-zinc-500 hover:bg-white/7 hover:text-zinc-200"
+                    title="Copy"
+                    (click)="copyMessage(message)"
+                  >
+                    <svg lucideCopy class="size-4"></svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="grid size-8 place-items-center rounded-lg text-zinc-500 hover:bg-white/7 hover:text-zinc-200"
+                    title="Regenerate from previous user message"
+                    (click)="regenerate(message)"
+                  >
+                    <svg lucideRefreshCw class="size-4"></svg>
+                  </button>
+                </div>
+              }
+            </div>
+
+            @if (message.role === 'user') {
+              <div
+                class="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg bg-zinc-700 text-zinc-200"
+              >
+                <svg lucideUser class="size-4"></svg>
+              </div>
+            }
+          </article>
+        }
+
+        @if (chat.isGenerating()) {
+          <article class="flex gap-4">
+            <div
+              class="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg bg-emerald-500 text-zinc-950"
+            >
+              <svg lucideBot class="size-4"></svg>
+            </div>
+            <div class="flex items-center gap-1 py-3">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+
+  <div
+    class="fixed inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#212121] via-[#212121] to-transparent px-4 pb-4 pt-10 md:left-[276px]"
+  >
+    <div class="mx-auto max-w-3xl">
+      <div
+        class="rounded-[26px] border border-white/10 bg-[#303030] shadow-2xl shadow-black/20 focus-within:border-white/15"
+      >
+        <textarea
+          class="max-h-52 min-h-[58px] w-full resize-none bg-transparent px-5 pb-2 pt-4 text-[15px] leading-6 text-zinc-100 outline-none placeholder:text-zinc-500"
+          rows="1"
+          placeholder="Ask about Vietnam..."
+          [ngModel]="draft()"
+          (ngModelChange)="draft.set($event)"
+          (keydown)="onKeydown($event)"
+        ></textarea>
+
+        <div class="flex items-center justify-between px-3 pb-3">
+          <span class="pl-2 text-[11px] text-zinc-500">
+            Enter to send · Shift + Enter for newline
+          </span>
+
+          <button
+            type="button"
+            class="grid size-9 place-items-center rounded-full bg-zinc-100 text-zinc-950 transition hover:bg-white disabled:cursor-not-allowed disabled:bg-zinc-600 disabled:text-zinc-400"
+            [disabled]="!draft().trim() || chat.isGenerating()"
+            aria-label="Send message"
+            (click)="send()"
+          >
+            <svg lucideSend class="size-4"></svg>
+          </button>
+        </div>
+      </div>
+
+      <p class="mt-2 text-center text-[11px] text-zinc-600">
+        TGA can make mistakes. Verify important travel information.
+      </p>
+    </div>
+  </div>
+</section>

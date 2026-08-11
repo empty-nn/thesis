@@ -78,6 +78,7 @@ def process_chunks_by_batch(chunks, batch_size=7):
 
             enriched_chunk = {
                 **chunk,
+
                 "country": metadata.country,
                 "city": metadata.city,
                 "province": metadata.province,

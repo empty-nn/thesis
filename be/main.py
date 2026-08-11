@@ -1,40 +1,39 @@
 from contextlib import asynccontextmanager
-import uvicorn
+
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from routers import data_building_router
-import logging
-import urllib3
+from fastapi.middleware.cors import CORSMiddleware
 
-urllib3.disable_warnings()
+from core.model_registry import load_models, unload_models
+from routers import chat, health, retrieval_debug
 
-logger = logging.getLogger(__name__)
 
-# setup_logging()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load SentenceTransformer + CrossEncoder once for the whole API process.
+    load_models()
+    yield
+    unload_models()
+
+
 app = FastAPI(
-    title="Variance Cost Calculation API",
-    description="API for running single and bulk RFC cost calculations.",
-    version="1.0.0",
-    docs_url="/api",
-    redoc_url="/redoc",
-    openapi_url="/api/openapi.json",
+    title="Travel Guide Assistant API",
+    version="0.1.0",
+    lifespan=lifespan,
 )
 
+# Angular dev server.
+# Add your production frontend origin when you deploy.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:4200",
+        "http://127.0.0.1:4200",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["X-Filename"]
 )
 
-app.include_router(data_building_router)
-
-if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",             
-        host="localhost",
-        port=8001,
-        reload=True,             
-    )
+app.include_router(health.router, prefix="/api")
+app.include_router(chat.router, prefix="/api")
+app.include_router(retrieval_debug.router, prefix="/api")
