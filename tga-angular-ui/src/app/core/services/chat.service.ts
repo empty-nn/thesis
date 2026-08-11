@@ -7,12 +7,10 @@ import {
   ChatApiResponse,
   ChatMessage,
 } from '../models/chat.models';
-import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly http = inject(HttpClient);
-  private readonly auth = inject(AuthService);
 
   readonly messages = signal<ChatMessage[]>([
     {
@@ -27,6 +25,7 @@ export class ChatService {
   ]);
 
   readonly isGenerating = signal(false);
+  readonly conversationId = signal<string | null>(null);
 
   async sendMessage(content: string): Promise<void> {
     const trimmed = content.trim();
@@ -55,10 +54,17 @@ export class ChatService {
               `${environment.apiBaseUrl}/chat`,
               {
                 message: trimmed,
-                user_id: this.auth.currentUser()?.id,
+                conversation_id: this.conversationId(),
+                conversation_history: this.messages()
+                  .slice(0, -1)
+                  .slice(-6)
+                  .map(({ role, content }) => ({ role, content })),
               },
+              { withCredentials: true },
             ),
           );
+
+      this.conversationId.set(response.conversation_id ?? null);
 
       this.messages.update((messages) => [
         ...messages,
@@ -90,6 +96,7 @@ export class ChatService {
 
   clear(): void {
     this.messages.set([]);
+    this.conversationId.set(null);
   }
 
   private async mockResponse(query: string): Promise<ChatApiResponse> {

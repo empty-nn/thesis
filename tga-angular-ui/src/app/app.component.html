@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-[#212121] text-zinc-100">
-  @if (mobileSidebarOpen()) {
+  @if (!isLoginPage() && mobileSidebarOpen()) {
     <button
       type="button"
       class="fixed inset-0 z-30 bg-black/60 md:hidden"
@@ -8,10 +8,11 @@
     ></button>
   }
 
-  <aside
-    class="fixed inset-y-0 left-0 z-40 flex w-[276px] flex-col border-r border-white/8 bg-[#171717] transition-transform duration-200 md:translate-x-0"
-    [class.-translate-x-full]="!mobileSidebarOpen()"
-  >
+  @if (!isLoginPage()) {
+    <aside
+      class="fixed inset-y-0 left-0 z-40 flex w-[276px] flex-col border-r border-white/8 bg-[#171717] transition-transform duration-200 md:translate-x-0"
+      [class.-translate-x-full]="!mobileSidebarOpen()"
+    >
     <div class="flex h-14 items-center justify-between px-3">
       <a
         routerLink="/chat"
@@ -96,7 +97,7 @@
             type="button"
             class="grid size-8 place-items-center rounded-lg text-zinc-500 hover:bg-white/8 hover:text-white"
             aria-label="Sign out"
-            (click)="auth.logout()"
+            (click)="logout()"
           >
             <svg lucideLogOut class="size-4"></svg>
           </button>
@@ -112,12 +113,14 @@
         </a>
       }
     </div>
-  </aside>
+    </aside>
+  }
 
-  <div class="min-h-screen md:pl-[276px]">
-    <header
-      class="sticky top-0 z-20 flex h-14 items-center border-b border-white/7 bg-[#212121]/90 px-3 backdrop-blur-xl md:hidden"
-    >
+  <div [class]="isLoginPage() ? 'min-h-screen' : 'min-h-screen md:pl-[276px]'">
+    @if (!isLoginPage()) {
+      <header
+        class="sticky top-0 z-20 flex h-14 items-center border-b border-white/7 bg-[#212121]/90 px-3 backdrop-blur-xl md:hidden"
+      >
       <button
         type="button"
         class="grid size-9 place-items-center rounded-lg text-zinc-300 hover:bg-white/8"
@@ -127,7 +130,8 @@
         <svg lucideMenu class="size-5"></svg>
       </button>
       <span class="ml-2 text-sm font-semibold">TGA Retrieval Lab</span>
-    </header>
+      </header>
+    }
 
     <main class="min-h-screen">
       <router-outlet></router-outlet>

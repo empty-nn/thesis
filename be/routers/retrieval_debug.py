@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from services.session_auth import require_session_user_id
 
 from schemas.retrieval_debug import (
     RetrievalDebugRequest,
@@ -15,11 +16,14 @@ router = APIRouter(tags=["retrieval-debug"])
 )
 def retrieval_debug(
     request: RetrievalDebugRequest,
+    http_request: Request,
 ) -> RetrievalDebugResponse:
     """
     Run the same retrieval stages as the chatbot, but return every stage
     for the Angular Retrieval Debug screen.
     """
+    request.user_id = require_session_user_id(http_request)
+
     try:
         return run_debug_pipeline(request)
     except ValueError as exc:

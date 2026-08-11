@@ -14,6 +14,7 @@ class ChatRequest(BaseModel):
         default_factory=list
     )
     user_id: str | None = None
+    conversation_id: str | None = None
 
 
 class ChatSource(BaseModel):
@@ -24,6 +25,7 @@ class ChatSource(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
+    conversation_id: str | None = None
     sources: list[ChatSource] = Field(
         default_factory=list
     )

@@ -148,10 +148,7 @@ export class RetrievalDebugPageComponent {
 
     try {
       this.runResult.set(
-        await this.retrieval.run(
-          value,
-          this.auth.currentUser()?.id,
-        ),
+        await this.retrieval.run(value),
       );
     } catch (error) {
       console.error(error);

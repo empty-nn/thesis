@@ -20,3 +20,7 @@ class GoogleLoginResponse(CamelModel):
     user: AuthUser
     is_new_user: bool
     authenticated_at: datetime
+
+
+class SessionResponse(CamelModel):
+    user: AuthUser

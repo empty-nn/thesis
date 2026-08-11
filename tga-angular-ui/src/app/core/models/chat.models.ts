@@ -17,4 +17,5 @@ export interface ChatMessage {
 export interface ChatApiResponse {
   answer: string;
   sources?: ChatSource[];
+  conversation_id?: string;
 }

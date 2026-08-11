@@ -1,5 +1,6 @@
 import { FormsModule } from '@angular/forms';
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MarkdownComponent } from 'ngx-markdown';
 import {
   LucideBot,
@@ -12,12 +13,14 @@ import {
 
 import { ChatMessage } from '../../core/models/chat.models';
 import { ChatService } from '../../core/services/chat.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-chat-page',
   imports: [
     FormsModule,
     MarkdownComponent,
+    RouterLink,
     LucideBot,
     LucideCopy,
     LucideRefreshCw,
@@ -29,6 +32,7 @@ import { ChatService } from '../../core/services/chat.service';
 })
 export class ChatPageComponent {
   protected readonly chat = inject(ChatService);
+  protected readonly auth = inject(AuthService);
   protected readonly draft = signal('');
 
   protected async send(): Promise<void> {
