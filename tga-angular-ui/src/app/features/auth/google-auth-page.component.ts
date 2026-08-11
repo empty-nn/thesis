@@ -10,6 +10,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../core/services/auth.service';
+import { ChatService } from '../../core/services/chat.service';
 import { environment } from '../../../environments/environment';
 
 interface GoogleCredentialResponse {
@@ -41,6 +42,7 @@ declare global {
 })
 export class GoogleAuthPageComponent {
   private readonly auth = inject(AuthService);
+  private readonly chat = inject(ChatService);
   private readonly router = inject(Router);
   private readonly googleButton = viewChild<ElementRef<HTMLDivElement>>(
     'googleButton',
@@ -119,6 +121,8 @@ export class GoogleAuthPageComponent {
 
     try {
       await this.auth.loginWithGoogle(response.credential);
+      this.chat.clearUserData();
+      await this.chat.refreshConversations();
       await this.router.navigateByUrl('/chat');
     } catch (error) {
       const detail = error instanceof HttpErrorResponse

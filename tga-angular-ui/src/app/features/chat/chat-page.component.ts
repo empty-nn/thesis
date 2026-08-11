@@ -1,6 +1,7 @@
 import { FormsModule } from '@angular/forms';
-import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MarkdownComponent } from 'ngx-markdown';
 import {
   LucideBot,
@@ -33,7 +34,24 @@ import { AuthService } from '../../core/services/auth.service';
 export class ChatPageComponent {
   protected readonly chat = inject(ChatService);
   protected readonly auth = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly draft = signal('');
+
+  constructor() {
+    void this.chat.refreshConversations();
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const conversationId = params.get('conversationId');
+        if (
+          conversationId &&
+          conversationId !== this.chat.conversationId()
+        ) {
+          void this.chat.openConversation(conversationId);
+        }
+      });
+  }
 
   protected async send(): Promise<void> {
     const message = this.draft();

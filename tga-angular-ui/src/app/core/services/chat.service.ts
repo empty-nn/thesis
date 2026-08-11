@@ -1,16 +1,20 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import {
   ChatApiResponse,
   ChatMessage,
+  ConversationDetail,
+  ConversationSummary,
 } from '../models/chat.models';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
 
   readonly messages = signal<ChatMessage[]>([
     {
@@ -26,6 +30,7 @@ export class ChatService {
 
   readonly isGenerating = signal(false);
   readonly conversationId = signal<string | null>(null);
+  readonly conversations = signal<ConversationSummary[]>([]);
 
   async sendMessage(content: string): Promise<void> {
     const trimmed = content.trim();
@@ -65,6 +70,13 @@ export class ChatService {
           );
 
       this.conversationId.set(response.conversation_id ?? null);
+      if (response.conversation_id) {
+        await this.router.navigate([
+          '/chat',
+          response.conversation_id,
+        ]);
+      }
+      void this.refreshConversations();
 
       this.messages.update((messages) => [
         ...messages,
@@ -97,6 +109,46 @@ export class ChatService {
   clear(): void {
     this.messages.set([]);
     this.conversationId.set(null);
+  }
+
+  clearUserData(): void {
+    this.clear();
+    this.conversations.set([]);
+    this.isGenerating.set(false);
+  }
+
+  async refreshConversations(): Promise<void> {
+    try {
+      const items = await firstValueFrom(
+        this.http.get<ConversationSummary[]>(
+          `${environment.apiBaseUrl}/conversations`,
+          { withCredentials: true },
+        ),
+      );
+      this.conversations.set(items);
+    } catch {
+      this.conversations.set([]);
+    }
+  }
+
+  async openConversation(conversationId: string): Promise<void> {
+    const conversation = await firstValueFrom(
+      this.http.get<ConversationDetail>(
+        `${environment.apiBaseUrl}/conversations/${conversationId}`,
+        { withCredentials: true },
+      ),
+    );
+    this.conversationId.set(conversation.id);
+    this.messages.set(
+      conversation.messages.map((message) => ({
+        id: String(message.id),
+        role: message.role,
+        content: message.content,
+        createdAt: message.created_at
+          ? new Date(message.created_at)
+          : new Date(),
+      })),
+    );
   }
 
   private async mockResponse(query: string): Promise<ChatApiResponse> {

@@ -36,14 +36,14 @@
     </div>
 
     <div class="px-3 pb-2">
-      <a
-        routerLink="/chat"
+      <button
+        type="button"
         class="flex h-10 items-center gap-3 rounded-xl border border-white/8 px-3 text-sm text-zinc-200 hover:bg-white/5"
-        (click)="closeSidebar()"
+        (click)="newConversation()"
       >
         <svg lucidePlus class="size-4"></svg>
         New conversation
-      </a>
+      </button>
     </div>
 
     <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-2">
@@ -70,6 +70,26 @@
         <svg lucideDatabase class="size-4"></svg>
         Retrieval Debug
       </a>
+
+      @if (chat.conversations().length) {
+        <p class="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          Recent chats
+        </p>
+        @for (conversation of chat.conversations(); track conversation.id) {
+          <button
+            type="button"
+            [class]="
+              'block w-full truncate rounded-xl px-3 py-2 text-left text-xs transition hover:bg-white/5 hover:text-zinc-200 ' +
+              (chat.conversationId() === conversation.id
+                ? 'bg-white/8 text-zinc-200'
+                : 'text-zinc-500')
+            "
+            (click)="openConversation(conversation.id)"
+          >
+            {{ conversation.title || 'Untitled conversation' }}
+          </button>
+        }
+      }
     </nav>
 
     <div class="border-t border-white/8 p-3">

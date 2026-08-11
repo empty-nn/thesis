@@ -10,6 +10,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'chat/:conversationId',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/chat/chat-page.component').then(
+        (module) => module.ChatPageComponent,
+      ),
+  },
+  {
     path: 'chat',
     canActivate: [authGuard],
     loadComponent: () =>

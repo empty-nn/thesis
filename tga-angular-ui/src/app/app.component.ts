@@ -19,6 +19,7 @@ import {
   LucideX,
 } from '@lucide/angular';
 import { AuthService } from './core/services/auth.service';
+import { ChatService } from './core/services/chat.service';
 
 @Component({
   selector: 'app-root',
@@ -39,6 +40,7 @@ import { AuthService } from './core/services/auth.service';
 })
 export class AppComponent {
   protected readonly auth = inject(AuthService);
+  protected readonly chat = inject(ChatService);
   private readonly router = inject(Router);
   protected readonly isLoginPage = toSignal(
     this.router.events.pipe(
@@ -59,6 +61,18 @@ export class AppComponent {
 
   protected async logout(): Promise<void> {
     await this.auth.logout();
+    this.chat.clearUserData();
     await this.router.navigateByUrl('/login');
+  }
+
+  protected async openConversation(id: string): Promise<void> {
+    this.closeSidebar();
+    await this.router.navigate(['/chat', id]);
+  }
+
+  protected async newConversation(): Promise<void> {
+    this.chat.clear();
+    this.closeSidebar();
+    await this.router.navigateByUrl('/chat');
   }
 }

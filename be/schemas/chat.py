@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -29,3 +31,23 @@ class ChatResponse(BaseModel):
     sources: list[ChatSource] = Field(
         default_factory=list
     )
+
+
+class ConversationSummary(BaseModel):
+    id: str
+    title: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class SavedMessage(BaseModel):
+    id: int
+    role: str
+    content: str
+    created_at: datetime | None = None
+
+
+class ConversationDetail(BaseModel):
+    id: str
+    title: str | None = None
+    messages: list[SavedMessage] = Field(default_factory=list)
