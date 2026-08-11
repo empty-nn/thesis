@@ -162,11 +162,8 @@ class UserMemoryORM(Base):
     user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
 
     memory_type = Column(String, nullable=False)
-    # preference
-    # constraint
-    # interest
-    # personal_fact
-    # trip_history
+    # travel_style, activity, budget, avoid, constraint, interest,
+    # expertise, answer_length, tone, explanation_style, personal_fact
 
     content = Column(Text, nullable=False)
     embedding = Column(Vector(384), nullable=True)
@@ -177,6 +174,65 @@ class UserMemoryORM(Base):
     is_active = Column(Boolean, default=True)
     # Relationships
     user = relationship("UserORM", back_populates="memories")
+
+
+class KnowledgeGapORM(Base):
+    __tablename__ = "knowledge_gaps"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(
+        String,
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    conversation_id = Column(
+        String,
+        ForeignKey("conversations.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    query = Column(Text, nullable=False)
+    rewritten_query = Column(Text, nullable=True)
+    missing_requirements = Column(JSONB, nullable=False, default=list)
+    recovery_queries = Column(JSONB, nullable=False, default=list)
+    top_evidence = Column(JSONB, nullable=False, default=list)
+    status = Column(String, nullable=False, default="open", index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )
+
+
+class PipelineTelemetryORM(Base):
+    __tablename__ = "pipeline_telemetry"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    request_id = Column(String, nullable=False, unique=True, index=True)
+    user_id = Column(
+        String,
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    conversation_id = Column(
+        String,
+        ForeignKey("conversations.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    status = Column(String, nullable=False, index=True)
+    error_type = Column(String, nullable=True)
+    total_latency_ms = Column(Float, nullable=False)
+    total_tokens = Column(Integer, nullable=False, default=0)
+    estimated_cost_usd = Column(Float, nullable=True)
+    stage_records = Column(JSONB, nullable=False, default=list)
+    token_totals = Column(JSONB, nullable=False, default=dict)
+    pricing_snapshot = Column(JSONB, nullable=False, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
 class URLStatus(str, enum.Enum):

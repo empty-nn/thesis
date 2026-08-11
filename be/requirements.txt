@@ -69,6 +69,7 @@ lxml_html_clean==0.4.4
 mail-parser==4.3.0
 markdown-it-py==4.2.0
 markdownify==1.2.2
+matplotlib>=3.9,<4
 marko==2.2.3
 MarkupSafe==3.0.3
 mdurl==0.1.2

@@ -5,10 +5,27 @@ from sqlalchemy.orm import Session
 from db.full_model import UserMemoryORM
 from db.session import get_db
 from schemas.memory import UserMemoryItem
+from schemas.pipeline import UserTravelMemory
+from services.memory import get_user_memory, save_user_profile_memories
 from services.session_auth import require_session_user_id
 
 
 router = APIRouter(tags=["memory"])
+
+
+@router.put("/memory-profile", response_model=UserTravelMemory)
+def replace_memory_profile(
+    profile: UserTravelMemory,
+    request: Request,
+) -> UserTravelMemory:
+    user_id = require_session_user_id(request)
+    payload = profile.model_dump(exclude={"personal_facts"})
+    save_user_profile_memories(
+        user_id=user_id,
+        profile=payload,
+        personal_facts=profile.personal_facts,
+    )
+    return get_user_memory(user_id)
 
 
 @router.get("/memories", response_model=list[UserMemoryItem])

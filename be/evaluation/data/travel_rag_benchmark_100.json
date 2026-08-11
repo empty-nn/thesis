@@ -1,0 +1,2506 @@
+{
+  "version": "1.0",
+  "description": "Synthetic 100-query Vietnam travel RAG benchmark. Human review and relevant_chunk_ids annotation are required before reporting ground-truth Recall@K.",
+  "cases": [
+    {
+      "id": "TGA-001",
+      "query": "What is special about Hanoi?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-002",
+      "query": "What are the best attractions in Hanoi?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-003",
+      "query": "Where should I look for local food in Hanoi?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-004",
+      "query": "Plan a 3-day itinerary for Hanoi.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Hanoi",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-005",
+      "query": "Is Hanoi suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-006",
+      "query": "How many days should I spend in Hanoi?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-007",
+      "query": "What can I do near Hoan Kiem Lake?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-008",
+      "query": "Recommend quiet cultural experiences in Hanoi.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-009",
+      "query": "I have two days in Hanoi on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Hanoi",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-010",
+      "query": "Compare the main experiences around Hoan Kiem Lake and Old Quarter.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Hanoi"
+      ],
+      "expected_places": [
+        "Hoan Kiem Lake",
+        "Old Quarter",
+        "Temple of Literature"
+      ],
+      "expected_keywords": [
+        "culture",
+        "walking",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-011",
+      "query": "What is special about Hue?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-012",
+      "query": "What are the best attractions in Hue?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-013",
+      "query": "Where should I look for local food in Hue?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-014",
+      "query": "Plan a 3-day itinerary for Hue.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Hue",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-015",
+      "query": "Is Hue suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-016",
+      "query": "How many days should I spend in Hue?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-017",
+      "query": "What can I do near Imperial City?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-018",
+      "query": "Recommend quiet cultural experiences in Hue.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-019",
+      "query": "I have two days in Hue on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Hue",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-020",
+      "query": "Compare the main experiences around Imperial City and Thien Mu Pagoda.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Hue"
+      ],
+      "expected_places": [
+        "Imperial City",
+        "Thien Mu Pagoda",
+        "Dong Ba Market"
+      ],
+      "expected_keywords": [
+        "history",
+        "culture",
+        "food"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-021",
+      "query": "What is special about Da Nang?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-022",
+      "query": "What are the best attractions in Da Nang?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-023",
+      "query": "Where should I look for local food in Da Nang?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-024",
+      "query": "Plan a 3-day itinerary for Da Nang.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Da Nang",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-025",
+      "query": "Is Da Nang suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-026",
+      "query": "How many days should I spend in Da Nang?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-027",
+      "query": "What can I do near My Khe Beach?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-028",
+      "query": "Recommend quiet cultural experiences in Da Nang.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-029",
+      "query": "I have two days in Da Nang on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Da Nang",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-030",
+      "query": "Compare the main experiences around My Khe Beach and Marble Mountains.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Da Nang"
+      ],
+      "expected_places": [
+        "My Khe Beach",
+        "Marble Mountains",
+        "Son Tra Peninsula"
+      ],
+      "expected_keywords": [
+        "beach",
+        "nature",
+        "sightseeing"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-031",
+      "query": "What is special about Hoi An?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-032",
+      "query": "What are the best attractions in Hoi An?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-033",
+      "query": "Where should I look for local food in Hoi An?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-034",
+      "query": "Plan a 3-day itinerary for Hoi An.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Hoi An",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-035",
+      "query": "Is Hoi An suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-036",
+      "query": "How many days should I spend in Hoi An?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-037",
+      "query": "What can I do near Hoi An Ancient Town?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-038",
+      "query": "Recommend quiet cultural experiences in Hoi An.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-039",
+      "query": "I have two days in Hoi An on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Hoi An",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-040",
+      "query": "Compare the main experiences around Hoi An Ancient Town and Japanese Covered Bridge.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Hoi An"
+      ],
+      "expected_places": [
+        "Hoi An Ancient Town",
+        "Japanese Covered Bridge",
+        "An Bang Beach"
+      ],
+      "expected_keywords": [
+        "heritage",
+        "lanterns",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-041",
+      "query": "What is special about Ninh Binh?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-042",
+      "query": "What are the best attractions in Ninh Binh?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-043",
+      "query": "Where should I look for local food in Ninh Binh?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-044",
+      "query": "Plan a 3-day itinerary for Ninh Binh.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Ninh Binh",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-045",
+      "query": "Is Ninh Binh suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-046",
+      "query": "How many days should I spend in Ninh Binh?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-047",
+      "query": "What can I do near Trang An?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-048",
+      "query": "Recommend quiet cultural experiences in Ninh Binh.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-049",
+      "query": "I have two days in Ninh Binh on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Ninh Binh",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-050",
+      "query": "Compare the main experiences around Trang An and Tam Coc.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Ninh Binh"
+      ],
+      "expected_places": [
+        "Trang An",
+        "Tam Coc",
+        "Hoa Lu"
+      ],
+      "expected_keywords": [
+        "nature",
+        "boat",
+        "history"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-051",
+      "query": "What is special about Phu Quoc?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-052",
+      "query": "What are the best attractions in Phu Quoc?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-053",
+      "query": "Where should I look for local food in Phu Quoc?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-054",
+      "query": "Plan a 3-day itinerary for Phu Quoc.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Phu Quoc",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-055",
+      "query": "Is Phu Quoc suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-056",
+      "query": "How many days should I spend in Phu Quoc?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-057",
+      "query": "What can I do near Long Beach?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-058",
+      "query": "Recommend quiet cultural experiences in Phu Quoc.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-059",
+      "query": "I have two days in Phu Quoc on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Phu Quoc",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-060",
+      "query": "Compare the main experiences around Long Beach and Phu Quoc National Park.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Phu Quoc"
+      ],
+      "expected_places": [
+        "Long Beach",
+        "Phu Quoc National Park",
+        "Dinh Cau"
+      ],
+      "expected_keywords": [
+        "beach",
+        "family",
+        "nature"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-061",
+      "query": "What is special about Ho Chi Minh City?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-062",
+      "query": "What are the best attractions in Ho Chi Minh City?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-063",
+      "query": "Where should I look for local food in Ho Chi Minh City?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-064",
+      "query": "Plan a 3-day itinerary for Ho Chi Minh City.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Ho Chi Minh City",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-065",
+      "query": "Is Ho Chi Minh City suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-066",
+      "query": "How many days should I spend in Ho Chi Minh City?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-067",
+      "query": "What can I do near War Remnants Museum?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-068",
+      "query": "Recommend quiet cultural experiences in Ho Chi Minh City.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-069",
+      "query": "I have two days in Ho Chi Minh City on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Ho Chi Minh City",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-070",
+      "query": "Compare the main experiences around War Remnants Museum and Ben Thanh Market.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Ho Chi Minh City"
+      ],
+      "expected_places": [
+        "War Remnants Museum",
+        "Ben Thanh Market",
+        "Notre Dame Cathedral"
+      ],
+      "expected_keywords": [
+        "history",
+        "food",
+        "city"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-071",
+      "query": "What is special about Ha Long?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-072",
+      "query": "What are the best attractions in Ha Long?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-073",
+      "query": "Where should I look for local food in Ha Long?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-074",
+      "query": "Plan a 3-day itinerary for Ha Long.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Ha Long",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-075",
+      "query": "Is Ha Long suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-076",
+      "query": "How many days should I spend in Ha Long?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-077",
+      "query": "What can I do near Ha Long Bay?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-078",
+      "query": "Recommend quiet cultural experiences in Ha Long.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-079",
+      "query": "I have two days in Ha Long on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Ha Long",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-080",
+      "query": "Compare the main experiences around Ha Long Bay and Sung Sot Cave.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Ha Long"
+      ],
+      "expected_places": [
+        "Ha Long Bay",
+        "Sung Sot Cave",
+        "Ti Top Island"
+      ],
+      "expected_keywords": [
+        "cruise",
+        "nature",
+        "islands"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-081",
+      "query": "What is special about Sapa?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-082",
+      "query": "What are the best attractions in Sapa?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-083",
+      "query": "Where should I look for local food in Sapa?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-084",
+      "query": "Plan a 3-day itinerary for Sapa.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Sapa",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-085",
+      "query": "Is Sapa suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-086",
+      "query": "How many days should I spend in Sapa?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-087",
+      "query": "What can I do near Fansipan?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-088",
+      "query": "Recommend quiet cultural experiences in Sapa.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-089",
+      "query": "I have two days in Sapa on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Sapa",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-090",
+      "query": "Compare the main experiences around Fansipan and Muong Hoa Valley.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Sapa"
+      ],
+      "expected_places": [
+        "Fansipan",
+        "Muong Hoa Valley",
+        "Cat Cat Village"
+      ],
+      "expected_keywords": [
+        "trekking",
+        "mountains",
+        "culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-091",
+      "query": "What is special about Mekong Delta?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-092",
+      "query": "What are the best attractions in Mekong Delta?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-093",
+      "query": "Where should I look for local food in Mekong Delta?",
+      "intent": "food_search",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-094",
+      "query": "Plan a 3-day itinerary for Mekong Delta.",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Mekong Delta",
+        "duration_days": 3,
+        "temporary_budget": null
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-095",
+      "query": "Is Mekong Delta suitable for a family trip?",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-096",
+      "query": "How many days should I spend in Mekong Delta?",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-097",
+      "query": "What can I do near Cai Rang Floating Market?",
+      "intent": "attraction_search",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-098",
+      "query": "Recommend quiet cultural experiences in Mekong Delta.",
+      "intent": "recommendation",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": {
+        "preferred_travel_styles": [
+          "culture"
+        ],
+        "preferred_activities": [
+          "sightseeing"
+        ],
+        "budget_level": "mid_range",
+        "avoid": [
+          "crowds"
+        ]
+      },
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-099",
+      "query": "I have two days in Mekong Delta on a mid-range budget. What should I prioritize?",
+      "intent": "itinerary",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": {
+        "destination": "Mekong Delta",
+        "duration_days": 2,
+        "temporary_budget": "mid_range"
+      },
+      "annotation_status": "synthetic_weak_label"
+    },
+    {
+      "id": "TGA-100",
+      "query": "Compare the main experiences around Cai Rang Floating Market and Can Tho.",
+      "intent": "travel_information",
+      "expected_locations": [
+        "Mekong Delta"
+      ],
+      "expected_places": [
+        "Cai Rang Floating Market",
+        "Can Tho",
+        "Ben Tre"
+      ],
+      "expected_keywords": [
+        "river",
+        "food",
+        "local culture"
+      ],
+      "relevant_chunk_ids": [],
+      "user_memory": null,
+      "conversation_state": null,
+      "annotation_status": "synthetic_weak_label"
+    }
+  ]
+}

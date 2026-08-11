@@ -22,6 +22,8 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+be/evaluation/results/
+be/evaluation/runs/
 
 
 # =========================

@@ -1,0 +1,237 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.app-dark, .app-dark *));
+
+:root {
+  color-scheme: dark;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  background: #212121;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: #212121;
+}
+
+body {
+  min-width: 320px;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(52, 211, 153, 0.25);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: #4a4a4a;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5a5a;
+  background-clip: padding-box;
+}
+
+/* AI markdown */
+.assistant-markdown p {
+  margin: 0 0 0.9rem;
+}
+
+.assistant-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.assistant-markdown h1,
+.assistant-markdown h2,
+.assistant-markdown h3 {
+  margin: 1.4rem 0 0.65rem;
+  color: #f4f4f5;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.assistant-markdown h1 {
+  font-size: 1.35rem;
+}
+
+.assistant-markdown h2 {
+  font-size: 1.15rem;
+}
+
+.assistant-markdown h3 {
+  font-size: 1rem;
+}
+
+.assistant-markdown ul,
+.assistant-markdown ol {
+  margin: 0.8rem 0;
+  padding-left: 1.4rem;
+}
+
+.assistant-markdown ul {
+  list-style: disc;
+}
+
+.assistant-markdown ol {
+  list-style: decimal;
+}
+
+.assistant-markdown li {
+  margin: 0.25rem 0;
+}
+
+.assistant-markdown strong {
+  color: #fafafa;
+  font-weight: 650;
+}
+
+.assistant-markdown a {
+  color: #6ee7b7;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.assistant-markdown code:not(pre code) {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.12rem 0.32rem;
+  color: #e4e4e7;
+  font-size: 0.88em;
+}
+
+.assistant-markdown pre {
+  overflow-x: auto;
+  margin: 1rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.9rem;
+  background: #171717 !important;
+  padding: 1rem;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.assistant-markdown blockquote {
+  margin: 1rem 0;
+  border-left: 3px solid #34d399;
+  padding-left: 1rem;
+  color: #a1a1aa;
+}
+
+/* Typing dots */
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #a1a1aa;
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+/* PrimeNG retrieval table refinements */
+.retrieval-table .p-datatable-header,
+.retrieval-table .p-datatable-footer {
+  background: transparent;
+}
+
+.retrieval-table .p-datatable-thead > tr > th {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: #202020;
+  color: #71717a;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.retrieval-table .p-datatable-tbody > tr {
+  background: #222222;
+  color: #d4d4d8;
+}
+
+.retrieval-table .p-datatable-tbody > tr > td {
+  border-color: rgba(255, 255, 255, 0.06);
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+.retrieval-table .p-datatable-tbody > tr:hover {
+  background: #292929;
+}
+
+.retrieval-table .p-datatable-tbody > tr.p-datatable-row-selected {
+  background: rgba(16, 185, 129, 0.09);
+  color: #f4f4f5;
+}
+
+.metadata-row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.metadata-row dt {
+  color: #71717a;
+}
+
+.metadata-row dd {
+  margin: 0;
+  color: #d4d4d8;
+  text-align: right;
+  word-break: break-word;
+}
+
+.metadata-chip {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+  padding: 0.28rem 0.55rem;
+  color: #a1a1aa;
+  font-size: 0.68rem;
+}

@@ -181,6 +181,14 @@ ALLOWED_QUERY_INTENTS = [
     "travel_information",
 ]
 
+ALLOWED_QUERY_OPERATIONS = [
+    "lookup",
+    "recommend",
+    "compare",
+    "plan",
+    "explain",
+]
+
 ALLOWED_BUDGET_LEVELS = [
     "budget",
     "mid_range",

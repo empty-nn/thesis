@@ -368,6 +368,15 @@ def run_debug_pipeline(
                 filters=filters_to_dict(
                     artifacts.filters
                 ),
+                retrievalPlan=(
+                    artifacts.plan.model_dump()
+                ),
+                evidenceCoverage=(
+                    artifacts.coverage.model_dump()
+                ),
+                recoveryChunkCount=len(
+                    artifacts.recovery_docs
+                ),
                 retrievalConfidence=(
                     artifacts.confidence.model_dump()
                 ),
@@ -383,6 +392,15 @@ def run_debug_pipeline(
                 ),
                 filterDurationMs=(
                     artifacts.timings.filter_ms
+                ),
+                plannerDurationMs=(
+                    artifacts.timings.planner_ms
+                ),
+                checkerDurationMs=(
+                    artifacts.timings.checker_ms
+                ),
+                recoveryDurationMs=(
+                    artifacts.timings.recovery_ms
                 ),
                 generationDurationMs=(
                     generation_duration_ms

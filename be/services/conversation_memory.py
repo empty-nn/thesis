@@ -12,6 +12,7 @@ from data_building.extract_metadata.extractor import (
     DEEPSEEK_METADATA_MODEL,
     get_deepseek_client,
 )
+from services.llm_telemetry import create_chat_completion
 from data_building.extract_metadata.helpers import extract_json_from_text
 from db.full_model import ConversationORM
 from db.session import SessionLocal
@@ -91,10 +92,42 @@ def update_conversation_memory(
 ) -> None:
     try:
         previous = get_conversation_memory(user_id, conversation_id)
-        timezone_name = os.getenv("USER_TIMEZONE", "Asia/Ho_Chi_Minh")
-        current_date = datetime.now(ZoneInfo(timezone_name)).date()
-        client = get_deepseek_client()
-        response = client.chat.completions.create(
+        state = derive_conversation_state(
+            previous=previous,
+            user_message=user_message,
+            assistant_message=assistant_message,
+        )
+        db = SessionLocal()
+        try:
+            conversation = db.scalar(
+                select(ConversationORM).where(
+                    ConversationORM.id == conversation_id,
+                    ConversationORM.user_id == user_id,
+                )
+            )
+            if not conversation:
+                return
+            conversation.summary = state.summary
+            conversation.conversation_state = state.model_dump()
+            db.commit()
+        finally:
+            db.close()
+    except Exception as exc:
+        print(f"[CONVERSATION MEMORY UPDATE FAILED] {exc}")
+
+
+def derive_conversation_state(
+    previous: ConversationState,
+    user_message: str,
+    assistant_message: str,
+    current_date: date | None = None,
+    timezone_name: str | None = None,
+) -> ConversationState:
+    timezone_name = timezone_name or os.getenv("USER_TIMEZONE", "Asia/Ho_Chi_Minh")
+    current_date = current_date or datetime.now(ZoneInfo(timezone_name)).date()
+    client = get_deepseek_client()
+    response = create_chat_completion(
+            "conversation_state", client,
             model=DEEPSEEK_METADATA_MODEL,
             messages=[
                 {
@@ -143,24 +176,7 @@ Return the complete updated state as JSON.
             temperature=0,
             max_tokens=800,
         )
-        content = response.choices[0].message.content
-        if not content:
-            return
-        state = ConversationState.model_validate(extract_json_from_text(content))
-        db = SessionLocal()
-        try:
-            conversation = db.scalar(
-                select(ConversationORM).where(
-                    ConversationORM.id == conversation_id,
-                    ConversationORM.user_id == user_id,
-                )
-            )
-            if not conversation:
-                return
-            conversation.summary = state.summary
-            conversation.conversation_state = state.model_dump()
-            db.commit()
-        finally:
-            db.close()
-    except Exception as exc:
-        print(f"[CONVERSATION MEMORY UPDATE FAILED] {exc}")
+    content = response.choices[0].message.content
+    if not content:
+        return previous
+    return ConversationState.model_validate(extract_json_from_text(content))

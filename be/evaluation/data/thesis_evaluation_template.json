@@ -1,0 +1,55 @@
+{
+  "version": "1.2",
+  "cases": [
+    {
+      "case_id": "EXAMPLE-001",
+      "user_id": "USER-01",
+      "conversation_id": "CONV-01",
+      "turn_id": 1,
+      "query": "Suggest a quiet cultural place in Hanoi for a beginner traveller.",
+      "conversation_history": [],
+      "user_profile": {"expertise": "beginner", "pace": "slow", "interests": ["culture"]},
+      "user_memories": [
+        {"memory_id": "MEM-01", "key": "pace", "value": "slow"},
+        {"memory_id": "MEM-02", "key": "interest", "value": "culture"}
+      ],
+      "annotation_status": "human_annotated",
+      "reference": {
+        "intent": "attraction_search",
+        "operation": "recommend",
+        "query_constraints": [
+          {"key": "city", "value": "Hanoi"},
+          {"key": "travel_style", "value": "culture"}
+        ],
+        "applicable_personalization": [
+          {"key": "pace", "value": "slow"},
+          {"key": "interest", "value": "culture"},
+          {"key": "expertise", "value": "beginner"}
+        ],
+        "relevant_memory_ids": ["MEM-01", "MEM-02"],
+        "relevance_grades": {"CHUNK-10": 3, "CHUNK-11": 2, "CHUNK-12": 1},
+        "key_answer_facts": ["The recommended place must be in Hanoi and culturally relevant."]
+      },
+      "prediction": {
+        "understanding": {
+          "intent": "attraction_search",
+          "operation": "recommend",
+          "query_constraints": [
+            {"key": "city", "value": "Hanoi"},
+            {"key": "travel_style", "value": "culture"}
+          ]
+        },
+        "retrieval": {
+          "retrieved_chunk_ids": ["CHUNK-10", "CHUNK-99", "CHUNK-11", "CHUNK-98", "CHUNK-12"],
+          "selected_evidence_ids": ["CHUNK-10", "CHUNK-11"],
+          "evidence": {
+            "CHUNK-10": "Replace with the full retrieved passage.",
+            "CHUNK-11": "Replace with the full retrieved passage."
+          }
+        },
+        "final_answer": "Replace with the pipeline answer.",
+        "final_answer_scores": null
+      }
+    }
+  ]
+}

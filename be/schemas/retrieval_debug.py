@@ -121,12 +121,18 @@ class RetrievalDebugDiagnostics(BaseModel):
     parsedQuery: dict[str, Any]
     userMemory: dict[str, Any]
     filters: dict[str, Any]
+    retrievalPlan: dict[str, Any] | None = None
+    evidenceCoverage: dict[str, Any] | None = None
+    recoveryChunkCount: int = 0
     retrievalConfidence: dict[str, Any] | None = None
 
     rewriteDurationMs: float = 0
     parseDurationMs: float = 0
     memoryDurationMs: float = 0
     filterDurationMs: float = 0
+    plannerDurationMs: float = 0
+    checkerDurationMs: float = 0
+    recoveryDurationMs: float = 0
     generationDurationMs: float = 0
 
 

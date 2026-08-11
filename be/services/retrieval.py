@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import numpy as np
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
-from sqlalchemy import text
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session, joinedload
 
 from core.model_registry import (
@@ -26,6 +26,7 @@ from db.session import SessionLocal
 @dataclass
 class RetrievalFilters:
     city: str | None = None
+    cities: list[str] = field(default_factory=list)
     province: str | None = None
     country: str | None = None
 
@@ -40,6 +41,7 @@ def build_retrieval_filters(
     return RetrievalFilters(
         country=parsed.location.country,
         city=parsed.location.city,
+        cities=parsed.location.cities,
         province=parsed.location.province,
         place_types=parsed.place_types,
     )
@@ -235,11 +237,11 @@ def vector_search(
             )
             params["country"] = filters.country
 
-        if filters.city:
+        if filters.cities:
             where_parts.append(
-                "LOWER(rc.city) = LOWER(:city)"
+                "LOWER(rc.city) = ANY(:cities)"
             )
-            params["city"] = filters.city
+            params["cities"] = [city.lower() for city in filters.cities]
 
         if filters.province:
             where_parts.append(
@@ -359,11 +361,11 @@ def bm25_search(
                 )
             )
 
-        if filters.city:
+        if filters.cities:
             query_builder = (
                 query_builder.filter(
-                    RagChunkORM.city.ilike(
-                        filters.city
+                    func.lower(RagChunkORM.city).in_(
+                        [city.lower() for city in filters.cities]
                     )
                 )
             )
@@ -479,6 +481,10 @@ def metadata_boost(
         memory.preferred_travel_styles
     ):
         if style in doc_styles:
+            score += 0.005
+
+    for activity in memory.preferred_activities:
+        if activity in doc_activities:
             score += 0.005
 
     return score

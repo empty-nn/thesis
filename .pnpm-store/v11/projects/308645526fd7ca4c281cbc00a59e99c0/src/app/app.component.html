@@ -1,0 +1,170 @@
+<div class="min-h-screen bg-[#212121] text-zinc-100">
+  @if (!isLoginPage() && mobileSidebarOpen()) {
+    <button
+      type="button"
+      class="fixed inset-0 z-30 bg-black/60 md:hidden"
+      aria-label="Close sidebar"
+      (click)="closeSidebar()"
+    ></button>
+  }
+
+  @if (!isLoginPage()) {
+    <aside
+      class="fixed inset-y-0 left-0 z-40 flex w-[276px] flex-col border-r border-white/8 bg-[#171717] transition-transform duration-200 md:translate-x-0"
+      [class.-translate-x-full]="!mobileSidebarOpen()"
+    >
+    <div class="flex h-14 items-center justify-between px-3">
+      <a
+        routerLink="/chat"
+        class="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm font-semibold text-zinc-100 hover:bg-white/5"
+        (click)="closeSidebar()"
+      >
+        <span class="grid size-8 place-items-center rounded-lg bg-emerald-500 text-zinc-950">
+          <svg lucideBot class="size-4"></svg>
+        </span>
+        <span>TGA Retrieval Lab</span>
+      </a>
+
+      <button
+        type="button"
+        class="grid size-9 place-items-center rounded-lg text-zinc-400 hover:bg-white/8 hover:text-white md:hidden"
+        aria-label="Close sidebar"
+        (click)="closeSidebar()"
+      >
+        <svg lucideX class="size-4"></svg>
+      </button>
+    </div>
+
+    <div class="px-3 pb-2">
+      <button
+        type="button"
+        class="flex h-10 items-center gap-3 rounded-xl border border-white/8 px-3 text-sm text-zinc-200 hover:bg-white/5"
+        (click)="newConversation()"
+      >
+        <svg lucidePlus class="size-4"></svg>
+        New conversation
+      </button>
+    </div>
+
+    <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-2">
+      <p class="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+        Workspace
+      </p>
+
+      <a
+        routerLink="/chat"
+        routerLinkActive="bg-white/8 text-white"
+        class="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        (click)="closeSidebar()"
+      >
+        <svg lucideMessageSquare class="size-4"></svg>
+        Chat
+      </a>
+
+      <a
+        routerLink="/retrieval-debug"
+        routerLinkActive="bg-white/8 text-white"
+        class="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        (click)="closeSidebar()"
+      >
+        <svg lucideDatabase class="size-4"></svg>
+        Retrieval Debug
+      </a>
+
+      <a
+        routerLink="/memory"
+        routerLinkActive="bg-white/8 text-white"
+        class="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        (click)="closeSidebar()"
+      >
+        <svg lucideDatabase class="size-4"></svg>
+        Travel Memory
+      </a>
+
+      @if (chat.conversations().length) {
+        <p class="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          Recent chats
+        </p>
+        @for (conversation of chat.conversations(); track conversation.id) {
+          <button
+            type="button"
+            [class]="
+              'block w-full truncate rounded-xl px-3 py-2 text-left text-xs transition hover:bg-white/5 hover:text-zinc-200 ' +
+              (chat.conversationId() === conversation.id
+                ? 'bg-white/8 text-zinc-200'
+                : 'text-zinc-500')
+            "
+            (click)="openConversation(conversation.id)"
+          >
+            {{ conversation.title || 'Untitled conversation' }}
+          </button>
+        }
+      }
+    </nav>
+
+    <div class="border-t border-white/8 p-3">
+      @if (auth.currentUser(); as user) {
+        <div class="flex items-center gap-3 rounded-xl bg-white/[0.035] p-2">
+          @if (user.profilePictureUrl) {
+            <img
+              class="size-9 rounded-full object-cover"
+              [src]="user.profilePictureUrl"
+              alt=""
+              referrerpolicy="no-referrer"
+            >
+          } @else {
+            <div class="grid size-9 place-items-center rounded-full bg-emerald-500 text-sm font-semibold text-zinc-950">
+              {{ (user.displayName || user.email || 'U').charAt(0).toUpperCase() }}
+            </div>
+          }
+          <div class="min-w-0 flex-1">
+            <div class="truncate text-xs font-medium text-zinc-300">
+              {{ user.displayName || 'Google user' }}
+            </div>
+            <div class="truncate text-[10px] text-zinc-600">{{ user.email }}</div>
+          </div>
+          <button
+            type="button"
+            class="grid size-8 place-items-center rounded-lg text-zinc-500 hover:bg-white/8 hover:text-white"
+            aria-label="Sign out"
+            (click)="logout()"
+          >
+            <svg lucideLogOut class="size-4"></svg>
+          </button>
+        </div>
+      } @else {
+        <a
+          routerLink="/login"
+          class="flex h-10 items-center gap-3 rounded-xl bg-emerald-500 px-3 text-sm font-semibold text-zinc-950 hover:bg-emerald-400"
+          (click)="closeSidebar()"
+        >
+          <svg lucideLogIn class="size-4"></svg>
+          Sign in with Google
+        </a>
+      }
+    </div>
+    </aside>
+  }
+
+  <div [class]="isLoginPage() ? 'min-h-screen' : 'min-h-screen md:pl-[276px]'">
+    @if (!isLoginPage()) {
+      <header
+        class="sticky top-0 z-20 flex h-14 items-center border-b border-white/7 bg-[#212121]/90 px-3 backdrop-blur-xl md:hidden"
+      >
+      <button
+        type="button"
+        class="grid size-9 place-items-center rounded-lg text-zinc-300 hover:bg-white/8"
+        aria-label="Open sidebar"
+        (click)="mobileSidebarOpen.set(true)"
+      >
+        <svg lucideMenu class="size-5"></svg>
+      </button>
+      <span class="ml-2 text-sm font-semibold">TGA Retrieval Lab</span>
+      </header>
+    }
+
+    <main class="min-h-screen">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

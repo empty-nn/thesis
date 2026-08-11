@@ -1,0 +1,51 @@
+<section class="min-h-screen bg-[#1d1d1d] px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-4xl">
+    <div>
+      <div class="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">
+        Personalization
+      </div>
+      <h1 class="mt-2 text-2xl font-semibold text-zinc-100">Travel memory</h1>
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
+        Explicit long-term preferences learned from your messages. You can remove anything that should not influence future answers.
+      </p>
+    </div>
+
+    @if (memory.loading()) {
+      <div class="mt-8 text-sm text-zinc-500">Loading memories…</div>
+    } @else if (!memory.memories().length) {
+      <div class="mt-8 rounded-2xl border border-white/8 bg-[#222222] p-8 text-center">
+        <div class="text-sm font-medium text-zinc-300">No saved preferences yet</div>
+        <p class="mt-2 text-sm text-zinc-600">
+          Try telling the assistant: “I prefer quiet cultural trips and budget local food.”
+        </p>
+      </div>
+    } @else {
+      <div class="mt-8 grid gap-3 sm:grid-cols-2">
+        @for (item of memory.memories(); track item.id) {
+          <article class="rounded-2xl border border-white/8 bg-[#222222] p-4">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-emerald-500/70">
+                  {{ item.memory_type.replace('_', ' ') }}
+                </div>
+                <div class="mt-2 text-sm font-medium text-zinc-200">
+                  {{ item.content.replaceAll('_', ' ') }}
+                </div>
+                <div class="mt-2 font-mono text-[10px] text-zinc-600">
+                  importance {{ item.importance }}
+                </div>
+              </div>
+              <button
+                type="button"
+                class="rounded-lg border border-white/8 px-2.5 py-1.5 text-xs text-zinc-500 hover:border-red-400/20 hover:bg-red-400/10 hover:text-red-300"
+                (click)="memory.remove(item.id)"
+              >
+                Remove
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>

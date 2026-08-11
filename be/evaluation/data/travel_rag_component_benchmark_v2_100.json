@@ -1,0 +1,3922 @@
+{
+  "version": "2.0",
+  "description": "100-case component benchmark for query rewriting, parsing, user-memory extraction, and conversation-state extraction. Synthetic cases require human review before final thesis reporting.",
+  "cases": [
+    {
+      "case_id": "TGA-V2-001",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Hanoi?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Hanoi"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-002",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Hue.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hue"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-003",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near My Khe Beach?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Da Nang"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-004",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Hoi An?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Hoi An"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-005",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Ninh Binh.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ninh Binh"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-006",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near Long Beach?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Phu Quoc"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-007",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Ho Chi Minh City?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Ho Chi Minh City"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-008",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Ha Long.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ha Long"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-009",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near Fansipan?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Sapa"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-010",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Can Tho?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Can Tho"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-011",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Hanoi.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hanoi"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-012",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near Imperial City?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Hue"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-013",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Da Nang?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Da Nang"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-014",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Hoi An.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hoi An"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-015",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near Trang An?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Ninh Binh"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-016",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Phu Quoc?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Phu Quoc"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-017",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Ho Chi Minh City.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ho Chi Minh City"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-018",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near Ha Long Bay?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Ha Long"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-019",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Sapa?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Sapa"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-020",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Can Tho.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Can Tho"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-021",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near Hoan Kiem Lake?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Hanoi"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-022",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Hue?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Hue"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-023",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Da Nang.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Da Nang"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-024",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near Hoi An Ancient Town?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Hoi An"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-025",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Ninh Binh?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Ninh Binh"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-026",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Phu Quoc.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Phu Quoc"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-027",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near Ben Thanh Market?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Ho Chi Minh City"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-028",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "What are the best attractions in Ha Long?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "attraction_search",
+        "location": {
+          "city": "Ha Long"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-029",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Plan a 3-day itinerary for Sapa.",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Sapa"
+        },
+        "constraints": {
+          "duration_days": 3
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-030",
+      "scenario_type": "standalone",
+      "applicable_metrics": [
+        "query_parser"
+      ],
+      "query": "Where should I eat near Cai Rang Floating Market?",
+      "conversation_history": [],
+      "expected_parser": {
+        "intent": "food_search",
+        "location": {
+          "city": "Can Tho"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-031",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Hanoi."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Hanoi."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Hoan Kiem Lake on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Hoan Kiem Lake on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Hanoi",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hue"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hanoi"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-032",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Hue."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Hue."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Imperial City on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Imperial City on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Hue",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hue"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-033",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Da Nang."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Da Nang."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit My Khe Beach on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep My Khe Beach on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Da Nang",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Da Nang"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-034",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Hoi An."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Hoi An."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Hoi An Ancient Town on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Hoi An Ancient Town on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Hoi An",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hoi An"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-035",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Ninh Binh."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Ninh Binh."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Trang An on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Trang An on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Ninh Binh",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ninh Binh"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-036",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Phu Quoc."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Phu Quoc."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Long Beach on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Long Beach on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Phu Quoc",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Phu Quoc"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-037",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Ho Chi Minh City."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Ho Chi Minh City."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Ben Thanh Market on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Ben Thanh Market on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Ho Chi Minh City",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ho Chi Minh City"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-038",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Ha Long."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Ha Long."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Ha Long Bay on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Ha Long Bay on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Ha Long",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ha Long"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-039",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Sapa."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Sapa."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Fansipan on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Fansipan on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Sapa",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Sapa"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-040",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Can Tho."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Can Tho."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Cai Rang Floating Market on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Cai Rang Floating Market on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Can Tho",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Can Tho"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-041",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Hanoi."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Hanoi."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Hoan Kiem Lake on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Hoan Kiem Lake on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Hanoi",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hue"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hanoi"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-042",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Hue."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Hue."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Imperial City on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Imperial City on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Hue",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hue"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-043",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Da Nang."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Da Nang."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit My Khe Beach on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep My Khe Beach on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Da Nang",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Da Nang"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-044",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Hoi An."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Hoi An."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Hoi An Ancient Town on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Hoi An Ancient Town on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Hoi An",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hoi An"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-045",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Ninh Binh."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Ninh Binh."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Trang An on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Trang An on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Ninh Binh",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ninh Binh"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-046",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Phu Quoc."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Phu Quoc."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Long Beach on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Long Beach on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Phu Quoc",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Phu Quoc"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-047",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Ho Chi Minh City."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Ho Chi Minh City."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Ben Thanh Market on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Ben Thanh Market on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Ho Chi Minh City",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ho Chi Minh City"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-048",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Ha Long."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Ha Long."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Ha Long Bay on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Ha Long Bay on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Ha Long",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ha Long"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-049",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "What should I do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Sapa."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Sapa."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Fansipan on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Fansipan on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Sapa",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Sapa"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-050",
+      "scenario_type": "follow_up",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser"
+      ],
+      "query": "Can you make the plan cheaper?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "I am planning a trip to Can Tho."
+        },
+        {
+          "role": "assistant",
+          "content": "I can help plan your visit to Can Tho."
+        },
+        {
+          "role": "user",
+          "content": "I want to visit Cai Rang Floating Market on the first day."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep Cai Rang Floating Market on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Can Tho",
+          "cheaper"
+        ],
+        "forbidden_concepts": [
+          "Hanoi"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Can Tho"
+        },
+        "constraints": {
+          "duration_days": null
+        }
+      },
+      "user_memory_case": null,
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-051",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I usually prefer quiet cultural trips and avoid crowds.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I usually prefer quiet cultural trips and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-052",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I prefer budget travel and local food experiences.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I prefer budget travel and local food experiences.",
+        "expected_memories": [
+          {
+            "memory_type": "budget",
+            "content": "budget"
+          },
+          {
+            "memory_type": "activity",
+            "content": "local_food"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-053",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I love hiking and nature-focused trips.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I love hiking and nature-focused trips.",
+        "expected_memories": [
+          {
+            "memory_type": "activity",
+            "content": "hiking"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "nature"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-054",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I avoid nightlife and prefer museums.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I avoid nightlife and prefer museums.",
+        "expected_memories": [
+          {
+            "memory_type": "avoid",
+            "content": "nightlife"
+          },
+          {
+            "memory_type": "activity",
+            "content": "museums"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-055",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I normally choose luxury beach holidays.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I normally choose luxury beach holidays.",
+        "expected_memories": [
+          {
+            "memory_type": "budget",
+            "content": "luxury"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "beach"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-056",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I usually prefer quiet cultural trips and avoid crowds.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I usually prefer quiet cultural trips and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-057",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I prefer budget travel and local food experiences.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I prefer budget travel and local food experiences.",
+        "expected_memories": [
+          {
+            "memory_type": "budget",
+            "content": "budget"
+          },
+          {
+            "memory_type": "activity",
+            "content": "local_food"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-058",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I love hiking and nature-focused trips.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I love hiking and nature-focused trips.",
+        "expected_memories": [
+          {
+            "memory_type": "activity",
+            "content": "hiking"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "nature"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-059",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I avoid nightlife and prefer museums.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I avoid nightlife and prefer museums.",
+        "expected_memories": [
+          {
+            "memory_type": "avoid",
+            "content": "nightlife"
+          },
+          {
+            "memory_type": "activity",
+            "content": "museums"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-060",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I normally choose luxury beach holidays.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I normally choose luxury beach holidays.",
+        "expected_memories": [
+          {
+            "memory_type": "budget",
+            "content": "luxury"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "beach"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-061",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I usually prefer quiet cultural trips and avoid crowds.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I usually prefer quiet cultural trips and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-062",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I prefer budget travel and local food experiences.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I prefer budget travel and local food experiences.",
+        "expected_memories": [
+          {
+            "memory_type": "budget",
+            "content": "budget"
+          },
+          {
+            "memory_type": "activity",
+            "content": "local_food"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-063",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I love hiking and nature-focused trips.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I love hiking and nature-focused trips.",
+        "expected_memories": [
+          {
+            "memory_type": "activity",
+            "content": "hiking"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "nature"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-064",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I avoid nightlife and prefer museums.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I avoid nightlife and prefer museums.",
+        "expected_memories": [
+          {
+            "memory_type": "avoid",
+            "content": "nightlife"
+          },
+          {
+            "memory_type": "activity",
+            "content": "museums"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-065",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I normally choose luxury beach holidays.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I normally choose luxury beach holidays.",
+        "expected_memories": [
+          {
+            "memory_type": "budget",
+            "content": "luxury"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "beach"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-066",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I usually prefer quiet cultural trips and avoid crowds.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I usually prefer quiet cultural trips and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-067",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I prefer budget travel and local food experiences.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I prefer budget travel and local food experiences.",
+        "expected_memories": [
+          {
+            "memory_type": "budget",
+            "content": "budget"
+          },
+          {
+            "memory_type": "activity",
+            "content": "local_food"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-068",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I love hiking and nature-focused trips.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I love hiking and nature-focused trips.",
+        "expected_memories": [
+          {
+            "memory_type": "activity",
+            "content": "hiking"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "nature"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-069",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I avoid nightlife and prefer museums.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I avoid nightlife and prefer museums.",
+        "expected_memories": [
+          {
+            "memory_type": "avoid",
+            "content": "nightlife"
+          },
+          {
+            "memory_type": "activity",
+            "content": "museums"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-070",
+      "scenario_type": "user_memory",
+      "applicable_metrics": [
+        "user_memory_extraction"
+      ],
+      "query": "I normally choose luxury beach holidays.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": {
+        "message": "I normally choose luxury beach holidays.",
+        "expected_memories": [
+          {
+            "memory_type": "budget",
+            "content": "luxury"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "beach"
+          }
+        ],
+        "forbidden_types": [
+          "personal_fact",
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": null
+    },
+    {
+      "case_id": "TGA-V2-071",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Hanoi from September 12 to September 15, 2026. We selected Hoan Kiem Lake.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Hanoi from September 12 to September 15, 2026. We selected Hoan Kiem Lake.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Hanoi",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "Hoan Kiem Lake"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-072",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Hue",
+          "destination": "Hue",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Imperial City"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Hue",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Imperial City"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-073",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Da Nang from September 12 to September 15, 2026. We selected My Khe Beach.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Da Nang from September 12 to September 15, 2026. We selected My Khe Beach.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Da Nang",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "My Khe Beach"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-074",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Hoi An",
+          "destination": "Hoi An",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Hoi An Ancient Town"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Hoi An",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Hoi An Ancient Town"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-075",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Ninh Binh from September 12 to September 15, 2026. We selected Trang An.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Ninh Binh from September 12 to September 15, 2026. We selected Trang An.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Ninh Binh",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "Trang An"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-076",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Phu Quoc",
+          "destination": "Phu Quoc",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Long Beach"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Phu Quoc",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Long Beach"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-077",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Ho Chi Minh City from September 12 to September 15, 2026. We selected Ben Thanh Market.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Ho Chi Minh City from September 12 to September 15, 2026. We selected Ben Thanh Market.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Ho Chi Minh City",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "Ben Thanh Market"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-078",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Ha Long",
+          "destination": "Ha Long",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Ha Long Bay"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Ha Long",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Ha Long Bay"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-079",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Sapa from September 12 to September 15, 2026. We selected Fansipan.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Sapa from September 12 to September 15, 2026. We selected Fansipan.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Sapa",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "Fansipan"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-080",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Can Tho",
+          "destination": "Can Tho",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Cai Rang Floating Market"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Can Tho",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Cai Rang Floating Market"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-081",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Hanoi from September 12 to September 15, 2026. We selected Hoan Kiem Lake.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Hanoi from September 12 to September 15, 2026. We selected Hoan Kiem Lake.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Hanoi",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "Hoan Kiem Lake"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-082",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Hue",
+          "destination": "Hue",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Imperial City"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Hue",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Imperial City"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-083",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Da Nang from September 12 to September 15, 2026. We selected My Khe Beach.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Da Nang from September 12 to September 15, 2026. We selected My Khe Beach.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Da Nang",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "My Khe Beach"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-084",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Hoi An",
+          "destination": "Hoi An",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Hoi An Ancient Town"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Hoi An",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Hoi An Ancient Town"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-085",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Ninh Binh from September 12 to September 15, 2026. We selected Trang An.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Ninh Binh from September 12 to September 15, 2026. We selected Trang An.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Ninh Binh",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "Trang An"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-086",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Phu Quoc",
+          "destination": "Phu Quoc",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Long Beach"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Phu Quoc",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Long Beach"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-087",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Ho Chi Minh City from September 12 to September 15, 2026. We selected Ben Thanh Market.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Ho Chi Minh City from September 12 to September 15, 2026. We selected Ben Thanh Market.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Ho Chi Minh City",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "Ben Thanh Market"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-088",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Ha Long",
+          "destination": "Ha Long",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Ha Long Bay"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Ha Long",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Ha Long Bay"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-089",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "We will visit Sapa from September 12 to September 15, 2026. We selected Fansipan.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "",
+          "destination": null,
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": null,
+          "temporary_budget": null,
+          "selected_places": [],
+          "trip_constraints": []
+        },
+        "user_message": "We will visit Sapa from September 12 to September 15, 2026. We selected Fansipan.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Sapa",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "duration_days": 4,
+          "selected_places": [
+            "Fansipan"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-090",
+      "scenario_type": "conversation_memory",
+      "applicable_metrics": [
+        "conversation_memory_extraction"
+      ],
+      "query": "Please extend the trip to five days and keep the same start date.",
+      "conversation_history": [],
+      "expected_parser": null,
+      "expected_rewrite": null,
+      "user_memory_case": null,
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Trip to Can Tho",
+          "destination": "Can Tho",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-15",
+          "original_date_text": "September 12 to 15",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Cai Rang Floating Market"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Please extend the trip to five days and keep the same start date.",
+        "assistant_message": "Understood. I will use those trip details.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Can Tho",
+          "date_from": "2026-09-12",
+          "date_to": "2026-09-16",
+          "duration_days": 5,
+          "selected_places": [
+            "Cai Rang Floating Market"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-091",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Hanoi with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected Hoan Kiem Lake for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Hanoi",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hanoi"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Hanoi",
+          "destination": "Hanoi",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Hoan Kiem Lake"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Hanoi",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Hoan Kiem Lake"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-092",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Hue with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected Imperial City for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Hue",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hue"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Hue",
+          "destination": "Hue",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Imperial City"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Hue",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Imperial City"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-093",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Da Nang with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected My Khe Beach for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Da Nang",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Da Nang"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Da Nang",
+          "destination": "Da Nang",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "My Khe Beach"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Da Nang",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "My Khe Beach"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-094",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Hoi An with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected Hoi An Ancient Town for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Hoi An",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Hoi An"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Hoi An",
+          "destination": "Hoi An",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Hoi An Ancient Town"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Hoi An",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Hoi An Ancient Town"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-095",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Ninh Binh with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected Trang An for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Ninh Binh",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ninh Binh"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Ninh Binh",
+          "destination": "Ninh Binh",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Trang An"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Ninh Binh",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Trang An"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-096",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Phu Quoc with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected Long Beach for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Phu Quoc",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Phu Quoc"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Phu Quoc",
+          "destination": "Phu Quoc",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Long Beach"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Phu Quoc",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Long Beach"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-097",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Ho Chi Minh City with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected Ben Thanh Market for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Ho Chi Minh City",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ho Chi Minh City"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Ho Chi Minh City",
+          "destination": "Ho Chi Minh City",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Ben Thanh Market"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Ho Chi Minh City",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Ben Thanh Market"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-098",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Ha Long with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected Ha Long Bay for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Ha Long",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Ha Long"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Ha Long",
+          "destination": "Ha Long",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Ha Long Bay"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Ha Long",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Ha Long Bay"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-099",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Sapa with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected Fansipan for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Sapa",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Sapa"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Sapa",
+          "destination": "Sapa",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Fansipan"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Sapa",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Fansipan"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "TGA-V2-100",
+      "scenario_type": "combined",
+      "applicable_metrics": [
+        "query_rewrite",
+        "query_parser",
+        "user_memory_extraction",
+        "conversation_memory_extraction"
+      ],
+      "query": "What should we do there on the second day?",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "We are planning four days in Can Tho with a mid-range budget."
+        },
+        {
+          "role": "assistant",
+          "content": "Which place should be included?"
+        },
+        {
+          "role": "user",
+          "content": "We selected Cai Rang Floating Market for day one."
+        },
+        {
+          "role": "assistant",
+          "content": "I will keep it on day one."
+        }
+      ],
+      "expected_rewrite": {
+        "required_concepts": [
+          "Can Tho",
+          "second day"
+        ],
+        "forbidden_concepts": [
+          "day one"
+        ]
+      },
+      "expected_parser": {
+        "intent": "itinerary",
+        "location": {
+          "city": "Can Tho"
+        },
+        "constraints": {
+          "duration_days": 4
+        }
+      },
+      "user_memory_case": {
+        "message": "I prefer quiet cultural activities and avoid crowds.",
+        "expected_memories": [
+          {
+            "memory_type": "travel_style",
+            "content": "culture"
+          },
+          {
+            "memory_type": "travel_style",
+            "content": "quiet"
+          },
+          {
+            "memory_type": "avoid",
+            "content": "crowds"
+          }
+        ],
+        "forbidden_types": [
+          "identity",
+          "medical"
+        ]
+      },
+      "conversation_memory_case": {
+        "previous_state": {
+          "summary": "Four-day trip to Can Tho",
+          "destination": "Can Tho",
+          "date_from": null,
+          "date_to": null,
+          "original_date_text": null,
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Cai Rang Floating Market"
+          ],
+          "trip_constraints": []
+        },
+        "user_message": "Keep the selected place on day one and plan something different for day two.",
+        "assistant_message": "I will plan a different day-two activity.",
+        "current_date": "2026-08-11",
+        "timezone": "Asia/Ho_Chi_Minh",
+        "expected_state": {
+          "destination": "Can Tho",
+          "duration_days": 4,
+          "temporary_budget": "mid_range",
+          "selected_places": [
+            "Cai Rang Floating Market"
+          ]
+        }
+      }
+    }
+  ]
+}

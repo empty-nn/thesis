@@ -31,6 +31,8 @@ class ChatResponse(BaseModel):
     sources: list[ChatSource] = Field(
         default_factory=list
     )
+    knowledge_gap: dict | None = Field(default=None, exclude=True)
+    route_category: str = Field(default="travel", exclude=True)
 
 
 class ConversationSummary(BaseModel):
