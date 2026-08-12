@@ -11,7 +11,9 @@ Commit and push these deployment files to GitHub before connecting either platfo
 
 1. In Render, create a **Blueprint** from this repository. Render reads `render.yaml`.
 2. Enter `DEEPSEEK_API_KEY` and `GOOGLE_CLIENT_ID` when prompted.
-3. Wait for the database migration and API deployment to finish.
+3. Wait for the database migration and API deployment to finish. On the free
+   tier, migrations run as part of the service start command because Render does
+   not support pre-deploy commands for free web services.
 4. Confirm `https://empty-nn-travel-rag-api.onrender.com/api/health` returns `status: ok`.
 
 The Blueprint uses Render's free tiers for an initial thesis/demo deployment.
