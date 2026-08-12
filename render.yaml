@@ -3,7 +3,7 @@ services:
     name: empty-nn-travel-rag-api
     runtime: python
     rootDir: be
-    plan: standard
+    plan: free
     buildCommand: pip install -r requirements-deploy.txt
     preDeployCommand: alembic upgrade head
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
@@ -30,4 +30,4 @@ databases:
   - name: travel-rag-postgres
     databaseName: travel_rag
     user: travel_rag
-    plan: basic-256mb
+    plan: free

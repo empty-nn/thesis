@@ -14,8 +14,10 @@ Commit and push these deployment files to GitHub before connecting either platfo
 3. Wait for the database migration and API deployment to finish.
 4. Confirm `https://empty-nn-travel-rag-api.onrender.com/api/health` returns `status: ok`.
 
-The backend uses a Standard instance because the embedding and reranking models are
-loaded in memory when the process starts. Downsizing can cause memory exhaustion.
+The Blueprint uses Render's free tiers for an initial thesis/demo deployment.
+Free Postgres expires after 30 days, and the free web service can run out of memory
+while loading the embedding and reranking models. If that happens, upgrade only the
+web service to Standard and keep the database free during the evaluation period.
 
 ## 3. Create the Vercel frontend
 
