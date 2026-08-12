@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: empty-nn-travel-rag-api
+    runtime: python
+    rootDir: be
+    plan: standard
+    buildCommand: pip install -r requirements-deploy.txt
+    preDeployCommand: alembic upgrade head
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: DATABASE_URL
+        fromDatabase:
+          name: travel-rag-postgres
+          property: connectionString
+      - key: AUTH_SESSION_SECRET
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: USER_TIMEZONE
+        value: Asia/Ho_Chi_Minh
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+
+databases:
+  - name: travel-rag-postgres
+    databaseName: travel_rag
+    user: travel_rag
+    plan: basic-256mb

@@ -66,6 +66,7 @@ Thesis/ENV/
 # Alembic / database local config
 # =========================
 alembic.ini
+!be/alembic.ini
 Thesis/alembic.ini
 
 

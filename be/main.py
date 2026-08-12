@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,14 +22,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Angular dev server.
-# Add your production frontend origin when you deploy.
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+def _allowed_origins() -> list[str]:
+    configured = os.getenv("CORS_ORIGINS", "")
+    origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
+    return origins or [
         "http://localhost:4200",
         "http://127.0.0.1:4200",
-    ],
+    ]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
