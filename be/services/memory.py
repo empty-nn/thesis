@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
 from data_building.extract_metadata.extractor import (
-    DEEPSEEK_METADATA_MODEL,
+    DEEPSEEK_FAST_MODEL,
     get_deepseek_client,
 )
 from services.llm_telemetry import create_chat_completion
@@ -73,7 +73,7 @@ def extract_memories(message: str) -> list[ExtractedMemory]:
     client = get_deepseek_client()
     response = create_chat_completion(
         "memory_extraction", client,
-        model=DEEPSEEK_METADATA_MODEL,
+        model=DEEPSEEK_FAST_MODEL,
         messages=[
             {
                 "role": "system",

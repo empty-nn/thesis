@@ -72,6 +72,7 @@ class RetrievalArtifacts:
 
     confidence: RetrievalConfidence
     comparison_balance: dict[str, Any]
+    filter_relaxations: list[dict[str, Any]]
     recovery_effectiveness: dict[str, Any]
     answer_readiness: AnswerReadiness
     initial_coverage: EvidenceCoverage
@@ -288,7 +289,7 @@ def evaluate_answer_readiness(
     if coverage.sufficient and enough_places:
         mode = "complete"
         reason = "All requirements have cited coverage and itinerary evidence is adequate."
-    elif coverage.covered_count > 0 or (
+    elif coverage.covered_count > 0 or coverage.partial_count > 0 or (
         not coverage.requirement_assessments and bool(documents)
     ):
         mode = "partial"
@@ -460,6 +461,14 @@ def run_retrieval_pipeline(
         plan_retrieval(
             rewritten_query,
             comparison_cities=comparison_cities,
+            planner_context={
+                "intent": parsed.intent,
+                "operation": parsed.operation,
+                "explicit_constraints": [
+                    item.model_dump() for item in parsed.explicit_constraints
+                ],
+                "cities": parsed.location.cities,
+            },
         )
         if use_agentic_retrieval
         else AgenticRetrievalPlan(
@@ -511,34 +520,80 @@ def run_retrieval_pipeline(
 
     vector_groups: list[list[Document]] = []
     bm25_groups: list[list[Document]] = []
+    filter_relaxations: list[dict[str, Any]] = []
     for task in plan.retrieval_tasks:
         task_filters = (
             replace(
                 filters,
                 city=task.cities[0] if len(task.cities) == 1 else None,
                 cities=list(task.cities),
+                # A city-scoped task is already more specific. Retaining a
+                # broad or misclassified province can make the conjunction
+                # impossible (for example Northern Vietnam + Hanoi).
+                province=None,
             )
             if task.cities else filters
         )
         start = perf_counter()
-        vector_groups.append(
-            vector_search(
+        task_vector_docs = vector_search(
                 query=task.query,
                 filters=task_filters,
                 limit=min(vector_limit, task.top_k),
             )
-        )
         timings.vector_ms += _elapsed_ms(start)
 
         start = perf_counter()
-        bm25_groups.append(
-            bm25_search(
+        task_bm25_docs = bm25_search(
                 query=task.query,
                 filters=task_filters,
                 limit=min(bm25_limit, task.top_k),
             )
-        )
         timings.bm25_ms += _elapsed_ms(start)
+
+        if (
+            not task_vector_docs
+            and not task_bm25_docs
+            and (task_filters.province or task_filters.place_types)
+        ):
+            relaxed_filters = replace(
+                task_filters,
+                province=None,
+                place_types=[],
+            )
+            removed_filters = [
+                name
+                for name, present in (
+                    ("province", bool(task_filters.province)),
+                    ("place_types", bool(task_filters.place_types)),
+                )
+                if present
+            ]
+            start = perf_counter()
+            task_vector_docs = vector_search(
+                query=task.query,
+                filters=relaxed_filters,
+                limit=min(vector_limit, task.top_k),
+            )
+            timings.vector_ms += _elapsed_ms(start)
+            start = perf_counter()
+            task_bm25_docs = bm25_search(
+                query=task.query,
+                filters=relaxed_filters,
+                limit=min(bm25_limit, task.top_k),
+            )
+            timings.bm25_ms += _elapsed_ms(start)
+            filter_relaxations.append({
+                "query": task.query,
+                "performed": True,
+                "reason": "zero_candidates_with_optional_filters",
+                "removed_filters": removed_filters,
+                "result_count": len(merge_unique_documents([
+                    task_vector_docs, task_bm25_docs
+                ])),
+            })
+
+        vector_groups.append(task_vector_docs)
+        bm25_groups.append(task_bm25_docs)
 
     vector_docs = merge_unique_documents(vector_groups)
     bm25_docs = merge_unique_documents(bm25_groups)
@@ -627,6 +682,26 @@ def run_retrieval_pipeline(
         "new_unique_candidate_count": 0,
         "new_selected_evidence_ids": [],
         "newly_covered_requirements": [],
+        "missing_requirement_diagnostics": [
+            {
+                "requirement": item.requirement,
+                "status": item.status,
+                "probe_query": item.additional_query,
+                "probe_executed": False,
+                "probe_skip_reason": "recovery_not_performed",
+                "probe_candidate_count": 0,
+                "new_probe_candidate_count": 0,
+                "selected_probe_evidence_count": 0,
+                "selected_probe_evidence_ids": [],
+                "likely_cause": "not_probed",
+                "confidence": "low",
+                "note": (
+                    "No recovery probe was run; this cannot establish a corpus gap."
+                ),
+            }
+            for item in initial_coverage.requirement_assessments
+            if item.status != "covered"
+        ],
         "improved": False,
         "stop_reason": (
             "coverage_sufficient"
@@ -676,6 +751,11 @@ def run_retrieval_pipeline(
         initial_missing_requirements = list(
             coverage.missing_requirements
         )
+        initial_probe_query_by_requirement = {
+            item.requirement: item.additional_query
+            for item in coverage.requirement_assessments
+            if item.status != "covered" and item.additional_query
+        }
         recovery_start = perf_counter()
         recovery_vector_groups: list[list[Document]] = []
         recovery_bm25_groups: list[list[Document]] = []
@@ -693,6 +773,7 @@ def run_retrieval_pipeline(
                     filters,
                     city=recovery_cities[0] if len(recovery_cities) == 1 else None,
                     cities=recovery_cities,
+                    province=None,
                 )
                 if recovery_cities else filters
             )
@@ -751,6 +832,61 @@ def run_retrieval_pipeline(
             set(coverage.covered_requirements)
             - set(initial_coverage.covered_requirements)
         )
+        recovery_results_by_query: dict[str, set[str]] = {}
+        for index, recovery_query in enumerate(recovery_queries):
+            query_documents = merge_unique_documents([
+                recovery_vector_groups[index], recovery_bm25_groups[index]
+            ])
+            recovery_results_by_query[recovery_query] = {
+                _document_identifier(document) for document in query_documents
+            }
+        missing_requirement_diagnostics: list[dict[str, Any]] = []
+        for assessment in coverage.requirement_assessments:
+            if assessment.status == "covered":
+                continue
+            probe_query = initial_probe_query_by_requirement.get(
+                assessment.requirement, assessment.additional_query
+            )
+            probe_ids = recovery_results_by_query.get(probe_query or "", set())
+            selected_probe_ids = sorted(probe_ids & final_selected_ids)
+            new_probe_ids = sorted(probe_ids - initial_candidate_ids)
+            probe_executed = bool(
+                probe_query and probe_query in recovery_results_by_query
+            )
+            if not probe_executed:
+                likely_cause = "not_probed"
+                confidence = "high"
+            elif not probe_ids:
+                likely_cause = "likely_corpus_gap"
+                confidence = "medium"
+            elif selected_probe_ids:
+                likely_cause = "selected_evidence_insufficient"
+                confidence = "medium"
+            elif new_probe_ids:
+                likely_cause = "likely_reranking_failure"
+                confidence = "medium"
+            else:
+                likely_cause = "likely_corpus_content_gap"
+                confidence = "low"
+            missing_requirement_diagnostics.append({
+                "requirement": assessment.requirement,
+                "status": assessment.status,
+                "probe_query": probe_query,
+                "probe_executed": probe_executed,
+                "probe_skip_reason": (
+                    None if probe_executed else "recovery_query_limit"
+                ),
+                "probe_candidate_count": len(probe_ids),
+                "new_probe_candidate_count": len(new_probe_ids),
+                "selected_probe_evidence_count": len(selected_probe_ids),
+                "selected_probe_evidence_ids": selected_probe_ids,
+                "likely_cause": likely_cause,
+                "confidence": confidence,
+                "note": (
+                    "This is a retrieval diagnostic, not proof that the full corpus "
+                    "does or does not contain the requested fact."
+                ),
+            })
         recovery_effectiveness = {
             "performed": True,
             "queries": recovery_queries,
@@ -765,6 +901,7 @@ def run_retrieval_pipeline(
                 final_selected_ids - initial_selected_ids
             ),
             "newly_covered_requirements": newly_covered_requirements,
+            "missing_requirement_diagnostics": missing_requirement_diagnostics,
             "improved": (
                 coverage.coverage_ratio > initial_coverage.coverage_ratio
                 or bool(newly_covered_requirements)
@@ -792,6 +929,7 @@ def run_retrieval_pipeline(
                 "evidence_count": len(reranked_docs),
                 "comparison_balance": comparison_balance,
                 "effectiveness": recovery_effectiveness,
+                "missing_requirement_diagnostics": missing_requirement_diagnostics,
                 "highlights": [
                     *(
                         ["Missing topics searched again: " + "; ".join(
@@ -817,6 +955,7 @@ def run_retrieval_pipeline(
                 "covered": coverage.covered_requirements,
                 "missing": coverage.missing_requirements,
                 "recovery_performed": True,
+                "missing_requirement_diagnostics": missing_requirement_diagnostics,
                 "highlights": [
                     "Recovery retrieval was performed",
                     f"Covered requirements: {len(coverage.covered_requirements)}",
@@ -865,6 +1004,7 @@ def run_retrieval_pipeline(
         recovery_queries=recovery_queries,
         confidence=confidence,
         comparison_balance=comparison_balance,
+        filter_relaxations=filter_relaxations,
         recovery_effectiveness=recovery_effectiveness,
         answer_readiness=answer_readiness,
         initial_coverage=initial_coverage,

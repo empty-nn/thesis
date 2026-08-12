@@ -1,0 +1,168 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+This thesis proposed an end-to-end Personalized Travel Guide Assistant for
+Vietnam based on Retrieval-Augmented Generation (RAG). The system was designed
+to address three connected challenges: understanding multi-turn travel
+requests, retrieving relevant and sufficiently complete tourism evidence, and
+generating responses that are both grounded in the available sources and
+adapted to the individual user.
+
+The proposed architecture integrates an offline tourism knowledge-construction
+workflow with an inspectable online query-processing pipeline. Tourism webpages
+and documents are cleaned, divided using structure-aware chunking, enriched
+with controlled metadata, transformed into dense embeddings, and stored in a
+PostgreSQL knowledge base with vector-search support. At query time, the system
+performs request routing, conversational query rewriting, structured query
+parsing, retrieval planning, hybrid retrieval, CrossEncoder reranking,
+evidence-coverage checking, bounded recovery retrieval, and readiness-gated
+answer generation.
+
+A central contribution of this work is the separation of different types of
+context and query information. Persistent user memory stores durable
+preferences, such as preferred activities, travel styles, budget level, answer
+length, and conditions to avoid. Temporary conversation state stores
+trip-specific information, including the current destination, dates, duration,
+selected places, and temporary constraints. Similarly, the query-understanding
+stage distinguishes intent from operation and separates explicit user
+constraints from semantic retrieval facets. These distinctions reduce the risk
+of treating temporary requirements as permanent preferences or applying soft
+personalization signals as restrictive retrieval filters.
+
+The retrieval pipeline combines dense semantic retrieval and BM25 lexical
+retrieval using Reciprocal Rank Fusion. Small metadata, preference, geographic,
+and freshness signals refine the ranking, while a CrossEncoder reranks the
+strongest fused candidates. For complex requests, a bounded planner decomposes
+the query into focused evidence requirements and retrieval tasks. The evidence
+checker then determines whether each requirement is covered, partially covered,
+or not covered. When evidence remains incomplete, the system performs up to
+three focused recovery searches and evaluates the evidence again.
+
+The proposed design also distinguishes retrieval failure from corpus
+limitations. Missing-evidence diagnostics identify whether a requirement was
+not probed, whether the corpus likely lacks the requested information, whether
+potentially useful chunks were lost during reranking, or whether selected
+evidence remains insufficient. Based on these results, the system assigns a
+complete, partial, or insufficient answer-readiness mode. This prevents the
+answer model from silently replacing missing evidence with unsupported internal
+knowledge and enables partial answers to state their limitations explicitly.
+
+To evaluate the complete pipeline, this thesis defines a multi-stage evaluation
+protocol covering query understanding, retrieval, and final-answer quality.
+The dataset contains five synthetic users with different travel preferences,
+two multi-turn conversations per user, and ten query turns per conversation,
+for a total of 100 evaluated queries. Query understanding is evaluated using
+intent accuracy, operation accuracy, query-constraint F1, and retrieval-facet
+F1. Retrieval quality is evaluated using graded chunk relevance, nDCG@5, and
+Precision@5. Final responses are evaluated for correctness, faithfulness,
+personalization adherence, and completeness.
+
+An independent LLM is used to provide scalable initial judgments, while human
+review is retained for reference-label validation and confirmation of
+questionable or representative cases. The experimental trace also records
+latency, token usage, estimated cost, model identifiers, prompt hashes,
+pipeline version, and corpus fingerprint. Consequently, evaluation results can
+be connected to the precise system and knowledge-base configuration under
+which they were produced.
+
+The experimental findings presented in this thesis show that final-answer
+quality cannot be explained by a single component score. A relevant top-ranked
+chunk does not guarantee that every part of a complex travel request is
+covered, while a lower final-answer score may originate from missing corpus
+information, query-parsing error, insufficient task decomposition, ranking
+failure, incorrect coverage assessment, or generation failure. Stage-level
+evaluation and pipeline traces are therefore necessary for interpreting the
+behavior of a personalized RAG system.
+
+% Replace the following commented paragraph after the official 100-query run
+% with the final aggregate results reported in the evaluation chapter.
+% The official experiment achieved an Intent Accuracy of [VALUE], an Operation
+% Accuracy of [VALUE], a Query Constraint F1 of [VALUE], and a Retrieval Facet
+% F1 of [VALUE]. Retrieval achieved an nDCG@5 of [VALUE] and Precision@5 of
+% [VALUE]. The mean final-answer scores were [VALUE] for correctness, [VALUE]
+% for faithfulness, [VALUE] for personalization adherence, and [VALUE] for
+% completeness. These results indicate [FINAL EVIDENCE-BASED INTERPRETATION].
+
+\section*{Limitations}
+
+Several limitations remain. First, system performance depends on the scope,
+quality, freshness, and metadata consistency of the tourism corpus. Information
+such as current prices, schedules, temporary closures, dietary safety, and
+accommodation details may be absent or become outdated. Recovery retrieval can
+find overlooked evidence, but it cannot create information that does not exist
+in the knowledge base.
+
+Second, complex travel requests may contain more aspects than can be represented
+by the bounded retrieval plan and final evidence set. Although destination
+comparison receives balancing, general multi-aspect requests can still be
+dominated by evidence for one task or destination. Global CrossEncoder
+reranking does not always guarantee balanced coverage across every planned
+requirement.
+
+Third, LLM-based query parsing, planning, coverage checking, response
+generation, and evaluation remain probabilistic. Controlled vocabularies and
+deterministic normalization reduce malformed or inconsistent outputs but cannot
+eliminate them completely. Synthetic reference labels can also be ambiguous,
+particularly for overlapping intents and semantic facets. Independent judging
+reduces circularity but does not remove judge bias or variance, making human
+validation necessary.
+
+Finally, the current evaluation is performed on a bounded synthetic multi-turn
+dataset. The dataset supports controlled comparison and repeatability, but it
+does not fully represent the linguistic diversity, incomplete information,
+unexpected behavior, and changing preferences of real users. Conclusions must
+therefore be interpreted within the evaluated corpus, user profiles, prompts,
+models, and pipeline version.
+
+\section*{Future Work}
+
+Future directions of this research include:
+
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Expanding and refreshing the tourism corpus.} Future work
+    should add more official and destination-specific sources, improve coverage
+    of accommodation, transportation, food safety, accessibility, prices, and
+    opening information, and introduce scheduled freshness validation.
+
+    \item \textbf{Improving requirement-aware retrieval.} Retrieval and
+    reranking could allocate evidence quotas per planned requirement or apply
+    task-aware diversification so that one high-scoring aspect does not dominate
+    a complex itinerary, comparison, or recommendation request.
+
+    \item \textbf{Strengthening retrieval planning.} Planner evaluation could
+    be extended to measure under-decomposition and over-decomposition directly.
+    Adaptive task limits could then be selected according to query complexity
+    rather than using one fixed maximum for every request.
+
+    \item \textbf{Introducing live-data tools.} Time-sensitive information,
+    such as weather, transport schedules, ticket prices, and temporary closures,
+    could be obtained from verified external services and clearly separated
+    from the static RAG corpus.
+
+    \item \textbf{Extending personalization and memory controls.} Future
+    versions could allow users to inspect, correct, deactivate, or delete stored
+    preferences and could evaluate memory precision, temporal decay, conflicts,
+    and privacy more extensively.
+
+    \item \textbf{Conducting larger human and real-user evaluations.} The
+    synthetic benchmark should be supplemented with independently authored
+    queries, multiple human relevance assessors, inter-annotator agreement, and
+    usability studies involving real travel-planning sessions.
+
+    \item \textbf{Optimizing latency and cost.} Stage-level telemetry can be
+    used to study model routing, caching, batching, smaller specialized models,
+    early stopping, and conditional recovery so that quality improvements are
+    balanced against response time and operational cost.
+
+    \item \textbf{Supporting multilingual interaction.} Vietnamese and other
+    languages could be evaluated explicitly, including cross-lingual retrieval,
+    entity normalization, and preservation of user constraints during query
+    rewriting and translation.
+\end{enumerate}
+
+Overall, this work demonstrates a practical methodology for building a
+personalized and evidence-aware travel assistant in which query understanding,
+memory, retrieval, coverage, and answer generation can be examined separately.
+The proposed system provides a reproducible foundation for future research on
+grounded travel recommendation, multi-turn personalization, adaptive retrieval,
+and trustworthy knowledge-gap handling.

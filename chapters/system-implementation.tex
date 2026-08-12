@@ -1,0 +1,182 @@
+\chapter{System Implementation}
+\label{chap:implementation}
+
+\section{Implementation Overview}
+
+The proposed methodology was implemented as a web-based travel assistant with
+separate backend, frontend, database, local retrieval models, and external LLM
+services. The separation allows the user interface and experimental runner to
+reuse the same core retrieval and answer-generation services.
+
+The backend is implemented in Python using FastAPI. SQLAlchemy provides
+relational persistence, Pydantic validates API and internal pipeline schemas,
+and PostgreSQL stores application data and tourism chunks. The pgvector
+extension supports vector-distance operations. Sentence Transformers provides
+the local embedding and CrossEncoder models. The frontend is implemented with
+Angular and renders streamed Markdown responses.
+
+\section{Backend Service}
+
+The FastAPI application exposes grouped endpoints for authentication, chat,
+memory management, health checks, and retrieval debugging. The principal API
+operations include:
+
+\begin{itemize}
+    \item Google-based login, session inspection, and logout;
+    \item streamed chat interaction;
+    \item conversation listing and retrieval;
+    \item structured memory-profile updates;
+    \item memory inspection and deletion; and
+    \item retrieval-debug execution for stage-level inspection.
+\end{itemize}
+
+The embedding and reranker models are loaded once during the application
+lifespan and released during shutdown. This avoids loading a new model instance
+for every request. The evaluation command-line runner uses the same service
+functions but loads its own model registry because it executes outside the API
+process.
+
+\section{Frontend Application}
+
+The user interface is implemented using Angular, TypeScript, PrimeNG, Tailwind
+CSS, and Markdown-rendering components. It provides a conversational view in
+which the user can submit a travel question and receive streamed progress and
+answer content. Markdown headings, paragraphs, and lists are rendered as
+structured response elements rather than displayed as raw text.
+
+The frontend communicates with the backend through HTTP endpoints and retains
+authenticated session cookies. During development, Cross-Origin Resource
+Sharing is limited to the configured local Angular origins. A production
+deployment should replace the development origins and cookie settings with
+environment-specific secure values.
+
+\section{Database Design}
+
+The relational database separates application data from RAG knowledge data.
+Application entities include users, conversations, messages, persistent memory
+items, and session-related information. Knowledge entities include source
+documents and retrieval chunks.
+
+Each tourism chunk stores its original or cleaned text, stable hash, source
+document relationship, section heading, embedding, and structured tourism
+metadata. Metadata fields include geographic information, place name, place
+type, chunk topic, semantic tags, activities, travel styles, suitable traveler
+groups, summaries, and optional coordinates.
+
+Persistent user memory is stored as normalized typed items. Supported types
+include travel style, activity, budget, avoidance, constraint, interest,
+expertise, answer length, tone, explanation style, and selected personal facts.
+Each item is associated with a user and includes importance, activation state,
+and timestamps. This normalized representation can be reconstructed into a
+structured \texttt{UserTravelMemory} object for the retrieval and generation
+pipeline.
+
+\section{Knowledge-Base Construction Modules}
+
+Knowledge construction is implemented as a sequence of reusable modules:
+
+\begin{enumerate}
+    \item source collection and document registration;
+    \item HTML or PDF conversion to Markdown;
+    \item content cleaning and duplicate removal;
+    \item structure-aware Markdown chunking;
+    \item LLM-assisted tourism metadata extraction;
+    \item controlled-vocabulary normalization;
+    \item optional geographic enrichment;
+    \item embedding generation; and
+    \item PostgreSQL and pgvector persistence.
+\end{enumerate}
+
+Every source and chunk retains identifiers that connect retrieved evidence to
+its origin. Embedding metadata is also retained so that the corpus can be
+checked for incompatible or missing vectors.
+
+\section{Online Pipeline Services}
+
+The online pipeline is divided into services for request routing, query
+processing, memory, retrieval planning, dense retrieval, BM25 retrieval,
+fusion, reranking, coverage checking, recovery, conversation-state updating,
+and answer generation.
+
+The pipeline exchanges validated Pydantic objects rather than unstructured
+dictionaries wherever practical. For example, parsed constraints are normalized
+to key--value objects, while locations, user memory, plans, coverage assessments,
+and readiness decisions have explicit schemas. LLM responses are parsed from
+JSON and validated before being accepted. Deterministic normalization repairs
+known structural variations but does not silently accept arbitrary malformed
+outputs.
+
+Region normalization and destination matching combine prompt instructions with
+deterministic checks. Broad areas such as Northern Vietnam are retained as
+regions rather than converted to provinces. A specific city can override an
+incompatible broad province value. Optional restrictive filters are relaxed
+when they produce no candidates, and the relaxation is recorded.
+
+\section{Streaming and Progress Events}
+
+The chat endpoint streams pipeline progress so the user does not wait for the
+complete answer without feedback. Events can describe query understanding,
+retrieval, checking, recovery, and answer generation. Internal numerical scores
+and implementation details are retained in debug traces rather than inserted
+into the natural-language answer.
+
+The final payload contains the Markdown answer, source information, route
+category, and relevant identifiers. Conversation messages are saved so later
+turns can resolve references. Persistent-memory extraction and temporary-state
+updating occur through separate services.
+
+\section{Retrieval Debugging Interface}
+
+The retrieval-debug endpoint exposes the intermediate products required for
+development and evaluation. These include the rewritten query, parsed schema,
+planner output, applied filters, vector results, BM25 results, fused candidates,
+reranker scores, selected evidence, coverage before and after recovery, filter
+relaxations, missing-requirement diagnostics, answer readiness, and timing.
+
+This interface is important because the same incorrect final response may have
+different causes. For example, the parser may omit a city, filtering may remove
+relevant chunks, reranking may favor one aspect, or the corpus may lack the
+requested information. The trace makes these causes distinguishable.
+
+\section{LLM Integration and Robustness}
+
+LLM calls are wrapped by a shared telemetry layer. The wrapper records stage,
+model, latency, token counts, and estimated cost when usage data is available.
+Structured calls use bounded output limits and explicit JSON schemas.
+
+If query parsing fails, a guarded fallback preserves a usable travel-information
+representation rather than terminating the full request. If conversation-state
+generation returns truncated or malformed JSON, the previous valid state is
+kept. Coverage and recovery are bounded, preventing an unlimited loop of LLM
+and retrieval calls.
+
+The experimental pipeline is resumable. A completed case is written to the
+pipeline trace before the next case starts. Later executions validate the run
+and query identifiers before reusing completed cases. Judge results are also
+saved per case and reused only when the run, pipeline version, model, and judge
+schema are compatible.
+
+\section{Security, Privacy, and Operational Considerations}
+
+API keys and database credentials are provided through environment variables
+and are not included in exported evaluation artifacts. Authentication sessions
+use HTTP-only cookies. Production deployment should additionally enforce secure
+cookies, HTTPS, restrictive CORS origins, secret rotation, rate limiting, and
+access control for debugging endpoints.
+
+Persistent memory can contain user preferences and selected personal facts.
+Only non-sensitive information that materially supports future travel
+assistance should be stored. The API allows memories to be inspected and
+deleted. Future production use would require an explicit retention policy,
+consent controls, and data-protection review.
+
+\section{Implementation Summary}
+
+The implementation connects the proposed multi-stage methodology to a working
+application and a reproducible evaluation runner. FastAPI and Angular provide
+the service and interaction layers; PostgreSQL and pgvector provide structured
+and vector storage; local sentence models provide retrieval and reranking; and
+external LLMs provide structured reasoning and answer generation. Shared
+schemas and trace formats ensure that the deployed pipeline and experimental
+pipeline can be examined using the same conceptual stages.
+

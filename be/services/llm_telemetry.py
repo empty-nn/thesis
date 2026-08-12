@@ -166,7 +166,19 @@ def record_llm_response(stage: str, model: str, response: Any, started: float) -
 
 
 def create_chat_completion(stage: str, client: Any, **kwargs: Any) -> Any:
+    model = str(kwargs.get("model") or "unknown")
+    if model.startswith("deepseek-v4-"):
+        # V4 defaults to thinking mode. Most pipeline calls have bounded JSON
+        # outputs; a reasoning trace can consume max_tokens before `content`
+        # is emitted. Keep thinking explicit and off unless a caller opts in.
+        thinking_enabled = bool(kwargs.pop("deepseek_thinking", False))
+        extra_body = dict(kwargs.pop("extra_body", {}) or {})
+        extra_body.setdefault(
+            "thinking",
+            {"type": "enabled" if thinking_enabled else "disabled"},
+        )
+        kwargs["extra_body"] = extra_body
     started = perf_counter()
     response = client.chat.completions.create(**kwargs)
-    record_llm_response(stage, str(kwargs.get("model") or "unknown"), response, started)
+    record_llm_response(stage, model, response, started)
     return response

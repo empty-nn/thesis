@@ -6,7 +6,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 from data_building.extract_metadata.extractor import (
-    DEEPSEEK_METADATA_MODEL,
+    DEEPSEEK_FAST_MODEL,
     get_deepseek_client,
 )
 from services.llm_telemetry import create_chat_completion
@@ -22,7 +22,7 @@ class RequestRoute(BaseModel):
 def classify_request(
     query: str,
     conversation_history: list[dict],
-    model: str = DEEPSEEK_METADATA_MODEL,
+    model: str = DEEPSEEK_FAST_MODEL,
 ) -> RequestRoute:
     history_text = "\n".join(
         f"{item.get('role', 'unknown')}: {item.get('content', '')}"

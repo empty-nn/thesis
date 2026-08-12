@@ -1,0 +1,297 @@
+\chapter{Results and Discussion}
+\label{chap:results}
+
+% This chapter is intentionally a results-ready template. Replace every
+% \textit{Pending official run} cell only from 05_metric_summary.json and the
+% validated 03_judged_traces.json produced by the official 100-query run.
+
+\section{Overview}
+
+This chapter reports the performance of the final v2.5 Personalized Travel
+Guide Assistant on the official 100-query multi-turn dataset. Results are
+organized by query understanding, retrieval, evidence recovery, final-answer
+quality, and operational efficiency. Stage-level findings are interpreted
+together because a final answer may be limited by the corpus, parsing,
+retrieval, coverage checking, or generation.
+
+At the time this chapter draft was prepared, the official run had not yet been
+finalized and human-validated. Consequently, the tables contain explicit
+placeholders rather than smoke-test values. Development results must not be
+reported as official findings.
+
+\section{Dataset and Run Integrity}
+
+Table~\ref{tab:run-integrity} summarizes the completed evaluation artifacts.
+
+\begin{table}[H]
+\centering
+\caption{Official run integrity summary}
+\label{tab:run-integrity}
+\begin{tabular}{ll}
+\hline
+\textbf{Field} & \textbf{Value} \\
+\hline
+Expected cases & 100 \\
+Pipeline-complete cases & \textit{Pending official run} \\
+Judge-complete cases & \textit{Pending official run} \\
+Human-reviewed cases & \textit{Pending human review} \\
+Pipeline version & \texttt{personalized-rag-eval-v2.5} \\
+Corpus fingerprint & \textit{Pending official run} \\
+Parser fallback cases & \textit{Pending official run} \\
+\hline
+\end{tabular}
+\end{table}
+
+Before interpreting aggregate metrics, all expected case identifiers should be
+present exactly once, and no case should contain an incompatible judge schema,
+missing relevance grades, or missing final-answer scores.
+
+\section{Query-Understanding Results}
+
+Table~\ref{tab:understanding-results} reports the query-understanding metrics.
+
+\begin{table}[H]
+\centering
+\caption{Query-understanding performance}
+\label{tab:understanding-results}
+\begin{tabular}{lc}
+\hline
+\textbf{Metric} & \textbf{Score} \\
+\hline
+Intent Accuracy & \textit{Pending official run} \\
+Operation Accuracy & \textit{Pending official run} \\
+Query Constraint F1 & \textit{Pending official run} \\
+Retrieval Facet F1 & \textit{Pending official run} \\
+\hline
+\end{tabular}
+\end{table}
+
+Intent and operation should be analyzed separately. A correct operation with an
+incorrect intent may still produce a superficially appropriate plan but apply
+the wrong category assumptions. Constraint and facet errors should be divided
+into omissions, unsupported additions, vocabulary-normalization disagreements,
+and geographic type errors.
+
+The discussion should report the most frequent confusion pairs and state
+whether each disagreement reflects a parser error or an ambiguous synthetic
+reference label. Particular attention should be given to recommendation versus
+accommodation-search requests, broad region names, negative constraints, and
+follow-up queries whose meaning depends on conversation state.
+
+\section{Retrieval Results}
+
+\begin{table}[H]
+\centering
+\caption{Retrieval ranking performance at depth five}
+\label{tab:retrieval-results}
+\begin{tabular}{lc}
+\hline
+\textbf{Metric} & \textbf{Score} \\
+\hline
+nDCG@5 & \textit{Pending official run} \\
+Precision@5 & \textit{Pending official run} \\
+Mean judged relevance grade & \textit{Pending official run} \\
+Queries with no grade-2/3 chunk in top five & \textit{Pending official run} \\
+\hline
+\end{tabular}
+\end{table}
+
+nDCG@5 measures whether the most useful evidence appears near the top, while
+Precision@5 measures how much of the evaluated context is useful. Cases with
+high Precision@5 but lower nDCG@5 indicate that useful chunks were retrieved but
+ordered poorly. Low values for both metrics indicate either a retrieval failure,
+overly restrictive filtering, query decomposition error, or missing corpus
+content.
+
+Results should also be grouped by query type and complexity. Recommended groups
+include single-destination lookup, recommendation, comparison, itinerary,
+transport, accommodation, food, and multi-turn follow-up. This analysis can
+show whether the global average hides systematic weaknesses in multi-aspect or
+multi-destination requests.
+
+\section{Evidence Coverage and Recovery}
+
+\begin{table}[H]
+\centering
+\caption{Coverage, readiness, and recovery behavior}
+\label{tab:coverage-results}
+\begin{tabular}{lc}
+\hline
+\textbf{Measure} & \textbf{Value} \\
+\hline
+Mean coverage ratio before recovery & \textit{Pending official run} \\
+Mean coverage ratio after recovery & \textit{Pending official run} \\
+Cases with recovery performed & \textit{Pending official run} \\
+Cases whose coverage improved & \textit{Pending official run} \\
+Mean new candidates per recovery case & \textit{Pending official run} \\
+Complete readiness & \textit{Pending official run} \\
+Partial readiness & \textit{Pending official run} \\
+Insufficient readiness & \textit{Pending official run} \\
+\hline
+\end{tabular}
+\end{table}
+
+The before/after comparison measures whether targeted retrieval contributes new
+evidence within the same final pipeline. It does not constitute a separate
+legacy ablation. Recovery should be considered successful only when it adds
+useful selected evidence or improves requirement coverage, not merely when it
+returns additional chunks.
+
+Unresolved requirements should be grouped by diagnostic label:
+\texttt{not\_probed}, \texttt{likely\_corpus\_gap},
+\texttt{likely\_corpus\_content\_gap},
+\texttt{likely\_reranking\_failure}, and
+\texttt{selected\_evidence\_insufficient}. A large number of
+\texttt{not\_probed} cases indicates that the recovery limit or checker query
+selection requires attention; it does not prove that the corpus is incomplete.
+
+\section{Final-Answer Results}
+
+\begin{table}[H]
+\centering
+\caption{Mean final-answer scores on the five-point scale}
+\label{tab:answer-results}
+\begin{tabular}{lc}
+\hline
+\textbf{Metric} & \textbf{Mean score} \\
+\hline
+Correctness & \textit{Pending official run} \\
+Faithfulness & \textit{Pending official run} \\
+Personalization Adherence & \textit{Pending official run} \\
+Completeness & \textit{Pending official run} \\
+\hline
+\end{tabular}
+\end{table}
+
+The final scores should be interpreted with readiness. For example, a partial
+answer may correctly acknowledge a missing requirement and therefore remain
+faithful, while receiving a lower completeness score. Conversely, a complete
+and detailed answer with unsupported claims may obtain high apparent coverage
+but low faithfulness.
+
+Personalization errors should be divided into missed relevant preferences,
+incorrectly applied irrelevant preferences, violations of avoidance
+constraints, and style mismatches. Safety-sensitive dietary cases require
+manual inspection because an unsupported claim of safety is more serious than
+a general recommendation mismatch.
+
+\section{Relationship Between Retrieval and Answer Quality}
+
+To answer the central evaluation question, cases should be grouped or plotted
+by retrieval and answer scores. The following relationships are particularly
+useful:
+
+\begin{itemize}
+    \item nDCG@5 versus correctness;
+    \item Precision@5 versus faithfulness;
+    \item coverage ratio versus completeness;
+    \item readiness mode versus all four answer scores; and
+    \item recovery improvement versus change in supported requirements.
+\end{itemize}
+
+These comparisons should not be interpreted as proof of causality. They help
+determine whether answer limitations are associated with evidence quality. A
+low answer score despite strong retrieval suggests generation or personalization
+failure, whereas weak retrieval and weak completeness suggest an upstream
+evidence problem.
+
+\section{Latency, Token Usage, and Estimated Cost}
+
+\begin{table}[H]
+\centering
+\caption{Operational performance of the official run}
+\label{tab:efficiency-results}
+\begin{tabular}{lc}
+\hline
+\textbf{Measure} & \textbf{Value} \\
+\hline
+Mean pipeline latency per case & \textit{Pending official run} \\
+Median pipeline latency per case & \textit{Pending official run} \\
+95th-percentile pipeline latency & \textit{Pending official run} \\
+Total pipeline tokens & \textit{Pending official run} \\
+Total judge tokens & \textit{Pending official run} \\
+Estimated generation cost & \textit{Pending official run} \\
+Estimated pipeline cost & \textit{Pending official run} \\
+Estimated judging cost & \textit{Pending official run} \\
+Estimated total experiment cost & \textit{Pending official run} \\
+\hline
+\end{tabular}
+\end{table}
+
+Stage-level latency should identify the dominant operations, especially query
+parsing, planning, coverage checking, recovery, answer generation, embedding,
+and reranking. Estimated cost must be reported together with the pricing
+snapshot and described as an estimate rather than an invoice.
+
+\section{Error Analysis}
+
+Representative failures should be selected from the trace using a consistent
+procedure rather than anecdotal preference. Recommended categories are:
+
+\begin{enumerate}
+    \item parser omission or over-extraction;
+    \item geographic normalization or filtering error;
+    \item planner under-decomposition or over-decomposition;
+    \item relevant evidence retrieved but reranked too low;
+    \item unbalanced evidence across tasks or destinations;
+    \item likely corpus gap;
+    \item coverage-checker disagreement;
+    \item unsupported answer claim;
+    \item missed or excessive personalization; and
+    \item malformed model output handled by fallback.
+\end{enumerate}
+
+For each selected case, the report should include the query, relevant profile
+or state, parsed representation, planned requirements, top evidence, readiness,
+answer excerpt, scores, diagnosed cause, and proposed improvement. Personally
+identifiable information and API metadata must be removed.
+
+\section{Discussion by Research Question}
+
+\subsection{RQ1: Memory and Conversation Context}
+
+Insert an evidence-based answer using cross-conversation personalization cases,
+follow-up rewriting, state preservation, and errors involving irrelevant or
+temporary preferences. State clearly whether the evidence supports effective
+separation of persistent and temporary context.
+
+\subsection{RQ2: Hybrid Retrieval and Reranking}
+
+Use nDCG@5, Precision@5, query-type breakdowns, filter relaxations, and
+reranking failures to explain how well the combined retrieval strategy works.
+Avoid claiming that hybrid retrieval is superior to every alternative unless a
+controlled comparison was actually conducted.
+
+\subsection{RQ3: Coverage and Recovery}
+
+Use coverage before and after recovery, newly covered requirements, readiness,
+and diagnostic categories. Distinguish successful recovery from cases where
+the corpus does not provide the requested evidence.
+
+\subsection{RQ4: Multi-stage Evaluation}
+
+Discuss whether stage-level traces explained final-answer outcomes that would
+have been ambiguous under final-answer scoring alone. Include the operational
+cost of the additional planner, checker, and judge calls.
+
+\section{Limitations and Validity of the Findings}
+
+The reported findings are conditioned on the official corpus snapshot,
+synthetic dataset, model versions, prompts, and judge. Synthetic queries provide
+control but cannot represent all real travelers. The independent judge reduces
+self-evaluation but remains an LLM with known biases. Human review improves
+confidence but does not make the relevance pool exhaustive; therefore Recall@5
+is not reported.
+
+The evaluation covers only the final proposed system and internal recovery
+behavior. It should not make causal claims about the superiority of every
+component over an unimplemented baseline. Broader user studies and controlled
+component comparisons remain future work.
+
+\section{Chapter Summary}
+
+Replace this paragraph after the official run with a concise summary containing
+the principal understanding, retrieval, final-answer, recovery, and efficiency
+findings. Report only values that can be reproduced from the exported metric
+summary and validated judged traces.
+

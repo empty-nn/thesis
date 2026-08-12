@@ -4,7 +4,7 @@ import json
 from typing import Any, Callable
 
 from data_building.extract_metadata.extractor import (
-    DEEPSEEK_METADATA_MODEL,
+    DEEPSEEK_ANSWER_MODEL,
     get_deepseek_client,
 )
 from schemas.chat import (
@@ -65,7 +65,7 @@ def generate_answer(
     conversation_memory=None,
     coverage=None,
     answer_readiness: AnswerReadiness | None = None,
-    model: str = DEEPSEEK_METADATA_MODEL,
+    model: str = DEEPSEEK_ANSWER_MODEL,
 ) -> str:
     if answer_readiness is not None and answer_readiness.mode == "insufficient":
         missing = (
@@ -117,6 +117,14 @@ Rules:
 - Follow answer_length, tone, and explanation_style when supplied.
 - Use interests, preferred travel styles, and preferred activities only when relevant.
 - Respect budget_level, avoid items, and durable constraints.
+- Treat allergies and dietary exclusions as safety-critical constraints. Never
+  describe a dish as safe, allergy-safe, shellfish-free, or a "safe bet"
+  unless the evidence explicitly verifies the relevant ingredients and
+  cross-contact risk for that preparation.
+- When allergy evidence is incomplete, say that a dish may be easier to adapt,
+  not that it is safe. Tell the user to verify broth or stock, sauces, fillings,
+  garnishes, cooking oil or utensils, and cross-contact with the vendor.
+- Do not infer absence of shellfish from a generic dish name or base recipe.
 - Use personal facts only when they materially help; never mention stored memory or profiling.
 - Use the current conversation trip state for this chat only; do not treat it as a permanent preference.
 - Cite factual claims with evidence IDs such as [E1] or [E1][E2].

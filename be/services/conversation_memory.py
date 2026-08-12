@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy import select
 
 from data_building.extract_metadata.extractor import (
-    DEEPSEEK_METADATA_MODEL,
+    DEEPSEEK_FAST_MODEL,
     get_deepseek_client,
 )
 from services.llm_telemetry import create_chat_completion
@@ -54,8 +54,9 @@ class ConversationState(BaseModel):
                 raise ValueError("date_to must not be before date_from")
             self.duration_days = (end - start).days + 1
 
-        self.selected_places = list(dict.fromkeys(self.selected_places))
-        self.trip_constraints = list(dict.fromkeys(self.trip_constraints))
+        self.summary = " ".join(self.summary.split()[:180])
+        self.selected_places = list(dict.fromkeys(self.selected_places))[:30]
+        self.trip_constraints = list(dict.fromkeys(self.trip_constraints))[:30]
 
         return self
 
@@ -128,7 +129,7 @@ def derive_conversation_state(
     client = get_deepseek_client()
     response = create_chat_completion(
             "conversation_state", client,
-            model=DEEPSEEK_METADATA_MODEL,
+            model=DEEPSEEK_FAST_MODEL,
             messages=[
                 {
                     "role": "system",
@@ -163,10 +164,10 @@ Current date: {current_date.isoformat()}
 User timezone: {timezone_name}
 
 Latest user message:
-{user_message}
+{user_message[:2000]}
 
 Latest assistant answer:
-{assistant_message}
+{assistant_message[:8000]}
 
 Return the complete updated state as JSON.
 """.strip(),
@@ -174,9 +175,16 @@ Return the complete updated state as JSON.
             ],
             response_format={"type": "json_object"},
             temperature=0,
-            max_tokens=800,
+            max_tokens=1600,
         )
     content = response.choices[0].message.content
     if not content:
         return previous
-    return ConversationState.model_validate(extract_json_from_text(content))
+    try:
+        return ConversationState.model_validate(extract_json_from_text(content))
+    except Exception as exc:
+        # Temporary conversation state must never abort a long evaluation or
+        # production request. Keeping the previous valid state is safer than
+        # accepting a truncated or malformed update.
+        print(f"[CONVERSATION STATE WARNING] Keeping previous state: {exc}")
+        return previous

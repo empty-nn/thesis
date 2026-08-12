@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 class QueryLocation(BaseModel):
     country: str | None = None
+    region: str | None = None
     city: str | None = None
     cities: list[str] = Field(default_factory=list)
     province: str | None = None
@@ -198,7 +199,11 @@ class EvidenceCoverage(BaseModel):
             for item in self.requirement_assessments
         )
         self.missing_count = self.requirement_count - self.covered_count
-        self.coverage_ratio = self.covered_count / self.requirement_count
+        # Partial evidence is useful for a guarded partial answer and recovery,
+        # but never makes the overall result sufficient.
+        self.coverage_ratio = (
+            self.covered_count + 0.5 * self.partial_count
+        ) / self.requirement_count
         self.sufficient = self.missing_count == 0
         return self
 

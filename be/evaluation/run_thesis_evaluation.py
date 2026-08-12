@@ -25,6 +25,7 @@ METRICS = [
     "intent_accuracy",
     "operation_accuracy",
     "query_constraint_f1",
+    "retrieval_facet_f1",
     "ndcg_at_5",
     "precision_at_5",
     "correctness",
@@ -59,6 +60,14 @@ def deterministic_metrics(case: ThesisEvaluationCase) -> dict[str, float]:
         (canonical(item.key), canonical(item.value))
         for item in prediction.understanding.query_constraints
     }
+    expected_facets = {
+        (canonical(item.key), canonical(item.value))
+        for item in reference.retrieval_facets
+    }
+    actual_facets = {
+        (canonical(item.key), canonical(item.value))
+        for item in prediction.understanding.retrieval_facets
+    }
     top_five = prediction.retrieval.retrieved_chunk_ids[:5]
     grades = [reference.relevance_grades.get(chunk_id, 0) for chunk_id in top_five]
     ideal_grades = sorted(reference.relevance_grades.values(), reverse=True)
@@ -69,6 +78,7 @@ def deterministic_metrics(case: ThesisEvaluationCase) -> dict[str, float]:
             canonical(prediction.understanding.operation) == canonical(reference.operation)
         ),
         "query_constraint_f1": f1(actual_constraints, expected_constraints),
+        "retrieval_facet_f1": f1(actual_facets, expected_facets),
         "ndcg_at_5": dcg(grades) / ideal_dcg if ideal_dcg else 0.0,
         "precision_at_5": sum(grade >= 2 for grade in grades) / 5,
     }

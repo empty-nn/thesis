@@ -1,0 +1,156 @@
+\chapter{Related Work}
+\label{chap:related-work}
+
+\section{Travel and Conversational Recommendation}
+
+Travel recommendation differs from recommendation in domains where a user
+selects one independent item. A travel decision may depend on location,
+duration, budget, mobility, season, group composition, interests, and relations
+between several points of interest. It is also common for users to refine these
+requirements through conversation rather than state them completely at the
+beginning.
+
+Conversational recommender systems support preference elicitation, questions,
+feedback, and explanation through multi-turn interaction. Jannach et
+al.~\cite{jannach2021conversational} organize conversational recommendation
+according to supported intents, background knowledge, interaction strategy,
+and evaluation. Gao et al.~\cite{gao2021conversational} further identify
+preference elicitation, multi-turn strategy, dialogue understanding,
+exploration, and evaluation as central challenges. These observations are
+directly relevant to travel assistance, where a user may change constraints or
+refer to earlier recommendations.
+
+Traditional conversational recommenders frequently optimize recommendation
+accuracy over a predefined item catalog. The present work instead treats the
+assistant as both a recommender and an evidence-grounded information system.
+The goal is not only to rank a hotel or attraction, but also to explain the
+choice using retrieved tourism text, preserve conversation state, and disclose
+when requested evidence is absent.
+
+\section{Retrieval-Augmented Generation}
+
+Lewis et al.~\cite{lewis2020rag} introduced a general RAG formulation that
+combines parametric generation with retrieved non-parametric memory for
+knowledge-intensive NLP tasks. RAG makes it possible to update or inspect the
+external knowledge source independently of the generator. This is valuable for
+tourism, where facts are distributed across sources and users benefit from
+source attribution.
+
+Nevertheless, standard retrieve-then-generate pipelines are sensitive to
+retrieval quality. Irrelevant context can distract the generator, while missing
+context can lead to incomplete answers or unsupported use of parametric
+knowledge. The proposed system therefore exposes intermediate retrieval stages,
+checks requirement-level evidence coverage, and gates generation according to
+answer readiness.
+
+\section{Sparse and Dense Retrieval}
+
+Sparse lexical retrieval remains effective for exact entity names, rare terms,
+and queries whose wording overlaps with the corpus. BM25 is a widely used
+probabilistic lexical ranking method and provides a strong first-stage retrieval
+signal \cite{robertson2009bm25}. In tourism search, lexical matching is useful
+for names such as attractions, markets, districts, and transport terminals.
+
+Dense retrieval maps queries and passages into a continuous vector space.
+Karpukhin et al.~\cite{karpukhin2020dpr} demonstrated that learned dense passage
+representations can be effective for open-domain question answering. Sentence-
+BERT provides semantically meaningful sentence embeddings that can be compared
+efficiently using cosine similarity \cite{reimers2019sentencebert}. Dense
+retrieval can therefore match related expressions even when they share few
+words, such as ``family-friendly places'' and ``activities suitable for
+children''.
+
+Sparse and dense retrieval fail in different ways. Dense representations may
+underweight an uncommon exact name, whereas BM25 may miss a semantic paraphrase.
+This thesis combines both signals rather than selecting only one retriever.
+
+\section{Rank Fusion and Neural Reranking}
+
+Reciprocal Rank Fusion combines rankings using reciprocal rank contributions
+without requiring their raw scores to be calibrated. Cormack et
+al.~\cite{cormack2009rrf} showed that RRF can improve over individual rankers
+and other rank-fusion approaches. Its simplicity is useful when BM25 scores and
+vector similarities have different scales.
+
+After first-stage retrieval, a neural reranker can examine query and passage
+jointly. Nogueira and Cho~\cite{nogueira2019bert} demonstrated BERT-based
+passage reranking for information retrieval. CrossEncoders are computationally
+more expensive than independently encoded embeddings but can model direct token
+interactions. The present system therefore applies a CrossEncoder only to a
+bounded fused shortlist.
+
+The main difference from a basic hybrid pipeline is that the proposed method
+also uses controlled metadata signals, optional filter relaxation, comparison
+balancing, evidence coverage, and recovery retrieval. These mechanisms address
+travel-specific problems such as geographic ambiguity and multi-destination
+requests.
+
+\section{Corrective and Agentic Retrieval}
+
+Corrective RAG methods recognize that generation quality depends on whether the
+retrieved evidence is adequate. Yan et al.~\cite{yan2024crag} proposed a
+retrieval evaluator that triggers different corrective actions when retrieved
+documents are unreliable. The current thesis adopts the general principle of
+evaluating retrieval before generation, but uses a bounded local recovery
+process rather than unrestricted web search.
+
+The planner first identifies evidence requirements and focused retrieval tasks.
+After reranking, a checker labels each requirement as covered, partially
+covered, or not covered. Up to three targeted recovery queries may then be
+executed. This bounded design makes the process traceable and limits latency and
+cost. The diagnostic layer also avoids claiming a corpus gap when a requirement
+was never independently probed.
+
+\section{Personalization and Memory}
+
+Conversational personalization requires both long-term and short-term context.
+A durable preference such as avoiding large tour groups may remain useful
+across trips, whereas a five-day duration applies only to one conversation. If
+these are stored together, old trip constraints can incorrectly influence later
+recommendations.
+
+The proposed system therefore maintains persistent user memory and temporary
+conversation state as separate structures. Memory is used selectively during
+ranking and answer generation; it does not automatically become a hard filter.
+This design is consistent with conversational-recommendation research that
+emphasizes dynamic preference elicitation and contextual interaction
+\cite{jannach2021conversational,gao2021conversational}, while adding explicit
+controls for memory lifetime and retrieval behavior.
+
+\section{Evaluation of RAG Systems}
+
+RAG evaluation is inherently multi-dimensional because the retriever and
+generator can fail independently. RAGAS evaluates dimensions including
+retrieved context and generation faithfulness without requiring complete
+reference answers \cite{es2024ragas}. ARES similarly addresses automated RAG
+evaluation with model-based judges \cite{saadfalcon2024ares}. These frameworks
+motivate stage-level measurement, but a domain-specific system still requires
+metrics aligned with its own query schema, personalization behavior, and
+retrieval depth.
+
+LLM-as-a-judge offers scalable evaluation of open-ended responses. Zheng et
+al.~\cite{zheng2023llmjudge} report substantial agreement between strong LLM
+judges and human preferences, while also identifying position, verbosity, and
+self-enhancement biases. Consequently, this thesis uses a model separate from
+the answer generator for initial judgments and retains human review rather than
+treating judge scores as unquestionable ground truth.
+
+\section{Research Gap}
+
+Existing work provides strong foundations for conversational recommendation,
+dense retrieval, rank fusion, neural reranking, corrective retrieval, and
+automated evaluation. However, these elements do not by themselves define an
+end-to-end personalized travel assistant that can explain stage-level failures.
+The gap addressed in this thesis is their integration into a single traceable
+pipeline with:
+
+\begin{itemize}
+    \item separate persistent memory and temporary trip state;
+    \item structured intent, operation, constraint, and facet parsing;
+    \item metadata-aware hybrid retrieval with safe geographic behavior;
+    \item bounded requirement-level planning and recovery;
+    \item explicit complete, partial, and insufficient readiness; and
+    \item a unified evaluation trace from query understanding to cost and final
+    answer quality.
+\end{itemize}
+

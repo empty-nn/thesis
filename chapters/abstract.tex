@@ -1,0 +1,45 @@
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+Travel planning is a multi-stage information task in which users must identify
+destinations, compare alternatives, satisfy personal constraints, and combine
+information from heterogeneous sources. General-purpose Large Language Models
+(LLMs) can produce fluent recommendations, but their answers may be outdated,
+unsupported, or insufficiently adapted to the user's preferences. This thesis
+develops a Personalized Travel Guide Assistant for Vietnam using
+Retrieval-Augmented Generation (RAG), persistent user memory, temporary
+conversation state, and requirement-aware evidence checking.
+
+The proposed system constructs a tourism knowledge base from webpages and
+documents using content cleaning, structure-aware chunking, LLM-assisted
+metadata extraction, sentence embeddings, and PostgreSQL with vector-search
+support. During interaction, the system rewrites conversational follow-ups,
+extracts intent, operation, constraints, and semantic retrieval facets, and
+creates bounded retrieval tasks for complex requests. Dense semantic retrieval
+and BM25 lexical retrieval are combined using Reciprocal Rank Fusion, followed
+by CrossEncoder reranking. An evidence checker measures whether the selected
+chunks cover each factual requirement. Missing evidence triggers bounded
+recovery retrieval, while an answer-readiness gate determines whether the
+system should produce a complete answer, a qualified partial answer, or a
+knowledge-gap response.
+
+The evaluation framework separates query understanding, retrieval quality, and
+final-answer quality. It uses a controlled multi-turn dataset consisting of five
+synthetic users, two conversations per user, and ten queries per conversation,
+for 100 query turns. The principal metrics are intent accuracy, operation
+accuracy, query-constraint F1, retrieval-facet F1, nDCG@5, Precision@5,
+correctness, faithfulness, personalization adherence, and completeness. An
+independent LLM provides initial judgments, followed by human validation of
+reference labels and selected outputs. The experiment additionally records
+latency, token usage, estimated cost, model versions, prompt hashes, and a
+corpus fingerprint.
+
+The work contributes an inspectable architecture for personalized,
+evidence-aware travel assistance and a reproducible evaluation design that
+connects final-answer behavior to query parsing, memory, retrieval, coverage,
+and corpus limitations.
+
+\textbf{Keywords:} retrieval-augmented generation, personalized travel
+assistant, conversational recommendation, hybrid retrieval, user memory,
+evidence coverage, large language model evaluation.
+

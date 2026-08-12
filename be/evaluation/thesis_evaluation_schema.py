@@ -14,6 +14,7 @@ class ReferenceLabels(BaseModel):
     intent: str
     operation: str = "lookup"
     query_constraints: list[PreferenceConstraint] = Field(default_factory=list)
+    retrieval_facets: list[PreferenceConstraint] = Field(default_factory=list)
     applicable_personalization: list[PreferenceConstraint] = Field(default_factory=list)
     relevant_memory_ids: list[str] = Field(default_factory=list)
     relevance_grades: dict[str, int] = Field(default_factory=dict)
@@ -35,6 +36,7 @@ class UnderstandingPrediction(BaseModel):
     intent: str
     operation: str = "lookup"
     query_constraints: list[PreferenceConstraint] = Field(default_factory=list)
+    retrieval_facets: list[PreferenceConstraint] = Field(default_factory=list)
 
 
 class RetrievalPrediction(BaseModel):
@@ -74,5 +76,5 @@ class ThesisEvaluationCase(BaseModel):
 
 
 class ThesisDataset(BaseModel):
-    version: str = "1.2"
+    version: str = "1.3"
     cases: list[ThesisEvaluationCase]

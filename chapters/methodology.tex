@@ -1,0 +1,674 @@
+\chapter{Methodology}
+\label{chap:methodology}
+
+This chapter presents the methodology used to design and evaluate the
+Personalized Travel Guide Assistant based on Retrieval-Augmented Generation
+(RAG). The system consists of two principal workflows: offline tourism
+knowledge-base construction and online personalized travel-query processing.
+
+The offline workflow collects tourism webpages and documents, converts them
+into a consistent textual format, removes irrelevant content, divides the
+documents into retrieval units, enriches the resulting chunks with metadata,
+generates embeddings, and stores them in the knowledge base.
+
+At query time, the system analyzes the user's request and conversational
+context, retrieves candidate chunks using dense vector search and BM25,
+combines the results using hybrid fusion, reranks the strongest candidates,
+checks whether the evidence covers the user's requirements, performs bounded
+recovery retrieval when necessary, and generates a grounded personalized
+response with source attribution.
+
+The methodology treats retrieval as a multi-stage process because final-answer
+quality depends on both the relevance and the coverage of the supplied
+evidence. It also treats query understanding, retrieval, and answer generation
+as separately inspectable stages so that errors can be localized rather than
+attributed only to the final language model.
+
+\section{System Architecture}
+
+The proposed system consists of five principal layers:
+
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Knowledge-base construction}, including tourism data
+    acquisition, document conversion, cleaning, chunking, metadata enrichment,
+    embedding generation, and database storage;
+
+    \item \textbf{Query understanding}, including request routing,
+    conversational query rewriting, intent identification, operation
+    identification, explicit-constraint extraction, and retrieval-facet
+    extraction;
+
+    \item \textbf{Retrieval and ranking}, including dense vector retrieval,
+    BM25 lexical retrieval, Reciprocal Rank Fusion, metadata and optional
+    geographic signals, and CrossEncoder reranking;
+
+    \item \textbf{Contextual processing}, including persistent user memory,
+    temporary conversation state, retrieval planning, evidence checking,
+    recovery retrieval, and missing-evidence diagnosis; and
+
+    \item \textbf{Grounded response generation}, including context selection,
+    answer-readiness checking, safety and constraint handling, Markdown
+    generation, source attribution, and knowledge-gap handling.
+\end{enumerate}
+
+These layers are implemented as separate components so that each stage can be
+inspected, modified, and evaluated independently.
+
+\section{Tourism Knowledge-Base Construction}
+
+\subsection{Tourism Data Acquisition}
+
+The first stage constructs a tourism-specific knowledge base from supported
+websites and documents. Tourism information is collected from sources such as
+official tourism portals, destination websites, online travel guides, and PDF
+documents.
+
+Website-specific crawlers collect relevant tourism URLs while applying URL
+normalization and duplicate controls. The crawlers restrict collection to
+relevant sections of the supported websites rather than following all
+available links indiscriminately. Each collected URL retains its source and
+processing status so that ingestion progress can be monitored.
+
+For document-based sources, the system supports PDF-to-Markdown conversion.
+The conversion attempts to preserve useful structural information, including
+headings, paragraphs, and lists. This structure is later used during document
+chunking.
+
+Each source document is stored with information including:
+
+\begin{itemize}
+    \item document type and source location;
+    \item extraction method;
+    \item raw and cleaned Markdown;
+    \item ingestion status;
+    \item chunking method;
+    \item embedding model; and
+    \item creation and update timestamps.
+\end{itemize}
+
+Local files are identified using file hashes, while web documents are
+identified using their normalized source URLs. These identifiers reduce
+duplicate ingestion.
+
+\subsection{Content Extraction and Cleaning}
+
+HTML pages are converted into Markdown before ingestion. The extraction
+process focuses on the main page content while attempting to preserve useful
+headings, lists, links, and tables.
+
+Raw tourism content may contain elements that are not useful for retrieval,
+including navigation menus, advertisements, cookie notices, social-media
+controls, repeated headers and footers, unrelated links, duplicated text, and
+empty or low-information sections. The cleaning stage removes these elements,
+normalizes whitespace and line breaks, and preserves the structural information
+needed for chunking. Irrelevant image markup is removed from the textual
+knowledge base. When useful OCR text is available from document images, it may
+be retained as textual context.
+
+Documents or sections containing insufficient useful information are excluded
+before chunk storage.
+
+\section{Structure-Aware Document Chunking}
+
+Complete tourism articles are generally too large and topically diverse to be
+used directly as retrieval units. The cleaned documents are therefore divided
+into smaller chunks.
+
+The implemented method first divides Markdown according to heading levels from
+level one to level four. Each section is then processed using recursive
+character-based splitting. The splitter prioritizes boundaries such as
+paragraphs, line breaks, sentences, punctuation, and spaces.
+
+The principal chunking configuration is shown in
+Table~\ref{tab:chunk-configuration}.
+
+\begin{table}[H]
+\centering
+\caption{Document chunking configuration}
+\label{tab:chunk-configuration}
+\begin{tabular}{ll}
+\hline
+\textbf{Parameter} & \textbf{Value} \\
+\hline
+Maximum chunk size & 1,200 characters \\
+Chunk overlap & 150 characters \\
+Minimum candidate length & 150 characters \\
+Minimum accepted word count & More than 18 words \\
+Heading context & Included \\
+\hline
+\end{tabular}
+\end{table}
+
+Short adjacent chunks from the same section can be merged when the combined
+text remains within the configured maximum size. Chunks containing insufficient
+information are removed.
+
+For a document organized as:
+
+\begin{verbatim}
+# Hanoi
+## Hoan Kiem Lake
+### Things to do
+\end{verbatim}
+
+the relevant heading context is retained with the chunk. This prevents a
+passage describing an activity from losing its relationship with the
+attraction or destination. Each accepted chunk is assigned a normalized hash
+to support duplicate detection and stable identification.
+
+\section{Tourism Metadata Enrichment}
+
+Each chunk is enriched with structured tourism metadata before being stored.
+Metadata extraction is performed in batches using an LLM-assisted extraction
+process. Context from the preceding chunk, such as its heading, summary,
+country, and city, can be supplied to improve continuity across related
+sections.
+
+The extracted metadata includes:
+
+\begin{itemize}
+    \item country, region, city, and province;
+    \item place name and place type;
+    \item semantic tags;
+    \item activities and travel styles;
+    \item suitable traveler groups;
+    \item chunk topic and summary;
+    \item extraction confidence and reasoning; and
+    \item source and update information when available.
+\end{itemize}
+
+Controlled vocabularies and normalization rules are applied to categorical
+values such as place type, activity, travel style, suitable traveler group,
+query intent, operation, and budget level. Controlled values improve
+consistency, but they are not assumed to represent every possible phrase a user
+may enter. The LLM parser therefore maps natural-language expressions to the
+closest supported value and retains explicit free-text constraints when a
+controlled value would lose important meaning.
+
+\subsection{Geographic Enrichment}
+
+Geographic coordinates can be added after metadata extraction. Chunks are
+grouped using a normalized combination of place name, city, province, and
+country. Each unique place is geocoded once, and the resulting coordinates are
+assigned to other chunks associated with the same place.
+
+The geocoding request includes available city, province, and country
+information to reduce ambiguous matches. When multiple candidates are
+returned, they are scored using place-name and location agreement. Coordinates
+are stored only when a suitable result is available. This process avoids
+requesting coordinates independently for every chunk and reduces repeated
+geocoding operations.
+
+\section{Embedding Generation and Knowledge Storage}
+
+Each enriched chunk is transformed into a dense vector using the
+\texttt{all-MiniLM-L6-v2} sentence-embedding model. The model produces a
+384-dimensional representation. The same embedding model is used for both
+document chunks and user queries.
+
+Dense retrieval compares the query and chunk embeddings using cosine
+similarity:
+
+\begin{equation}
+\operatorname{sim}(Q,c_i)
+=
+\frac{\mathbf{v}_Q \cdot \mathbf{v}_i}
+{\lVert\mathbf{v}_Q\rVert\lVert\mathbf{v}_i\rVert},
+\end{equation}
+
+where $\mathbf{v}_Q$ is the query embedding and $\mathbf{v}_i$ is the
+embedding of chunk $c_i$.
+
+The knowledge base is implemented using PostgreSQL with vector-search support.
+Each stored chunk contains its text and hash, document identifier, section
+heading, vector embedding, tourism metadata, optional geographic coordinates,
+source-document relationship, and creation and update information. Relational
+fields support metadata filtering, while the vector field supports
+nearest-neighbor retrieval.
+
+\section{Request Routing and Query Understanding}
+
+Before retrieval, the system determines whether the user's request belongs to
+the tourism domain. Requests are classified into three categories:
+
+\begin{itemize}
+    \item \textbf{travel}, when the retrieval pipeline should continue;
+    \item \textbf{ambiguous}, when the system should request clarification; or
+    \item \textbf{out of scope}, when the request is unrelated to travel
+    assistance.
+\end{itemize}
+
+If the routing model is unavailable, the system continues with guarded
+retrieval. The later evidence-checking stage still prevents unsupported factual
+answers.
+
+\subsection{Conversational Query Rewriting}
+
+Travel conversations commonly contain follow-up questions such as ``What about
+there?'', ``Which one is quieter?'', or ``Where should I stay for the final two
+nights?''. These questions depend on previous messages and may not be suitable
+for direct retrieval.
+
+The query-rewriting stage uses recent conversation history to transform the
+current message into a standalone retrieval query. It resolves references while
+preserving the user's intent, destinations, dates, activities, budgets, and
+other explicit constraints. The rewriting stage is instructed not to copy
+unrelated constraints from previous messages and not to introduce preferences
+or facts absent from the conversation.
+
+\subsection{Query Parsing}
+
+The standalone query is parsed into a structured representation containing:
+
+\begin{itemize}
+    \item query intent and requested operation;
+    \item explicit constraints and negative constraints;
+    \item country, region, city, and province;
+    \item place types, activities, and travel styles;
+    \item suitable traveler groups;
+    \item budget, trip duration, and dates;
+    \item nearby-place requirements; and
+    \item maximum-distance requirements.
+\end{itemize}
+
+Intent identifies the travel domain of the request, such as accommodation,
+food, transport, or itinerary planning. Operation identifies what the system
+must do with the request, such as lookup, recommendation, comparison, planning,
+or explanation. Keeping these two concepts separate avoids treating, for
+example, every accommodation question as the same type of operation.
+
+\subsection{Explicit Constraints and Retrieval Facets}
+
+The parser separates \textit{explicit constraints} from \textit{retrieval
+facets}. Explicit constraints represent requirements directly stated by the
+user, such as a named destination, trip duration, budget, dietary restriction,
+or an activity that must be avoided. They are retained for understanding
+evaluation and final-answer compliance.
+
+Retrieval facets are normalized semantic signals, including place type,
+activity, travel style, and suitable traveler group. These facets help retrieve
+and rank useful evidence, but most are not treated as strict database filters.
+The separation prevents a soft preference such as an interest in photography
+from eliminating otherwise relevant evidence.
+
+Positive and negative constraints are also distinguished. A phrase such as
+``avoid party nightlife'' must not be converted into a positive nightlife
+facet. Negative constraints are preserved for evidence selection and response
+generation. Durable avoidance preferences may also be retained in persistent
+memory, whereas trip-specific restrictions remain in conversation state.
+
+Known city names and controlled tourism vocabularies validate extracted values.
+Explicitly named destinations are additionally identified through deterministic
+text matching. This hybrid LLM and rule-based normalization reduces the risk
+that the parser omits a location stated directly in the query or returns a
+structurally invalid constraint.
+
+\subsection{Region and Location Normalization}
+
+Broad areas such as Northern Vietnam, Central Vietnam, and Southern Vietnam are
+represented as regions rather than provinces. Common aliases are normalized to
+canonical region names. When only a broad region is specified, the parser must
+not invent a city or store the region as a province.
+
+A region is not applied directly as an exact province filter because it may
+contain several provinces and cities and because corpus metadata may represent
+the same area at different geographic levels. Instead, it is preserved as
+query context and may be used to construct destination-scoped retrieval tasks.
+When a user later identifies a specific city, that city becomes the primary
+location constraint and an incompatible broad province value is removed.
+
+\section{User Memory and Conversation State}
+
+The system distinguishes between persistent user memory and temporary
+conversation state.
+
+\subsection{Persistent User Memory}
+
+Persistent memory stores selected long-term preferences and user
+characteristics, including preferred travel styles, preferred activities,
+interests, budget preference, conditions to avoid, preferred answer length,
+preferred tone and explanation style, expertise, and selected non-sensitive
+personal facts.
+
+Memory items are stored with a user identifier, memory type, normalized
+content, importance value, activity status, and timestamps. Active memories are
+ordered by importance and recency before being converted into a structured
+user profile. Travel-style and activity preferences can provide small ranking
+signals. The complete relevant profile can also be used by answer generation.
+
+Not every user statement is stored permanently. Memory extraction is
+restricted to information likely to remain useful across future conversations.
+
+\subsection{Temporary Conversation State}
+
+Conversation state stores trip-specific information relevant only to the
+current discussion. It includes a bounded conversation summary, current
+destination, travel dates, trip duration, temporary budget, selected places,
+and trip-specific constraints.
+
+Separating temporary state from persistent memory prevents a short-term trip
+requirement from being interpreted as a permanent preference. State size is
+bounded to reduce prompt growth. If an LLM state update is truncated or
+malformed, the previous valid state is retained instead of replacing it with
+unvalidated content.
+
+\section{Retrieval Planning}
+
+Simple factual questions can normally be processed using one retrieval query.
+More complex requests may contain several independent information requirements.
+The retrieval planner analyzes the standalone query and creates focused
+retrieval tasks when decomposition is useful. For example, a comparison between
+two destinations may produce one destination-specific search for each city. An
+itinerary request may require evidence about attractions, activities, food, and
+practical travel information.
+
+The planner distinguishes evidence requirements from response-format
+instructions. A request for a concise answer or a three-day structure should
+guide answer construction but should not automatically become a separate
+retrieval requirement unless factual evidence is needed.
+
+The implementation limits the planner to a maximum of six evidence requirements
+and six retrieval tasks. If planning fails, the system falls back to a general
+search or destination-scoped searches for comparison queries. This bounded
+approach provides decomposition without allowing an excessive number of
+retrieval operations.
+
+\section{Metadata-Aware Retrieval}
+
+The structured query representation is converted into retrieval filters and
+ranking signals. Supported exact filters include country, city, province, and,
+when sufficiently reliable, place type.
+
+Hard place-type filtering is used only when the intent clearly requires a
+particular category, such as attraction, accommodation, food, or event search.
+For broader requests, place types, activities, travel styles, suitability
+information, and regions are used as retrieval context or ranking signals
+rather than strict filters.
+
+If optional province or place-type filters return no candidates, the system
+removes these optional restrictions and repeats retrieval. Every relaxation is
+recorded in the pipeline trace. This process prevents complete retrieval
+failure when metadata is incomplete or the query has been interpreted too
+narrowly.
+
+\section{Dense Vector Retrieval}
+
+Dense retrieval compares the query embedding with stored chunk embeddings. It
+is useful when the query and relevant documents express the same concept using
+different words. For each retrieval task, the dense retriever returns the most
+semantically similar chunks from the metadata-filtered collection. The
+pipeline-level ceiling is 30 dense candidates, although the retrieval planner
+normally supplies a smaller task-specific limit.
+
+\section{BM25 Lexical Retrieval}
+
+BM25 provides lexical matching between the query and stored tourism chunks. The
+searchable representation combines place name, summary, and original chunk
+text. BM25 is particularly useful for a specific attraction, landmark,
+district, or uncommon local term. The pipeline-level ceiling is 30 BM25
+candidates, subject to the smaller limit assigned to the current retrieval
+task.
+
+\section{Hybrid Retrieval}
+
+Dense and BM25 retrieval have complementary strengths. Their result lists are
+combined using Reciprocal Rank Fusion (RRF). For candidate chunk $c$, the
+fusion score is:
+
+\begin{equation}
+S_{\mathrm{RRF}}(c)
+=
+\frac{\mathbb{I}_{\mathrm{dense}}(c)}{k+r_{\mathrm{dense}}(c)}
++
+\frac{\mathbb{I}_{\mathrm{BM25}}(c)}{k+r_{\mathrm{BM25}}(c)},
+\end{equation}
+
+where $r_{\mathrm{dense}}(c)$ and $r_{\mathrm{BM25}}(c)$ are the ranks of $c$
+in the two lists. The implementation uses $k=60$. Candidate chunks are
+deduplicated using stable chunk identifiers before ordering.
+
+Small additional ranking signals can be applied for matching query activities,
+travel styles, suitable traveler groups, stored user preferences, geographic
+proximity, and source freshness. These signals are intentionally smaller than
+the main retrieval contribution so that they refine rather than replace textual
+relevance.
+
+\subsection{Location-Aware Retrieval}
+
+Location relevance is primarily handled through structured country, city, and
+province metadata. When the query explicitly names a city, unrelated cities
+can be excluded from the initial search. Broad regions remain contextual rather
+than being converted into incorrect exact province filters.
+
+The knowledge base can additionally store latitude and longitude values. The
+retrieval pipeline supports a small distance-based ranking adjustment when both
+target and candidate coordinates are explicitly available. Coordinate-based
+ranking is an optional supporting signal rather than a principal retrieval
+mechanism.
+
+\section{CrossEncoder Reranking}
+
+Hybrid retrieval improves candidate coverage, but its order may still contain
+passages that are only partially relevant. The system therefore applies a
+CrossEncoder reranking stage using
+\texttt{cross-encoder/ms-marco-MiniLM-L-6-v2}. Unlike the embedding model, the
+CrossEncoder processes query and passage jointly.
+
+Each planned search normally requests between 5 and 20 candidates from each
+first-stage retriever, with a fallback value of 10. After results from all
+planned searches have been merged, up to 20 fused candidates are forwarded to
+the CrossEncoder. The reranker retains up to eight chunks as final evidence.
+
+Destination-comparison queries receive additional balancing. The shortlist and
+final evidence selection attempt to include evidence from each explicitly
+compared city. Balancing affects candidate membership, while CrossEncoder
+scores determine relevance order. This procedure cannot create evidence absent
+from the corpus; such cases are handled by coverage checking and corpus-gap
+diagnostics.
+
+\begin{table}[H]
+\centering
+\caption{Configuration of the active retrieval and reranking pipeline}
+\label{tab:retrieval-configuration}
+\begin{tabular}{p{0.37\textwidth} p{0.52\textwidth}}
+\hline
+\textbf{Component} & \textbf{Configuration} \\
+\hline
+Embedding model & \texttt{all-MiniLM-L6-v2} \\
+Embedding dimension & 384 \\
+Candidates per planned search & 5--20 per dense and BM25 search; fallback 10 \\
+Pipeline retrieval ceiling & Up to 30 candidates per retriever \\
+Hybrid fusion & RRF with $k=60$ and small metadata signals \\
+CrossEncoder input & Up to 20 fused candidates \\
+Reranking model & MS MARCO MiniLM-L6-v2 CrossEncoder \\
+Final evidence & Up to 8 reranked chunks \\
+Comparison handling & Candidate and evidence balancing across compared cities \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Evidence Coverage and Recovery Retrieval}
+
+A high relevance score does not guarantee that all parts of a complex request
+are supported. After reranking, the system checks selected evidence against the
+requirements produced by the planner. Each requirement is classified as:
+
+\begin{itemize}
+    \item \textbf{covered}, when the evidence is sufficient;
+    \item \textbf{partially covered}, when only part is supported; or
+    \item \textbf{not covered}, when no directly useful selected evidence is
+    available.
+\end{itemize}
+
+Supporting chunk identifiers must be provided for covered or partially covered
+requirements. This prevents the checker from declaring coverage without
+identifying corresponding evidence. Coverage ratio assigns full credit to a
+covered requirement, partial credit to a partially covered requirement, and no
+credit to a not-covered requirement.
+
+When evidence is missing, the checker can generate focused recovery queries.
+The system executes at most three recovery searches. New candidates are merged
+with original results, followed by fusion, reranking, and a second evidence
+check. The trace records whether recovery added unique candidates, changed the
+selected evidence, or improved requirement coverage.
+
+\subsection{Missing-Evidence and Corpus Diagnostics}
+
+Failure to select evidence does not automatically prove that the corpus lacks
+the requested information. The system therefore records a diagnostic for every
+unresolved requirement after recovery:
+
+\begin{itemize}
+    \item \texttt{not\_probed}, when no focused recovery query was executed and
+    no corpus-gap conclusion can be made;
+    \item \texttt{likely\_corpus\_gap}, when the focused probe returns no
+    candidate;
+    \item \texttt{likely\_corpus\_content\_gap}, when candidates exist but do
+    not contain the required information;
+    \item \texttt{likely\_reranking\_failure}, when the focused probe finds new
+    candidates that are not selected; or
+    \item \texttt{selected\_evidence\_insufficient}, when probe evidence is
+    selected but remains insufficient.
+\end{itemize}
+
+These labels are diagnostics, not evidence-coverage grades. In particular,
+\texttt{not\_probed} must not be interpreted as proof of missing corpus data.
+Response-format requirements and personalization facets are excluded from
+evidence coverage unless they require an external factual claim.
+
+\section{Answer Readiness and Knowledge-Gap Handling}
+
+After retrieval, the system assigns one of three answer-readiness modes:
+
+\begin{itemize}
+    \item \textbf{complete}, when the evidence sufficiently covers the factual
+    requirements;
+    \item \textbf{partial}, when useful evidence exists but one or more
+    requirements remain incompletely supported; or
+    \item \textbf{insufficient}, when no adequate evidence supports normal
+    answer generation.
+\end{itemize}
+
+In partial mode, the answer generator must separate supported information from
+missing information. In insufficient mode, normal generation is blocked and
+the system explains that the current database does not contain enough verified
+information. The unresolved topic is recorded as a knowledge gap. This gate
+reduces the likelihood that the LLM replaces failed retrieval with unsupported
+internal knowledge.
+
+\section{Grounded Response Generation}
+
+The final generation context includes the original query, rewritten standalone
+query, parsed constraints and facets, selected evidence, relevant persistent
+memory, temporary conversation state, evidence coverage, missing-evidence
+diagnostics, and answer readiness. Each evidence chunk receives an evidence
+identifier and retains its place name, source location, and relevant metadata.
+
+The answer model is instructed to:
+
+\begin{itemize}
+    \item base factual travel claims on selected evidence;
+    \item apply user preferences only when relevant;
+    \item respect explicit positive and negative constraints;
+    \item avoid inventing unsupported details;
+    \item identify missing or uncertain information;
+    \item avoid exposing retrieval scores or internal pipeline details; and
+    \item produce a readable Markdown response.
+\end{itemize}
+
+For safety-sensitive food constraints, including allergies, shellfish
+avoidance, ingredient uncertainty, and cross-contact risk, the model must not
+claim that an option is safe unless the evidence verifies the relevant facts.
+Otherwise, it must state the limitation and recommend direct confirmation with
+the provider.
+
+\section{Source Attribution}
+
+Every tourism chunk maintains a relationship with its original document and
+source location. Sources associated with selected evidence are included in the
+response payload and duplicate sources are consolidated before presentation.
+Source attribution improves transparency, but the presence of a source does
+not by itself guarantee every generated statement is correct. It is therefore
+combined with evidence-constrained prompting and coverage checking.
+
+\section{Retrieval Debugging and Telemetry}
+
+A retrieval-debugging interface exposes intermediate pipeline results rather
+than displaying only the final answer. It supports inspection of rewritten
+queries, parsed constraints and facets, retrieval plans, dense and BM25
+candidates, fusion results, applied filters and relaxations, metadata signals,
+CrossEncoder scores, coverage assessments, recovery searches, corpus-gap
+diagnostics, selected evidence, readiness, and the generated answer.
+
+Operational telemetry is recorded for reproducibility and efficiency analysis.
+Depending on model-provider reporting, each stage stores:
+
+\begin{itemize}
+    \item latency and model identifier;
+    \item input, cached-input, and output token counts;
+    \item total token usage;
+    \item estimated cost based on a versioned pricing configuration;
+    \item pipeline and trace versions;
+    \item generator and judge prompt hashes; and
+    \item corpus fingerprint and relevant model configuration.
+\end{itemize}
+
+Estimated cost is an experimental estimate rather than a billing record. A
+corpus fingerprint connects results to the exact knowledge-base snapshot used
+for a run.
+
+The exact model assignments, dataset construction process, evaluation metrics,
+judge configuration, and reproducibility controls are specified in the
+experimental-setup chapter. Keeping these choices separate from the proposed
+method makes it possible to change an experimental model without redefining the
+architecture itself.
+
+\section{End-to-End Query Processing}
+
+The complete online process is summarized as follows:
+
+\begin{enumerate}
+    \item The request router classifies the request as travel, ambiguous, or out
+    of scope.
+    \item Persistent user memory and temporary conversation state are loaded.
+    \item The current message is rewritten into a standalone query.
+    \item The parser extracts intent, operation, location, explicit constraints,
+    negative constraints, and retrieval facets.
+    \item Region aliases and deterministic destination matches are normalized.
+    \item The retrieval planner creates bounded evidence requirements and search
+    tasks.
+    \item Applicable hard filters and semantic ranking signals are constructed.
+    \item Dense and BM25 retrieval are executed for each task.
+    \item Optional filters are relaxed if they produce no candidates.
+    \item Candidates are deduplicated and combined using RRF and small metadata
+    signals.
+    \item The strongest fused candidates are CrossEncoder-reranked.
+    \item The evidence checker evaluates requirement coverage.
+    \item Up to three recovery searches are performed when evidence is missing,
+    followed by fusion, reranking, and rechecking.
+    \item Missing-evidence and corpus diagnostics are recorded.
+    \item The evidence gate assigns complete, partial, or insufficient
+    readiness.
+    \item The LLM generates a personalized grounded response when permitted.
+    \item Sources, trace information, latency, tokens, and estimated cost are
+    consolidated for output and evaluation.
+\end{enumerate}
+
+\section{Methodological Summary}
+
+The methodology treats the Personalized Travel Guide Assistant as a complete,
+inspectable retrieval and generation system rather than an isolated LLM
+application. The knowledge-construction workflow transforms heterogeneous
+tourism sources into cleaned, structure-aware, metadata-enriched, and
+vectorized chunks. At query time, the system performs routing, contextual
+rewriting, structured parsing, bounded planning, metadata-aware dense and BM25
+retrieval, Reciprocal Rank Fusion, CrossEncoder reranking, evidence checking,
+recovery retrieval, corpus-gap diagnosis, and readiness-gated answer
+generation.
+
+Persistent preferences and temporary state support personalization without
+treating every interaction as permanent memory. The evaluation protocol
+separates query understanding, retrieval ranking, and final-answer quality,
+uses an independent LLM judge with human confirmation, and records sufficient
+telemetry to connect results to the exact prompts, models, pipeline version,
+and corpus snapshot used in each run.

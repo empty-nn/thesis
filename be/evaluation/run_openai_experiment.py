@@ -37,6 +37,7 @@ from config.vocab import (  # noqa: E402
     ALLOWED_ACTIVITIES,
     ALLOWED_BUDGET_LEVELS,
     ALLOWED_PLACE_TYPES,
+    ALLOWED_REGIONS,
     ALLOWED_QUERY_INTENTS,
     ALLOWED_QUERY_OPERATIONS,
     ALLOWED_SUITABLE_FOR,
@@ -50,6 +51,13 @@ from evaluation.thesis_evaluation_schema import (  # noqa: E402
     ThesisEvaluationCase,
 )
 from schemas.pipeline import UserTravelMemory  # noqa: E402
+from data_building.extract_metadata.extractor import (  # noqa: E402
+    DEEPSEEK_ANSWER_MODEL,
+    DEEPSEEK_FAST_MODEL,
+    DEEPSEEK_PARSER_MODEL,
+    DEEPSEEK_RETRIEVAL_MODEL,
+    DEEPSEEK_REASONING_MODEL,
+)
 from db.full_model import RagChunkORM  # noqa: E402
 from db.session import SessionLocal  # noqa: E402
 from services.answer_pipeline import build_evidence, generate_answer  # noqa: E402
@@ -65,6 +73,35 @@ from services.llm_telemetry import (  # noqa: E402
 )
 
 
+RETRIEVAL_FACET_KEYS = {"place_type", "activity", "travel_style", "suitable_for"}
+
+
+def split_reference_constraints(items: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Separate hard request constraints from semantic retrieval facets."""
+    constraints = [item for item in items if item.get("key") not in RETRIEVAL_FACET_KEYS]
+    facets = [item for item in items if item.get("key") in RETRIEVAL_FACET_KEYS]
+    return constraints, facets
+
+
+def parsed_retrieval_facet_items(parsed) -> list[dict[str, str]]:
+    groups = {
+        "place_type": parsed.place_types,
+        "activity": parsed.activities,
+        "travel_style": parsed.travel_styles,
+        "suitable_for": parsed.suitable_for,
+    }
+    return [
+        {"key": key, "value": str(value)}
+        for key, values in groups.items()
+        for value in values
+    ]
+
+
+def parsed_hard_constraint_items(parsed) -> list[dict[str, str]]:
+    items = query_constraint_items(parsed)
+    return [item for item in items if item.get("key") not in RETRIEVAL_FACET_KEYS]
+
+
 GENERATOR_SYSTEM = """
 Create a synthetic but realistic conversational benchmark for a personalized Vietnam travel RAG system.
 The output will be reviewed by a human. Do not claim that synthetic labels are human ground truth.
@@ -78,11 +115,17 @@ Return JSON with one key, `user`, containing:
   relevant_memory_ids, key_answer_facts, and difficulty (simple, contextual, or complex).
 - turn_id must be an integer starting at 1, not a label such as TURN-01.
 - query_constraints contains only facts explicitly stated or resolved from conversation context.
-  Use key/value pairs and only these keys: country, city, province, place_type, activity,
+  Use key/value pairs and only these keys: country, region, city, province, place_type, activity,
   travel_style, suitable_for, budget, duration_days, date_from, date_to, near_place,
   max_distance_km. For list fields, emit one key/value pair per value.
 - Do not convert interests or activities into suitable_for labels. Do not add broader related
   activities. Every query_constraint must be verifiable from the query or prior conversation.
+- Geographic names use country/city/province; never duplicate them as place_type=country,
+  place_type=city, place_type=province, or place_type=region.
+- "solo" maps to suitable_for=solo_travelers, never to a travel_style. Prefer one direct label
+  per phrase rather than encoding the same phrase as both activity and travel_style.
+- For follow-up turns, include prior constraints only when needed to resolve the current query;
+  do not copy the entire previous trip profile into every turn.
 - Query-constraint values for place_type, activity, travel_style, suitable_for, and budget must
   come exactly from their supplied allowed lists.
 - applicable_personalization contains only profile preferences or stable memories that should
@@ -138,7 +181,11 @@ without rewarding the use of irrelevant profile data. Completeness checks all pa
 When evidence is insufficient and the answer clearly says so, faithfulness and correctness may
 remain high, but completeness should be lower. If the answer invents missing details, lower
 faithfulness and correctness too; do not reward hallucinated coverage as completeness. Return JSON only.
+The selected evidence is supplied in the exact reranked order used to generate the answer.
+Resolve answer citations such as [E1] against the matching evidence_id field exactly.
 """.strip()
+
+ANSWER_JUDGE_SCHEMA_VERSION = 2
 
 
 class GeneratedProfile(BaseModel):
@@ -334,6 +381,7 @@ def generate_dataset(output: Path, users: int, conversations: int, turns: int) -
                 "allowed_travel_styles": ALLOWED_TRAVEL_STYLES,
                 "allowed_activities": ALLOWED_ACTIVITIES,
                 "allowed_budget_levels": ALLOWED_BUDGET_LEVELS,
+                "allowed_regions": ALLOWED_REGIONS,
                 "allowed_place_types": ALLOWED_PLACE_TYPES,
                 "allowed_suitable_for": ALLOWED_SUITABLE_FOR,
                 "known_corpus_cities": known_cities,
@@ -377,7 +425,7 @@ def generate_dataset(output: Path, users: int, conversations: int, turns: int) -
         output.write_text(
             json.dumps(
                 {
-                    "version": "1.2",
+                    "version": "1.4",
                     "generator_model": model,
                     "annotation_status": "llm_annotated",
                     "api_calls": api_calls,
@@ -419,11 +467,17 @@ def validate_generated_user(
         ):
             errors.append(f"{field} must be an array of strings")
     constraint_vocabs = {
+        "region": set(ALLOWED_REGIONS),
         "place_type": set(ALLOWED_PLACE_TYPES),
         "activity": set(ALLOWED_ACTIVITIES),
         "travel_style": set(ALLOWED_TRAVEL_STYLES),
         "suitable_for": set(ALLOWED_SUITABLE_FOR),
         "budget": set(ALLOWED_BUDGET_LEVELS),
+    }
+    allowed_constraint_keys = {
+        "country", "region", "city", "province", "place_type", "activity",
+        "travel_style", "suitable_for", "budget", "duration_days",
+        "date_from", "date_to", "near_place", "max_distance_km",
     }
     memories = user.get("memories", [])
     memory_ids = [item.get("memory_id") for item in memories]
@@ -473,7 +527,25 @@ def validate_generated_user(
                     f"turn {turn.get('turn_id')} omits applicable memories: "
                     f"{sorted(missing_memory_ids)}"
                 )
+            constraint_pairs = [
+                (item.get("key"), str(item.get("value")))
+                for item in turn.get("query_constraints", [])
+            ]
+            if len(constraint_pairs) != len(set(constraint_pairs)):
+                errors.append(
+                    f"turn {turn.get('turn_id')} contains duplicate query constraints"
+                )
             for item in turn.get("query_constraints", []):
+                if item.get("key") not in allowed_constraint_keys:
+                    errors.append(f"invalid constraint key: {item.get('key')!r}")
+                if (
+                    item.get("key") == "place_type"
+                    and item.get("value") in {"country", "city", "province", "region"}
+                ):
+                    errors.append(
+                        "geographic type must use a location constraint, not "
+                        f"place_type: {item.get('value')!r}"
+                    )
                 if item.get("key") == "city" and item.get("value") not in known_cities:
                     errors.append(f"unknown corpus city: {item.get('value')!r}")
                 allowed = constraint_vocabs.get(item.get("key"))
@@ -634,13 +706,20 @@ def query_constraint_items(parsed) -> list[dict[str, str]]:
 def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dict:
     source = json.loads(dataset_path.read_text(encoding="utf-8"))
     run = {
-        "version": "1.8",
+        "version": "2.5",
         "run_id": f"run-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')}",
-        "pipeline_version": "personalized-rag-eval-v1.8",
+        "pipeline_version": "personalized-rag-eval-v2.5",
         "git_commit": git_commit(),
         "generator_model": source.get("generator_model"),
         "generator_api_calls": source.get("api_calls", []),
-        "answer_model": os.environ.get("DEEPSEEK_METADATA_MODEL", "deepseek-chat"),
+        "answer_model": DEEPSEEK_ANSWER_MODEL,
+        "pipeline_models": {
+            "fast": DEEPSEEK_FAST_MODEL,
+            "reasoning": DEEPSEEK_REASONING_MODEL,
+            "parser": DEEPSEEK_PARSER_MODEL,
+            "retrieval_planner_checker": DEEPSEEK_RETRIEVAL_MODEL,
+            "answer": DEEPSEEK_ANSWER_MODEL,
+        },
         "started_at": datetime.now(timezone.utc).isoformat(),
         "timezone": os.environ.get("USER_TIMEZONE", "Asia/Ho_Chi_Minh"),
         "corpus_version": corpus_metadata(),
@@ -663,6 +742,34 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
             ),
         },
         "cases": [],
+    }
+    expected_queries = {
+        f"{user['user_id']}-{conversation['conversation_id']}-T{turn['turn_id']:02d}": turn["query"]
+        for user in source["users"]
+        for conversation in user["conversations"]
+        for turn in conversation["turns"]
+    }
+    if output.exists():
+        try:
+            existing_run = json.loads(output.read_text(encoding="utf-8"))
+            existing_cases = existing_run.get("cases", [])
+            if (
+                existing_run.get("pipeline_version") == run["pipeline_version"]
+                and all(
+                    expected_queries.get(case.get("case_id")) == case.get("query")
+                    for case in existing_cases
+                )
+            ):
+                run = existing_run
+                run.pop("finished_at", None)
+                print(
+                    f"[pipeline resume] Reusing {len(existing_cases)} completed cases",
+                    flush=True,
+                )
+        except (OSError, json.JSONDecodeError):
+            pass
+    existing_by_case = {
+        case["case_id"]: case for case in run.get("cases", [])
     }
     completed = 0
     load_models()
@@ -702,6 +809,28 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                         return run
                     completed += 1
                     case_id = f"{user['user_id']}-{conversation['conversation_id']}-T{turn['turn_id']:02d}"
+                    existing_case = existing_by_case.get(case_id)
+                    if existing_case is not None:
+                        print(
+                            f"[pipeline {completed}] {case_id} (resume: already complete)",
+                            flush=True,
+                        )
+                        answer = existing_case.get("final_answer", "")
+                        history.extend([
+                            {"role": "user", "content": turn["query"]},
+                            {"role": "assistant", "content": answer},
+                        ])
+                        try:
+                            conversation_state = ConversationState.model_validate(
+                                existing_case.get("conversation_state_after", {})
+                            )
+                        except Exception as exc:
+                            print(
+                                f"[PIPELINE RESUME WARNING] Invalid saved state for "
+                                f"{case_id}: {exc}",
+                                flush=True,
+                            )
+                        continue
                     inferred_memory_ids = applicable_memory_ids(
                         user.get("memories", []),
                         turn.get("applicable_personalization", []),
@@ -715,6 +844,9 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                     )
                     reference_intent = migrate_legacy_intent(
                         turn["query"], turn.get("intent", "travel_information")
+                    )
+                    reference_constraints, reference_facets = split_reference_constraints(
+                        turn.get("query_constraints", [])
                     )
                     print(f"[pipeline {completed}] {case_id}", flush=True)
                     telemetry, telemetry_token = activate_telemetry(case_id)
@@ -786,7 +918,8 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                         "reference": {
                             "intent": reference_intent,
                             "operation": reference_operation,
-                            "query_constraints": turn.get("query_constraints", []),
+                            "query_constraints": reference_constraints,
+                            "retrieval_facets": reference_facets,
                             "applicable_personalization": turn.get("applicable_personalization", []),
                             "relevant_memory_ids": relevant_memory_ids,
                             "key_answer_facts": turn.get("key_answer_facts", []),
@@ -810,7 +943,9 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                                     else (artifacts.parsed.operation or "lookup")
                                 )
                             ),
-                            "query_constraints": query_constraint_items(artifacts.parsed),
+                            "query_constraints": parsed_hard_constraint_items(
+                                artifacts.parsed
+                            ),
                             "explicit_constraints": query_constraint_items(artifacts.parsed),
                             "retrieval_facets": {
                                 "location": artifacts.parsed.location.model_dump(),
@@ -820,6 +955,9 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                                 "suitable_for": artifacts.parsed.suitable_for,
                                 "constraints": artifacts.parsed.constraints.model_dump(),
                             },
+                            "retrieval_facet_items": parsed_retrieval_facet_items(
+                                artifacts.parsed
+                            ),
                             "rewritten_query": artifacts.rewritten_query,
                             "parsed_query": artifacts.parsed.model_dump(),
                             "plan": artifacts.plan.model_dump(),
@@ -834,6 +972,7 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                             "coverage_after_recovery": artifacts.coverage.model_dump(),
                             "coverage_check": artifacts.coverage.model_dump(),
                             "comparison_balance": artifacts.comparison_balance,
+                            "filter_relaxations": artifacts.filter_relaxations,
                             "recovery_effectiveness": artifacts.recovery_effectiveness,
                             "answer_readiness": artifacts.answer_readiness.model_dump(),
                             "confidence": artifacts.confidence.model_dump(),
@@ -882,39 +1021,100 @@ def judge_run(pipeline_path: Path, output: Path, limit: int | None) -> dict:
     client = openai_client()
     model = os.environ.get("JUDGE_MODEL", "gpt-5.6-terra")
     judged = {**source, "judge_model": model, "cases": []}
+    if output.exists():
+        try:
+            existing = json.loads(output.read_text(encoding="utf-8"))
+            if (
+                existing.get("run_id") == source.get("run_id")
+                and existing.get("pipeline_version") == source.get("pipeline_version")
+                and existing.get("judge_model") == model
+            ):
+                judged = existing
+        except (OSError, json.JSONDecodeError):
+            pass
+    existing_by_case = {
+        case["case_id"]: case
+        for case in judged.get("cases", [])
+    }
+    judged_by_case: dict[str, dict] = {}
     for index, case in enumerate(source["cases"][:limit], 1):
-        print(f"[judge {index}/{min(len(source['cases']), limit or len(source['cases']))}] {case['case_id']}", flush=True)
-        selected_ids = set(case["retrieval"]["selected_evidence_ids"])
-        candidates = unique_candidates(case)
-        retrieval_result, retrieval_call = json_completion(
-            client,
-            model,
-            RETRIEVAL_JUDGE_SYSTEM,
-            {
-                "query": case["query"],
-                "conversation_history": case["conversation_history"],
-                "expected_intent": case["reference"]["intent"],
-                "expected_operation": case["reference"]["operation"],
-                "expected_query_constraints": case["reference"]["query_constraints"],
-                "candidate_chunks": candidates,
-            },
-            RetrievalJudgment,
-            max_tokens=7000,
+        existing_case = existing_by_case.get(case["case_id"], {})
+        retrieval_complete = bool(
+            existing_case.get("reference", {}).get("relevance_grades")
         )
-        candidate_ids = {item["chunk_id"] for item in candidates}
-        relevance = {
-            item.chunk_id: item.relevance
-            for item in retrieval_result.judgments
-        }
-        returned_ids = set(relevance)
-        if returned_ids != candidate_ids:
-            raise ValueError(
-                "Retrieval judge chunk coverage mismatch: "
-                f"missing={sorted(candidate_ids - returned_ids)}, "
-                f"extra={sorted(returned_ids - candidate_ids)}"
+        answer_complete = bool(
+            existing_case.get("final_answer_scores")
+            and existing_case.get("answer_judge_schema_version")
+            == ANSWER_JUDGE_SCHEMA_VERSION
+        )
+        if retrieval_complete and answer_complete:
+            judged_by_case[case["case_id"]] = existing_case
+            print(
+                f"[judge {index}/{min(len(source['cases']), limit or len(source['cases']))}] "
+                f"{case['case_id']} (resume: already complete)",
+                flush=True,
             )
+            continue
+        print(f"[judge {index}/{min(len(source['cases']), limit or len(source['cases']))}] {case['case_id']}", flush=True)
+        if retrieval_complete:
+            relevance = existing_case["reference"]["relevance_grades"]
+            retrieval_call = existing_case.get("judge_api_calls", {}).get("retrieval")
+            candidate_key_to_chunk_id = existing_case.get(
+                "judge_api_calls", {}
+            ).get("retrieval_candidate_id_map", {})
+        else:
+            candidates = unique_candidates(case)
+            candidate_key_to_chunk_id = {
+                f"C{candidate_index:03d}": item["chunk_id"]
+                for candidate_index, item in enumerate(candidates, 1)
+            }
+            judge_candidates = [
+                {**item, "chunk_id": candidate_key}
+                for candidate_key, item in zip(
+                    candidate_key_to_chunk_id, candidates, strict=True
+                )
+            ]
+            retrieval_result, retrieval_call = json_completion(
+                client, model, RETRIEVAL_JUDGE_SYSTEM,
+                {
+                    "query": case["query"],
+                    "conversation_history": case["conversation_history"],
+                    "expected_intent": case["reference"]["intent"],
+                    "expected_operation": case["reference"]["operation"],
+                    "expected_query_constraints": case["reference"]["query_constraints"],
+                    "expected_retrieval_facets": case["reference"].get("retrieval_facets", []),
+                    "candidate_chunks": judge_candidates,
+                },
+                RetrievalJudgment,
+                max_tokens=7000,
+            )
+            candidate_keys = set(candidate_key_to_chunk_id)
+            relevance_by_key = {
+                item.chunk_id: item.relevance
+                for item in retrieval_result.judgments
+            }
+            returned_keys = set(relevance_by_key)
+            if returned_keys != candidate_keys:
+                raise ValueError(
+                    "Retrieval judge candidate coverage mismatch: "
+                    f"missing={sorted(candidate_keys - returned_keys)}, "
+                    f"extra={sorted(returned_keys - candidate_keys)}"
+                )
+            relevance = {
+                candidate_key_to_chunk_id[key]: grade
+                for key, grade in relevance_by_key.items()
+            }
         selected_evidence = [
-            item for item in candidates if item["chunk_id"] in selected_ids
+            {
+                "evidence_id": f"E{evidence_index}",
+                "chunk_id": item["chunk_id"],
+                "place_name": item.get("metadata", {}).get("place_name"),
+                "city": item.get("metadata", {}).get("city"),
+                "content": item["content"],
+            }
+            for evidence_index, item in enumerate(
+                case["retrieval"]["stages"]["reranked"], 1
+            )
         ]
         answer_result, answer_call = json_completion(
             client,
@@ -932,6 +1132,9 @@ def judge_run(pipeline_path: Path, output: Path, limit: int | None) -> dict:
                 "expected_intent": case["reference"]["intent"],
                 "expected_operation": case["reference"]["operation"],
                 "expected_query_constraints": case["reference"]["query_constraints"],
+                "expected_retrieval_facets": case["reference"].get(
+                    "retrieval_facets", []
+                ),
                 "applicable_personalization": case["reference"]["applicable_personalization"],
                 "expected_answer_criteria": case["reference"]["key_answer_facts"],
                 "selected_evidence": selected_evidence,
@@ -946,11 +1149,18 @@ def judge_run(pipeline_path: Path, output: Path, limit: int | None) -> dict:
         })
         case["reference"]["relevance_grades"] = relevance
         case["final_answer_scores"] = scores.model_dump()
+        case["answer_judge_schema_version"] = ANSWER_JUDGE_SCHEMA_VERSION
         case["judge_api_calls"] = {
             "retrieval": retrieval_call,
             "answer": answer_call,
+            "retrieval_candidate_id_map": candidate_key_to_chunk_id,
         }
-        judged["cases"].append(case)
+        judged_by_case[case["case_id"]] = case
+        judged["cases"] = [
+            judged_by_case[source_case["case_id"]]
+            for source_case in source["cases"][:limit]
+            if source_case["case_id"] in judged_by_case
+        ]
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(judged, ensure_ascii=False, indent=2), encoding="utf-8")
     return judged
@@ -977,6 +1187,9 @@ def export_thesis_dataset(judged_path: Path, output: Path) -> ThesisDataset:
                     "intent": case["understanding"]["intent"],
                     "operation": case["understanding"]["operation"],
                     "query_constraints": case["understanding"]["query_constraints"],
+                    "retrieval_facets": case["understanding"].get(
+                        "retrieval_facet_items", []
+                    ),
                 },
                 "retrieval": {
                     "retrieved_chunk_ids": [item["chunk_id"] for item in reranked],

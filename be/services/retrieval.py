@@ -38,12 +38,24 @@ class RetrievalFilters:
 def build_retrieval_filters(
     parsed: ParsedQuery,
 ) -> RetrievalFilters:
+    # Broad, multi-aspect requests need cross-type evidence. Keep their place
+    # types as fusion metadata signals instead of restrictive SQL predicates.
+    hard_place_type_intents = {
+        "attraction_search",
+        "accommodation_search",
+        "food_search",
+        "event_search",
+    }
     return RetrievalFilters(
         country=parsed.location.country,
         city=parsed.location.city,
         cities=parsed.location.cities,
         province=parsed.location.province,
-        place_types=parsed.place_types,
+        place_types=(
+            parsed.place_types
+            if parsed.intent in hard_place_type_intents
+            else []
+        ),
     )
 
 

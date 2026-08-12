@@ -1,0 +1,138 @@
+\chapter{Evaluation Artifacts and Reproduction}
+\label{app:commands}
+
+\section{Official Experiment Commands}
+
+The following commands are executed from the backend directory in Windows CMD.
+The same work directory must be used for all stages.
+
+\begin{verbatim}
+cd /d E:\Thesis_all\be
+set PYTHON_RUNNER=.venv\Scripts\python.exe
+
+%PYTHON_RUNNER% evaluation\run_openai_experiment.py ^
+  --stage generate --users 5 --conversations 2 --turns 10 ^
+  --work-dir evaluation\runs\v25_official_100
+
+%PYTHON_RUNNER% evaluation\run_openai_experiment.py ^
+  --stage pipeline --limit 100 ^
+  --work-dir evaluation\runs\v25_official_100
+
+%PYTHON_RUNNER% evaluation\run_openai_experiment.py ^
+  --stage judge --limit 100 ^
+  --work-dir evaluation\runs\v25_official_100
+
+%PYTHON_RUNNER% evaluation\run_openai_experiment.py ^
+  --stage export --limit 100 ^
+  --work-dir evaluation\runs\v25_official_100
+\end{verbatim}
+
+The pipeline and judge stages are resumable. If the judge is started while the
+pipeline is still running, it evaluates only the cases present in the pipeline
+trace when the judge process starts. Running the judge again after all pipeline
+cases are complete reuses compatible judged cases and processes the remainder.
+
+\section{Artifact Files}
+
+\begin{table}[H]
+\centering
+\caption{Official experiment artifacts}
+\begin{tabular}{p{0.40\textwidth} p{0.50\textwidth}}
+\hline
+\textbf{File} & \textbf{Purpose} \\
+\hline
+\texttt{01\_generated\_dataset.json} & Profiles, memories, conversations,
+queries, and draft references \\
+\texttt{02\_pipeline\_traces.json} & Intermediate stages, evidence, answer,
+timings, and pipeline telemetry \\
+\texttt{03\_judged\_traces.json} & Retrieval grades, final-answer scores, and
+judge call metadata \\
+\texttt{04\_thesis\_dataset.json} & Validated dataset used for deterministic
+metric calculation \\
+\texttt{05\_metric\_summary.json} & Aggregate metrics, usage, latency, cost,
+models, prompts, and corpus metadata \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Query Taxonomy}
+
+The supported query intents are:
+
+\begin{itemize}
+    \item itinerary;
+    \item recommendation;
+    \item attraction search;
+    \item accommodation search;
+    \item food search;
+    \item transport;
+    \item event search; and
+    \item travel information.
+\end{itemize}
+
+The supported operations are lookup, recommend, compare, plan, and explain.
+Intent and operation should be annotated independently.
+
+\section{Retrieval Relevance Rubric}
+
+\begin{table}[H]
+\centering
+\caption{Chunk relevance grading rubric}
+\begin{tabular}{cl}
+\hline
+\textbf{Grade} & \textbf{Interpretation} \\
+\hline
+0 & Unrelated to the query \\
+1 & General background but not sufficient for an answer \\
+2 & Useful for one part or aspect of the query \\
+3 & Directly useful evidence for the query \\
+\hline
+\end{tabular}
+\end{table}
+
+Grades 2 and 3 are considered relevant for Precision@5. All four grades are
+used by nDCG@5.
+
+\section{Final-Answer Judge Rubric}
+
+Each dimension is scored from 1 to 5. A score of 1 represents a major failure,
+3 represents a mixed or partially adequate response, and 5 represents strong
+performance for that dimension. Correctness and faithfulness must be judged
+against the supplied evidence rather than the evaluator's unsupported external
+knowledge. Completeness must account for answer readiness: an honest partial
+answer may be faithful even when it cannot fully satisfy the query.
+
+\section{Human Review Checklist}
+
+For every selected review case, the reviewer should check:
+
+\begin{enumerate}
+    \item whether the query is coherent in its conversation;
+    \item whether intent and operation labels are defensible;
+    \item whether explicit constraints exclude inferred profile preferences;
+    \item whether retrieval facets follow the controlled vocabulary;
+    \item whether broad regions are not mislabeled as provinces or cities;
+    \item whether negative constraints remain negative;
+    \item whether relevance grades follow the 0--3 rubric;
+    \item whether factual answer claims are supported by selected evidence;
+    \item whether relevant preferences are applied without forcing irrelevant
+    personalization;
+    \item whether missing evidence is acknowledged; and
+    \item whether the judge rationale is consistent with its numerical scores.
+\end{enumerate}
+
+\section{Results Completion Checklist}
+
+Before submitting the thesis:
+
+\begin{itemize}
+    \item replace all \textit{Pending official run} placeholders;
+    \item verify that every reported value matches the exported summary or a
+    documented analysis script;
+    \item add the official corpus counts and fingerprint;
+    \item record the number and method of human-reviewed cases;
+    \item insert figures generated from the official dataset only;
+    \item update the conclusion with evidence-based aggregate results;
+    \item confirm that API keys and user-sensitive information are absent; and
+    \item archive the prompts, schemas, code commit, and run artifacts.
+\end{itemize}

@@ -1,0 +1,305 @@
+\chapter{Experimental Setup}
+\label{chap:experimental-setup}
+
+\section{Evaluation Objectives}
+
+The experiment evaluates the final proposed pipeline rather than training a new
+retrieval or generation model. Its purpose is to measure whether the system:
+
+\begin{itemize}
+    \item understands the user's current travel request;
+    \item distinguishes intent, operation, explicit constraints, and retrieval
+    facets;
+    \item retrieves and ranks useful evidence;
+    \item applies relevant persistent preferences and temporary context;
+    \item generates correct, faithful, personalized, and sufficiently complete
+    answers; and
+    \item operates with observable latency, token usage, and estimated cost.
+\end{itemize}
+
+No legacy ablation configuration is treated as the principal system. The
+official experiment evaluates the current v2.5 pipeline. Stage-level traces,
+recovery-before/after comparisons, and error categories are used to explain
+behavior within this final configuration.
+
+\section{Corpus Snapshot}
+
+All evaluated queries use one fixed tourism-corpus snapshot. Before the run, the
+experiment records a corpus fingerprint derived from ordered chunk identifiers
+and update information, together with:
+
+\begin{itemize}
+    \item document count;
+    \item chunk count;
+    \item number of chunks with embeddings;
+    \item embedding-model distribution; and
+    \item latest corpus update timestamp.
+\end{itemize}
+
+The final values from \texttt{02\_pipeline\_traces.json} must be copied into
+Table~\ref{tab:corpus-snapshot} after the official run.
+
+\begin{table}[H]
+\centering
+\caption{Corpus snapshot used in the official experiment}
+\label{tab:corpus-snapshot}
+\begin{tabular}{ll}
+\hline
+\textbf{Field} & \textbf{Official value} \\
+\hline
+Documents & \textit{Insert from official trace} \\
+Chunks & \textit{Insert from official trace} \\
+Embedded chunks & \textit{Insert from official trace} \\
+Embedding model & \texttt{all-MiniLM-L6-v2} \\
+Embedding dimension & 384 \\
+Corpus fingerprint & \textit{Insert abbreviated fingerprint} \\
+Latest update & \textit{Insert from official trace} \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Dataset Design}
+
+The evaluation dataset contains five synthetic users. Profiles are deliberately
+different in expertise, interests, travel styles, preferred activities, budget,
+avoidance preferences, answer length, tone, and explanation style. This
+variation provides controlled personalization requirements that are difficult
+to obtain from unrelated one-shot queries.
+
+Each user has two conversations, and each conversation contains ten turns. The
+complete design is therefore:
+
+\begin{equation}
+5\ \text{users} \times 2\ \text{conversations} \times
+10\ \text{turns} = 100\ \text{query turns}.
+\end{equation}
+
+Queries within a conversation are generated as a coherent sequence. Later
+turns may use references, preserve selected destinations, refine constraints,
+or ask comparisons based on previous answers. The two conversations for the
+same user allow durable profile information to remain relevant while temporary
+trip state changes.
+
+Each generated turn contains draft reference annotations for intent, operation,
+explicit constraints, retrieval facets, applicable personalization, relevant
+memory identifiers, and expected answer facts when applicable. These labels are
+not accepted automatically as ground truth. Human review checks taxonomy
+consistency, location types, negative constraints, and ambiguous intent labels
+before final reporting.
+
+\section{Model and Pipeline Configuration}
+
+Table~\ref{tab:model-roles-experiment} shows the model assignments used in the
+current experimental configuration. Model identifiers, pricing information,
+and prompt hashes are also stored in the run artifacts.
+
+\begin{table}[H]
+\centering
+\caption{Model roles in the official experiment}
+\label{tab:model-roles-experiment}
+\begin{tabular}{p{0.40\textwidth} p{0.45\textwidth}}
+\hline
+\textbf{Role} & \textbf{Model} \\
+\hline
+Conversational rewriting & \texttt{deepseek-v4-flash} \\
+Structured query parsing & \texttt{deepseek-v4-pro} \\
+Planning and evidence checking & \texttt{deepseek-v4-flash} \\
+Answer generation and memory & \texttt{deepseek-v4-flash} \\
+Synthetic dataset generation & \texttt{gpt-5.6-luna} \\
+Independent LLM judge & \texttt{gpt-5.6-terra} \\
+Dense embedding & \texttt{all-MiniLM-L6-v2} \\
+CrossEncoder reranker & \texttt{cross-encoder/ms-marco-MiniLM-L-6-v2} \\
+\hline
+\end{tabular}
+\end{table}
+
+The principal retrieval parameters are:
+
+\begin{itemize}
+    \item up to six planner requirements and six retrieval tasks;
+    \item normally 5--20 dense and BM25 candidates per task, with fallback 10;
+    \item a pipeline-level ceiling of 30 candidates per retriever;
+    \item RRF with $k=60$;
+    \item up to 20 fused candidates passed to the reranker;
+    \item up to eight selected evidence chunks; and
+    \item up to three focused recovery queries.
+\end{itemize}
+
+\section{Experiment Stages}
+
+The official experiment is executed as four resumable stages:
+
+\begin{enumerate}
+    \item \textbf{Generate}: create profiles, memories, conversations, queries,
+    and draft references in \texttt{01\_generated\_dataset.json}.
+
+    \item \textbf{Pipeline}: execute every query through the final RAG pipeline
+    and save all intermediate stages in
+    \texttt{02\_pipeline\_traces.json}.
+
+    \item \textbf{Judge}: evaluate candidate relevance and final-answer quality
+    using the independent judge, saving
+    \texttt{03\_judged\_traces.json}.
+
+    \item \textbf{Export}: validate the judged schema, calculate deterministic
+    metrics, and produce \texttt{04\_thesis\_dataset.json} and
+    \texttt{05\_metric\_summary.json}.
+\end{enumerate}
+
+Generation, answering, and judging use separate prompts. The answer model and
+judge model are assigned different roles, reducing direct self-evaluation.
+This does not eliminate common model biases, so human confirmation remains part
+of the protocol.
+
+\section{Query-Understanding Metrics}
+
+\subsection{Intent and Operation Accuracy}
+
+Intent Accuracy is the proportion of cases whose predicted intent matches the
+validated reference:
+
+\begin{equation}
+\operatorname{IntentAccuracy}
+=\frac{1}{N}\sum_{i=1}^{N}
+\mathbb{I}(\hat{y}^{\mathrm{intent}}_i=y^{\mathrm{intent}}_i).
+\end{equation}
+
+Operation Accuracy is calculated in the same manner for the supported
+operations: lookup, recommend, compare, plan, and explain. Intent and operation
+are evaluated separately because they represent the domain and requested
+action, respectively.
+
+\subsection{Constraint and Facet F1}
+
+Explicit constraints and retrieval facets are normalized into key--value
+items. For a predicted item set $P$ and reference set $R$:
+
+\begin{equation}
+\operatorname{Precision}=\frac{|P\cap R|}{|P|},\qquad
+\operatorname{Recall}=\frac{|P\cap R|}{|R|},
+\end{equation}
+
+\begin{equation}
+F_1=\frac{2\cdot\operatorname{Precision}\cdot\operatorname{Recall}}
+{\operatorname{Precision}+\operatorname{Recall}}.
+\end{equation}
+
+Query Constraint F1 uses explicit hard requirements, while Retrieval Facet F1
+uses normalized semantic signals. The empty-set cases are handled
+deterministically so that correctly predicting no items receives full credit.
+
+\section{Retrieval Metrics}
+
+The independent judge grades unique candidate chunks from 0 to 3:
+
+\begin{itemize}
+    \item 0: unrelated to the request;
+    \item 1: provides general background only;
+    \item 2: useful for part of the request; and
+    \item 3: directly useful for answering the request.
+\end{itemize}
+
+\subsection{Precision@5}
+
+A chunk is considered relevant for Precision@5 when its grade is at least 2:
+
+\begin{equation}
+P@5=\frac{1}{5}\sum_{i=1}^{5}\mathbb{I}(rel_i\geq2).
+\end{equation}
+
+\subsection{nDCG@5}
+
+The discounted cumulative gain at rank five is:
+
+\begin{equation}
+DCG@5=\sum_{i=1}^{5}\frac{2^{rel_i}-1}{\log_2(i+1)}.
+\end{equation}
+
+The ideal DCG is obtained by sorting the same grades in descending order. The
+normalized score is:
+
+\begin{equation}
+nDCG@5=\frac{DCG@5}{IDCG@5}.
+\end{equation}
+
+Recall@5 is not reported because the complete set of relevant chunks in the
+corpus is not exhaustively annotated. Evidence coverage is retained as a
+pipeline diagnostic and is not presented as corpus-level recall.
+
+\section{Final-Answer Metrics}
+
+The judge assigns scores from 1 to 5 for:
+
+\begin{itemize}
+    \item \textbf{Correctness}: accuracy of claims and recommendations relative
+    to the request and evidence;
+    \item \textbf{Faithfulness}: degree to which factual claims are supported
+    by selected evidence;
+    \item \textbf{Personalization Adherence}: appropriate application of
+    relevant preferences, memories, and constraints; and
+    \item \textbf{Completeness}: coverage of supported request aspects and clear
+    acknowledgment of unsupported aspects.
+\end{itemize}
+
+The judge receives the evidence in the exact order supplied to answer
+generation and uses temporary evidence identifiers. Retrieval candidates also
+use temporary identifiers that are mapped back to corpus UUIDs after judging,
+reducing identifier transcription errors.
+
+\section{Additional Diagnostics}
+
+The experiment reports but does not merge the following diagnostics into one
+quality score:
+
+\begin{itemize}
+    \item coverage ratio before and after recovery;
+    \item complete, partial, and insufficient readiness counts;
+    \item number of recovery searches and new candidates;
+    \item newly covered requirements;
+    \item filter relaxations;
+    \item likely corpus, reranking, or selected-evidence failure causes;
+    \item parser fallback frequency;
+    \item stage and end-to-end latency;
+    \item token usage; and
+    \item estimated cost.
+\end{itemize}
+
+These fields help explain why a case obtained its final scores. For example, a
+low completeness score may be expected when readiness is partial because the
+corpus lacks a required schedule, whereas low faithfulness with complete
+readiness suggests a generation problem.
+
+\section{Human Validation and Threats to Validity}
+
+Human review is performed at three points. First, generated user profiles and
+queries are checked for coherence, diversity, and compatibility with the
+Vietnam travel scope. Second, reference intent, operation, constraints, and
+facets are corrected where the synthetic annotation conflicts with the agreed
+taxonomy. Third, a representative sample of relevance grades and final-answer
+scores is inspected, with priority given to disagreements, extreme values,
+fallback cases, and corpus-gap diagnoses.
+
+Internal validity is threatened by stochastic LLM behavior and evaluator
+variance. Versioned prompts, schemas, temperatures, model identifiers, and
+resumable artifacts reduce uncontrolled variation. Construct validity is
+limited because numerical judge scores approximate concepts such as
+faithfulness and personalization. Clear rubrics and human inspection reduce but
+do not eliminate this limitation.
+
+External validity is limited by synthetic profiles, one national tourism scope,
+one corpus snapshot, and 100 queries. The results therefore describe the tested
+system configuration rather than every travel domain or real user. The official
+100-query set is kept separate from small development smoke runs to reduce
+overfitting through repeated manual tuning.
+
+\section{Reproducibility}
+
+Each run records the pipeline version, source-control commit when available,
+corpus fingerprint, embedding and reranker models, LLM roles, pricing snapshot,
+prompt hashes, timestamps, and random seed. Completed cases are saved
+incrementally. The judge can resume completed cases only when the run identity,
+pipeline version, judge model, and judge schema remain compatible.
+
+The commands required to reproduce the official run are provided in
+Appendix~\ref{app:commands}.
+

@@ -68,7 +68,26 @@ OPENAI_METADATA_MODEL = os.getenv("OPENAI_METADATA_MODEL", "gpt-4.1-mini")
 OLLAMA_METADATA_MODEL = os.getenv("OLLAMA_METADATA_MODEL", "qwen3:8b")
 GEMINI_METADATA_MODEL = os.getenv("GEMINI_METADATA_MODEL", "gemini-3.5-flash")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-DEEPSEEK_METADATA_MODEL = os.getenv("DEEPSEEK_METADATA_MODEL")
+DEEPSEEK_FAST_MODEL = os.getenv(
+    "DEEPSEEK_FAST_MODEL",
+    os.getenv("DEEPSEEK_METADATA_MODEL", "deepseek-v4-flash"),
+)
+DEEPSEEK_REASONING_MODEL = os.getenv(
+    "DEEPSEEK_REASONING_MODEL", "deepseek-v4-pro"
+)
+DEEPSEEK_PARSER_MODEL = os.getenv(
+    "DEEPSEEK_PARSER_MODEL", DEEPSEEK_REASONING_MODEL
+)
+DEEPSEEK_RETRIEVAL_MODEL = os.getenv(
+    "DEEPSEEK_RETRIEVAL_MODEL", DEEPSEEK_FAST_MODEL
+)
+DEEPSEEK_ANSWER_MODEL = os.getenv(
+    "DEEPSEEK_ANSWER_MODEL", DEEPSEEK_FAST_MODEL
+)
+# Backward-compatible name used by ingestion and older scripts.
+DEEPSEEK_METADATA_MODEL = os.getenv(
+    "DEEPSEEK_METADATA_MODEL", DEEPSEEK_FAST_MODEL
+)
 # openai_client = OpenAI(
 #     api_key=os.getenv("OPENAI_API_KEY"),
 # )
@@ -518,4 +537,3 @@ def safe_extract_ai_metadata_batch(
     except Exception as e:
         print("[AI METADATA BATCH FAILED]")
         print(f"Error: {e}")
-    

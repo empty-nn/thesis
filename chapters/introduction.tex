@@ -1,0 +1,156 @@
+\chapter{Introduction}
+\label{chap:introduction}
+
+\section{Background and Motivation}
+
+Planning a trip requires more than retrieving a list of popular attractions. A
+traveler may need to compare destinations, arrange transportation, select an
+appropriate base, find activities that match personal interests, avoid unsafe
+or unwanted experiences, and combine these decisions into a feasible itinerary.
+The requirements also evolve across a conversation. A broad initial question
+may be followed by references such as ``there'', ``the quieter option'', or
+``the final two nights'', which cannot be interpreted correctly without
+conversation context.
+
+Online tourism information is abundant but fragmented. Official tourism
+portals, destination websites, travel guides, and PDF documents describe
+different aspects of a destination and use inconsistent terminology. Search
+engines help users locate documents, but users must still inspect and reconcile
+multiple sources. Conventional recommender systems can personalize ranked
+items, but they often provide limited support for open-ended questions,
+multi-turn clarification, and explanations grounded in source text.
+
+LLMs offer a natural interface for travel planning because they can interpret
+free-form requests and produce readable itineraries and comparisons. However,
+an LLM's parametric knowledge may be incomplete, outdated, or impossible for a
+user to verify. Fluent generation may conceal unsupported details, especially
+when the request contains several independent factual requirements. These
+limitations motivate the use of RAG, in which external evidence is retrieved
+before generation \cite{lewis2020rag}.
+
+Basic RAG alone does not solve the complete travel-assistance problem. A single
+retrieval query may fail to cover a multi-aspect request. Exact geographic
+filters can remove useful evidence when metadata is incomplete. A top-ranked
+passage can be relevant to one part of the question while leaving other parts
+unsupported. Personalization can also be harmful if a temporary trip constraint
+is stored as a permanent preference or if a soft interest becomes a hard
+retrieval filter. The proposed work therefore treats travel assistance as an
+inspectable pipeline combining conversation understanding, memory, hybrid
+retrieval, reranking, evidence coverage, recovery, and readiness-gated
+generation.
+
+\section{Problem Statement}
+
+The research problem addressed by this thesis is how to design and evaluate a
+personalized conversational travel assistant that generates useful responses
+while remaining grounded in a bounded tourism corpus.
+
+The problem contains four connected challenges. First, the system must convert
+natural, multi-turn user language into a stable representation of intent,
+operation, location, constraints, and retrieval facets. Second, it must preserve
+durable user preferences without confusing them with temporary trip state.
+Third, retrieval must combine semantic and lexical evidence while respecting
+geographic and categorical information. Fourth, the system must recognize when
+retrieved evidence is incomplete and avoid presenting unsupported details as
+facts.
+
+An evaluation based only on final-answer fluency would not reveal which of these
+stages failed. The thesis therefore also addresses how to evaluate query
+understanding, ranked retrieval, evidence coverage, personalization,
+faithfulness, and operational efficiency within one reproducible trace.
+
+\section{Research Questions}
+
+This thesis is guided by the following research questions:
+
+\begin{enumerate}[label=\textbf{RQ\arabic*:}]
+    \item How can persistent user preferences and temporary conversation state
+    be represented separately to support relevant personalization in multi-turn
+    travel conversations?
+
+    \item How can structured parsing, hybrid dense--lexical retrieval, metadata
+    signals, and CrossEncoder reranking be combined to retrieve useful tourism
+    evidence?
+
+    \item How can requirement-level coverage checking and bounded recovery
+    retrieval reduce unsupported or incomplete answers to complex travel
+    queries?
+
+    \item How should a personalized travel RAG pipeline be evaluated so that
+    query-understanding, retrieval, generation, latency, and cost can be
+    analyzed separately?
+\end{enumerate}
+
+\section{Research Objectives}
+
+The principal objective is to build an end-to-end Personalized Travel Guide
+Assistant for Vietnam and establish an evaluation framework appropriate to its
+multi-stage behavior. The specific objectives are:
+
+\begin{itemize}
+    \item construct a cleaned, chunked, metadata-enriched tourism knowledge
+    base with dense embeddings and source traceability;
+    \item implement conversational rewriting and structured query parsing with
+    separate intent, operation, constraints, and retrieval facets;
+    \item model durable user memory separately from temporary trip state;
+    \item implement bounded retrieval planning for complex requests;
+    \item combine dense retrieval and BM25 using RRF and rerank selected
+    candidates with a CrossEncoder;
+    \item check evidence coverage, perform focused recovery retrieval, and
+    assign answer readiness;
+    \item generate personalized answers whose factual claims are constrained by
+    selected evidence; and
+    \item evaluate the system on a controlled 100-query multi-turn dataset using
+    deterministic metrics, independent LLM judgments, and human confirmation.
+\end{itemize}
+
+\section{Scope}
+
+The implemented assistant focuses on travel within Vietnam. Its corpus contains
+tourism documents available during the data-construction period, and the system
+does not assume live access to prices, schedules, weather, or temporary closure
+information. Geographic processing supports country, region, province, city,
+and place-level information where available.
+
+The work focuses on evidence-grounded recommendation and travel information,
+not on completing commercial bookings or guaranteeing real-world safety. When
+the corpus does not verify time-sensitive or safety-sensitive details, the
+system must state the limitation. The primary experiment uses synthetic users
+and queries to control preference and conversation-state requirements; it is not
+a replacement for a large real-user usability study.
+
+\section{Contributions}
+
+The principal contributions of this thesis are:
+
+\begin{enumerate}[label=(\roman*)]
+    \item an end-to-end tourism RAG architecture that connects knowledge-base
+    construction, multi-turn query understanding, personalization, retrieval,
+    evidence checking, and answer generation;
+
+    \item a structured separation between intent and operation, explicit
+    constraints and retrieval facets, positive and negative requirements, and
+    persistent memory and temporary state;
+
+    \item a hybrid retrieval pipeline combining dense retrieval, BM25, RRF,
+    controlled metadata signals, filter relaxation, CrossEncoder reranking, and
+    destination balancing;
+
+    \item a bounded evidence-recovery mechanism with diagnostics that
+    distinguish likely corpus gaps from selection and reranking failures; and
+
+    \item a reproducible multi-stage evaluation protocol covering understanding,
+    retrieval, final answers, latency, tokens, estimated cost, and run integrity.
+\end{enumerate}
+
+\section{Thesis Organization}
+
+Chapter~\ref{chap:related-work} reviews travel recommendation, conversational
+recommendation, RAG, hybrid retrieval, reranking, corrective retrieval, and RAG
+evaluation. Chapter~\ref{chap:methodology} presents the proposed methodology.
+Chapter~\ref{chap:implementation} describes the implemented system and software
+components. Chapter~\ref{chap:experimental-setup} defines the dataset, metrics,
+model configuration, and validity controls. Chapter~\ref{chap:results} reports
+and discusses the experimental results. Chapter~\ref{chap:conclusion}
+summarizes the contributions, limitations, and future work.
+

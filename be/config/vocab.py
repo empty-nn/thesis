@@ -194,3 +194,23 @@ ALLOWED_BUDGET_LEVELS = [
     "mid_range",
     "luxury",
 ]
+
+ALLOWED_REGIONS = [
+    "northern_vietnam",
+    "central_vietnam",
+    "southern_vietnam",
+]
+
+# Canonical semantic aliases only. Region-to-city membership belongs in data,
+# not in parser code.
+REGION_ALIASES = {
+    "northern vietnam": "northern_vietnam",
+    "north vietnam": "northern_vietnam",
+    "the north of vietnam": "northern_vietnam",
+    "central vietnam": "central_vietnam",
+    "the centre of vietnam": "central_vietnam",
+    "the center of vietnam": "central_vietnam",
+    "southern vietnam": "southern_vietnam",
+    "south vietnam": "southern_vietnam",
+    "the south of vietnam": "southern_vietnam",
+}
