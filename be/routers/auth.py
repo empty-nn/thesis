@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -40,7 +42,7 @@ def google_login(
         max_age=SESSION_SECONDS,
         httponly=True,
         samesite="lax",
-        secure=False,
+        secure=os.getenv("COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
         path="/",
     )
     return result

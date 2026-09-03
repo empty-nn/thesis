@@ -25,6 +25,11 @@ from services.retrieval import (
 from services.conversation_memory import get_conversation_memory
 from services.request_routing import classify_request
 from services.llm_telemetry import create_chat_completion
+from services.external_web_fallback import (
+    classify_external_requirements,
+    external_web_max_requirements,
+    generate_external_web_answer,
+)
 
 
 def build_evidence(documents) -> list[EvidenceItem]:
@@ -330,7 +335,223 @@ def run_chat_pipeline(
                 }
                 for doc in artifacts.reranked_docs[:8]
             ],
+            "external_sources": [],
+            "external_recovery": {
+                "status": "not_attempted",
+                "answer_generated": False,
+            },
+            "ingestion_status": "pending_review",
         }
+
+    external_web_result = None
+    if not artifacts.coverage.sufficient:
+        external_requirements = classify_external_requirements(
+            artifacts.coverage.missing_requirements
+        )
+        searchable_requirements = [
+            item for item in external_requirements if item.search_eligible
+        ]
+        recent_age_limits = sorted({
+            item.max_age_days
+            for item in searchable_requirements
+            if item.max_age_days is not None
+        })
+        maximum_external_requirements = external_web_max_requirements()
+        needs_clarification = (
+            len(searchable_requirements) > maximum_external_requirements
+        )
+        if progress_callback and needs_clarification:
+            progress_callback("external_search", {
+                "summary": (
+                    f"External search was paused because the request contains "
+                    f"{len(searchable_requirements)} time-sensitive requirements; "
+                    f"the configured limit is {maximum_external_requirements}."
+                ),
+                "missing_requirements": [
+                    item.requirement for item in searchable_requirements
+                ],
+                "highlights": [
+                    "No external API call was made",
+                    "Response type: clarification menu",
+                    "Unselected requirements remain recorded for later turns",
+                ],
+            })
+        elif progress_callback and searchable_requirements:
+            progress_callback("external_search", {
+                "summary": (
+                    "Searching current external sources for time-sensitive "
+                    "requirements still missing after database recovery."
+                ),
+                "missing_requirements": [
+                    item.requirement for item in searchable_requirements
+                ],
+                "highlights": [
+                    "Trigger: internal evidence remained incomplete",
+                    (
+                        "Freshness classes: "
+                        + ", ".join(sorted({
+                            item.freshness_class
+                            for item in searchable_requirements
+                        }))
+                    ),
+                    *(
+                        [
+                            "Recent-source maximum age: "
+                            + ", ".join(map(str, recent_age_limits))
+                            + " day(s)"
+                        ]
+                        if recent_age_limits
+                        else []
+                    ),
+                    "Returned URLs will be queued for later review",
+                ],
+            })
+        elif progress_callback:
+            progress_callback("external_search", {
+                "summary": (
+                    "External search was skipped because the remaining gaps "
+                    "were stable topics rather than time-sensitive information."
+                ),
+                "missing_requirements": artifacts.coverage.missing_requirements,
+                "highlights": [
+                    "No external API call was made",
+                    "Stable gaps remain queued for corpus review",
+                ],
+            })
+        external_web_result = generate_external_web_answer(
+            query=request.message,
+            rewritten_query=artifacts.rewritten_query,
+            missing_requirements=artifacts.coverage.missing_requirements,
+            evidence=evidence,
+            parsed=artifacts.parsed,
+            memory=artifacts.memory,
+            conversation_memory=conversation_memory,
+            requirements=external_requirements,
+        )
+        if knowledge_gap is not None:
+            source_urls = [
+                source.url for source in external_web_result.sources if source.url
+            ]
+            source_date_metadata_available = any(
+                source.freshness_metadata_status in {"available", "live_feed"}
+                for source in external_web_result.sources
+            )
+            knowledge_gap["external_sources"] = [
+                source.to_storage_dict() for source in external_web_result.sources
+            ]
+            knowledge_gap["external_recovery"] = {
+                "status": external_web_result.status,
+                "model": external_web_result.model,
+                "answer_generated": external_web_result.succeeded,
+                "source_count": len(external_web_result.sources),
+                "cited_source_count": sum(
+                    source.cited_in_answer for source in external_web_result.sources
+                ),
+                "error_type": external_web_result.error_type,
+                "maximum_requirements_per_call": maximum_external_requirements,
+                "clarification_options": external_web_result.clarification_options,
+                "requirements": [
+                    {
+                        **requirement.to_storage_dict(),
+                        "internal_status": "not_fully_covered",
+                        "review_status": "pending_review",
+                        "external_search_status": (
+                            external_web_result.status
+                            if requirement.search_eligible
+                            else "skipped_stable_requirement"
+                        ),
+                        "freshness_validation": (
+                            (
+                                "not_attempted_clarification_required"
+                                if external_web_result.status == "clarification_required"
+                                else
+                                "source_date_metadata_available_pending_review"
+                                if source_date_metadata_available
+                                else "prompt_constrained_source_date_unverified"
+                            )
+                            if requirement.search_eligible
+                            else "not_required"
+                        ),
+                        "candidate_source_urls": (
+                            source_urls if requirement.search_eligible else []
+                        ),
+                    }
+                    for requirement in external_web_result.requirements
+                ],
+            }
+
+        if external_web_result.status == "clarification_required":
+            return ChatResponse(
+                answer=(
+                    external_web_result.clarification_question
+                    or "Please choose which current-information requirement to check first."
+                ),
+                knowledge_gap=knowledge_gap,
+            )
+
+        if external_web_result.succeeded:
+            cited_sources = [
+                source for source in external_web_result.sources
+                if source.cited_in_answer
+            ] or external_web_result.sources[:8]
+            if progress_callback:
+                progress_callback("external_search", {
+                    "summary": (
+                        f"Generated a web-grounded fallback using "
+                        f"{len(cited_sources)} cited source(s)."
+                    ),
+                    "status": external_web_result.status,
+                    "source_count": len(external_web_result.sources),
+                    "cited_source_count": len(cited_sources),
+                    "highlights": [
+                        f"Consulted URLs recorded: {len(external_web_result.sources)}",
+                        f"Cited URLs returned: {len(cited_sources)}",
+                        "Corpus ingestion status: pending review",
+                    ],
+                })
+            return ChatResponse(
+                answer=external_web_result.answer or "",
+                sources=[
+                    *_chat_sources(evidence),
+                    *[
+                        ChatSource(id=source.id, title=source.title, url=source.url)
+                        for source in cited_sources
+                    ],
+                ],
+                knowledge_gap=knowledge_gap,
+            )
+        if progress_callback and external_web_result.status != (
+            "skipped_no_time_sensitive_requirements"
+        ):
+            failure_messages = {
+                "disabled": "External search is disabled by configuration.",
+                "unavailable": "External search is unavailable because no OpenAI API key is configured.",
+                "completed_without_sources": "The external answer had no acceptable cited source.",
+                "completed_empty_answer": "The external search returned sources but no final answer.",
+                "incomplete_max_output_tokens": (
+                    "The external search reached its output-token limit before producing a final answer."
+                ),
+            }
+            failure_summary = failure_messages.get(
+                external_web_result.status,
+                (
+                    "External web evidence was unavailable "
+                    f"({external_web_result.status})."
+                ),
+            )
+            progress_callback("external_search", {
+                "summary": (
+                    failure_summary + " The response remains limited to "
+                    "verified internal evidence."
+                ),
+                "status": external_web_result.status,
+                "source_count": len(external_web_result.sources),
+                "highlights": [
+                    f"Fallback status: {external_web_result.status}",
+                    "No unsupported web answer was returned",
+                    "The knowledge gap remains queued for review",
+                ],
+            })
 
     if (
         not artifacts.coverage.sufficient

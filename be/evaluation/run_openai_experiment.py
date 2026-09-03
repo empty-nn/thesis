@@ -62,6 +62,7 @@ from db.full_model import RagChunkORM  # noqa: E402
 from db.session import SessionLocal  # noqa: E402
 from services.answer_pipeline import build_evidence, generate_answer  # noqa: E402
 from services.conversation_memory import ConversationState, derive_conversation_state  # noqa: E402
+from services.external_web_fallback import generate_external_web_answer  # noqa: E402
 from services.pipeline_runner import run_retrieval_pipeline  # noqa: E402
 from services.query_processing import get_known_cities  # noqa: E402
 from services.llm_telemetry import (  # noqa: E402
@@ -185,7 +186,23 @@ The selected evidence is supplied in the exact reranked order used to generate t
 Resolve answer citations such as [E1] against the matching evidence_id field exactly.
 """.strip()
 
+EXTERNAL_ANSWER_JUDGE_SYSTEM = """
+You are an independent evaluator of a personalized Vietnam travel answer that combines internal
+RAG evidence with current external web evidence. Use web search to verify the answer's current
+claims and supplied external source URLs or named real-time feeds before scoring.
+
+Score correctness, faithfulness, personalization_adherence, and completeness from 1 to 5 and give
+one short rationale per dimension. Treat expected_answer_criteria as coverage targets, not an
+exclusive factual gold answer: do not penalize an independently verified current fact merely because
+it is absent from those criteria. Faithfulness requires internal claims to match selected_evidence
+and external claims to be supported by the supplied URLs, named live feeds, or your independent web
+verification. Lower correctness and faithfulness for unsupported, stale, conflicting, or
+misrepresented claims. Completeness checks all parts of the request. Return the structured result
+only.
+""".strip()
+
 ANSWER_JUDGE_SCHEMA_VERSION = 2
+EXTERNAL_ANSWER_JUDGE_SCHEMA_VERSION = 3
 
 
 class GeneratedProfile(BaseModel):
@@ -359,6 +376,57 @@ def json_completion(
             if attempt < attempts:
                 time.sleep(2 ** (attempt - 1))
     raise RuntimeError(f"OpenAI structured request failed after {attempts} attempts: {last_error}") from last_error
+
+
+def json_web_completion(
+    client: OpenAI,
+    model: str,
+    system: str,
+    payload: dict,
+    response_model: type[ResponseModel],
+    max_tokens: int = 3000,
+    attempts: int = 3,
+) -> tuple[ResponseModel, dict]:
+    last_error: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            response = client.responses.parse(
+                model=model,
+                instructions=system,
+                input=json.dumps(payload, ensure_ascii=False),
+                tools=[{"type": "web_search"}],
+                tool_choice="required",
+                reasoning={"effort": "low"},
+                text_format=response_model,
+                max_output_tokens=max_tokens,
+            )
+            parsed = response.output_parsed
+            if parsed is None:
+                raise ValueError(f"{model} returned no parsed structured output")
+            metadata = {
+                "response_id": response.id,
+                "model": response.model,
+                "usage": (
+                    response.usage.model_dump(warnings=False)
+                    if response.usage else None
+                ),
+                "web_search_used": True,
+            }
+            normalized = normalize_usage(response)
+            metadata["normalized_usage"] = normalized
+            metadata["estimated_cost_usd"] = estimate_cost_usd(
+                response.model or model,
+                normalized,
+                pricing_snapshot(),
+            )
+            return parsed, metadata
+        except Exception as exc:
+            last_error = exc
+            if attempt < attempts:
+                time.sleep(2 ** (attempt - 1))
+    raise RuntimeError(
+        f"OpenAI structured web request failed after {attempts} attempts: {last_error}"
+    ) from last_error
 
 
 def generate_dataset(output: Path, users: int, conversations: int, turns: int) -> dict:
@@ -703,7 +771,15 @@ def query_constraint_items(parsed) -> list[dict[str, str]]:
     return [item.model_dump() for item in parsed.explicit_constraints]
 
 
-def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dict:
+def execute_pipeline(
+    dataset_path: Path,
+    output: Path,
+    limit: int | None,
+    *,
+    selected_case_ids: set[str] | None = None,
+    context_cases: dict[str, dict] | None = None,
+    use_external_web: bool = False,
+) -> dict:
     source = json.loads(dataset_path.read_text(encoding="utf-8"))
     run = {
         "version": "2.5",
@@ -711,7 +787,9 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
         "pipeline_version": "personalized-rag-eval-v2.5",
         "git_commit": git_commit(),
         "generator_model": source.get("generator_model"),
-        "generator_api_calls": source.get("api_calls", []),
+        "generator_api_calls": (
+            [] if selected_case_ids is not None else source.get("api_calls", [])
+        ),
         "answer_model": DEEPSEEK_ANSWER_MODEL,
         "pipeline_models": {
             "fast": DEEPSEEK_FAST_MODEL,
@@ -726,11 +804,25 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
         "embedding_model": None,
         "reranker_model": None,
         "random_seed": 42,
+        "experiment_variant": (
+            "low_coverage_external_recovery"
+            if selected_case_ids is not None and use_external_web
+            else "standard"
+        ),
+        "selected_case_ids": sorted(selected_case_ids or []),
+        "external_web_fallback_enabled": use_external_web,
+        "external_web_model": (
+            os.environ.get("OPENAI_WEB_SEARCH_MODEL", "gpt-5.6-luna")
+            if use_external_web else None
+        ),
         "pricing_snapshot": pricing_snapshot(),
         "prompt_versions": {
             "generator_sha256": prompt_hash(GENERATOR_SYSTEM),
             "retrieval_judge_sha256": prompt_hash(RETRIEVAL_JUDGE_SYSTEM),
             "answer_judge_sha256": prompt_hash(ANSWER_JUDGE_SYSTEM),
+            "external_answer_judge_sha256": prompt_hash(
+                EXTERNAL_ANSWER_JUDGE_SYSTEM
+            ),
             "query_processing_source_sha256": file_hash(
                 BE_ROOT / "services" / "query_processing.py"
             ),
@@ -748,13 +840,26 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
         for user in source["users"]
         for conversation in user["conversations"]
         for turn in conversation["turns"]
+        if selected_case_ids is None
+        or f"{user['user_id']}-{conversation['conversation_id']}-T{turn['turn_id']:02d}"
+        in selected_case_ids
     }
+    if selected_case_ids is not None:
+        missing_case_ids = selected_case_ids - set(expected_queries)
+        if missing_case_ids:
+            raise ValueError(
+                "Selected case IDs were not found in the generated dataset: "
+                + ", ".join(sorted(missing_case_ids))
+            )
     if output.exists():
         try:
             existing_run = json.loads(output.read_text(encoding="utf-8"))
             existing_cases = existing_run.get("cases", [])
             if (
                 existing_run.get("pipeline_version") == run["pipeline_version"]
+                and existing_run.get("selected_case_ids") == run["selected_case_ids"]
+                and existing_run.get("external_web_fallback_enabled")
+                == run["external_web_fallback_enabled"]
                 and all(
                     expected_queries.get(case.get("case_id")) == case.get("query")
                     for case in existing_cases
@@ -800,6 +905,9 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                 history: list[dict[str, str]] = []
                 conversation_state = ConversationState()
                 for turn in conversation["turns"]:
+                    case_id = f"{user['user_id']}-{conversation['conversation_id']}-T{turn['turn_id']:02d}"
+                    if selected_case_ids is not None and case_id not in selected_case_ids:
+                        continue
                     if limit is not None and completed >= limit:
                         run["finished_at"] = datetime.now(timezone.utc).isoformat()
                         output.write_text(
@@ -808,7 +916,16 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                         )
                         return run
                     completed += 1
-                    case_id = f"{user['user_id']}-{conversation['conversation_id']}-T{turn['turn_id']:02d}"
+                    if selected_case_ids is not None:
+                        baseline = (context_cases or {}).get(case_id)
+                        if baseline is None:
+                            raise ValueError(
+                                f"Missing baseline context for selected case {case_id}"
+                            )
+                        history = list(baseline.get("conversation_history") or [])
+                        conversation_state = ConversationState.model_validate(
+                            baseline.get("conversation_state_before") or {}
+                        )
                     existing_case = existing_by_case.get(case_id)
                     if existing_case is not None:
                         print(
@@ -876,17 +993,42 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                         artifacts.recovery_docs,
                     )
                     evidence = build_evidence(artifacts.reranked_docs)
-                    answer = generate_answer(
-                        query=turn["query"],
-                        rewritten_query=artifacts.rewritten_query,
-                        parsed=artifacts.parsed,
-                        evidence=evidence,
-                        conversation_history=history,
-                        memory=memory,
-                        conversation_memory=conversation_state,
-                        coverage=artifacts.coverage,
-                        answer_readiness=artifacts.answer_readiness,
-                    )
+                    external_result = None
+                    response_mode = "internal_answer"
+                    if use_external_web and not artifacts.coverage.sufficient:
+                        external_result = generate_external_web_answer(
+                            query=turn["query"],
+                            rewritten_query=artifacts.rewritten_query,
+                            missing_requirements=artifacts.coverage.missing_requirements,
+                            evidence=evidence,
+                            parsed=artifacts.parsed,
+                            memory=memory,
+                            conversation_memory=conversation_state,
+                        )
+                    if external_result is not None and external_result.succeeded:
+                        answer = external_result.answer or ""
+                        response_mode = "external_answer"
+                    elif (
+                        external_result is not None
+                        and external_result.status == "clarification_required"
+                    ):
+                        answer = (
+                            external_result.clarification_question
+                            or "Please choose which current-information group to check first."
+                        )
+                        response_mode = "clarification_required"
+                    else:
+                        answer = generate_answer(
+                            query=turn["query"],
+                            rewritten_query=artifacts.rewritten_query,
+                            parsed=artifacts.parsed,
+                            evidence=evidence,
+                            conversation_history=history,
+                            memory=memory,
+                            conversation_memory=conversation_state,
+                            coverage=artifacts.coverage,
+                            answer_readiness=artifacts.answer_readiness,
+                        )
                     next_conversation_state = derive_conversation_state(
                         previous=conversation_state,
                         user_message=turn["query"],
@@ -976,8 +1118,33 @@ def execute_pipeline(dataset_path: Path, output: Path, limit: int | None) -> dic
                             "recovery_effectiveness": artifacts.recovery_effectiveness,
                             "answer_readiness": artifacts.answer_readiness.model_dump(),
                             "confidence": artifacts.confidence.model_dump(),
+                            "external_recovery": (
+                                {
+                                    "status": external_result.status,
+                                    "model": external_result.model,
+                                    "answer_generated": external_result.succeeded,
+                                    "sources": [
+                                        source.to_storage_dict()
+                                        for source in external_result.sources
+                                    ],
+                                    "requirements": [
+                                        requirement.to_storage_dict()
+                                        for requirement in external_result.requirements
+                                    ],
+                                    "clarification_options": (
+                                        external_result.clarification_options
+                                    ),
+                                    "error_type": external_result.error_type,
+                                }
+                                if external_result is not None
+                                else {
+                                    "status": "not_attempted",
+                                    "answer_generated": False,
+                                }
+                            ),
                         },
                         "final_answer": answer,
+                        "response_mode": response_mode,
                         "pipeline_events": stage_events,
                         "timings": {**artifacts.timings.__dict__, "case_wall_ms": round((perf_counter() - started) * 1000, 3)},
                         "llm_telemetry": telemetry_snapshot,
@@ -1032,6 +1199,12 @@ def judge_run(pipeline_path: Path, output: Path, limit: int | None) -> dict:
                 judged = existing
         except (OSError, json.JSONDecodeError):
             pass
+    # Keep both judge prompt versions in resumed artifacts. External-answer
+    # cases use a web-enabled judge and must not be attributed to the standard
+    # internal-evidence-only prompt.
+    judged.setdefault("prompt_versions", {})[
+        "external_answer_judge_sha256"
+    ] = prompt_hash(EXTERNAL_ANSWER_JUDGE_SYSTEM)
     existing_by_case = {
         case["case_id"]: case
         for case in judged.get("cases", [])
@@ -1042,10 +1215,15 @@ def judge_run(pipeline_path: Path, output: Path, limit: int | None) -> dict:
         retrieval_complete = bool(
             existing_case.get("reference", {}).get("relevance_grades")
         )
+        external_answer = case.get("response_mode") == "external_answer"
+        expected_answer_schema = (
+            EXTERNAL_ANSWER_JUDGE_SCHEMA_VERSION
+            if external_answer else ANSWER_JUDGE_SCHEMA_VERSION
+        )
         answer_complete = bool(
             existing_case.get("final_answer_scores")
             and existing_case.get("answer_judge_schema_version")
-            == ANSWER_JUDGE_SCHEMA_VERSION
+            == expected_answer_schema
         )
         if retrieval_complete and answer_complete:
             judged_by_case[case["case_id"]] = existing_case
@@ -1116,11 +1294,7 @@ def judge_run(pipeline_path: Path, output: Path, limit: int | None) -> dict:
                 case["retrieval"]["stages"]["reranked"], 1
             )
         ]
-        answer_result, answer_call = json_completion(
-            client,
-            model,
-            ANSWER_JUDGE_SYSTEM,
-            {
+        answer_payload = {
                 "query": case["query"],
                 "conversation_history": case["conversation_history"],
                 "user_profile": case["user_profile"],
@@ -1139,17 +1313,41 @@ def judge_run(pipeline_path: Path, output: Path, limit: int | None) -> dict:
                 "expected_answer_criteria": case["reference"]["key_answer_facts"],
                 "selected_evidence": selected_evidence,
                 "answer": case["final_answer"],
-            },
-            AnswerJudgment,
-            max_tokens=1800,
-        )
+        }
+        if external_answer:
+            external_recovery = case.get("retrieval", {}).get(
+                "external_recovery", {}
+            )
+            answer_payload["external_sources"] = external_recovery.get(
+                "sources", []
+            )
+            answer_payload["external_requirements"] = external_recovery.get(
+                "requirements", []
+            )
+            answer_result, answer_call = json_web_completion(
+                client,
+                model,
+                EXTERNAL_ANSWER_JUDGE_SYSTEM,
+                answer_payload,
+                AnswerJudgment,
+                max_tokens=3000,
+            )
+        else:
+            answer_result, answer_call = json_completion(
+                client,
+                model,
+                ANSWER_JUDGE_SYSTEM,
+                answer_payload,
+                AnswerJudgment,
+                max_tokens=1800,
+            )
         scores = FinalAnswerScores.model_validate({
             **answer_result.answer_scores.model_dump(),
             "judge_model": model,
         })
         case["reference"]["relevance_grades"] = relevance
         case["final_answer_scores"] = scores.model_dump()
-        case["answer_judge_schema_version"] = ANSWER_JUDGE_SCHEMA_VERSION
+        case["answer_judge_schema_version"] = expected_answer_schema
         case["judge_api_calls"] = {
             "retrieval": retrieval_call,
             "answer": answer_call,
@@ -1163,6 +1361,19 @@ def judge_run(pipeline_path: Path, output: Path, limit: int | None) -> dict:
         ]
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(judged, ensure_ascii=False, indent=2), encoding="utf-8")
+    # A final resumed case reaches `continue` before the per-case checkpoint
+    # write. Always rebuild and persist the complete ordered case list once
+    # after the loop so resume cannot silently drop the last case.
+    judged["cases"] = [
+        judged_by_case[source_case["case_id"]]
+        for source_case in source["cases"][:limit]
+        if source_case["case_id"] in judged_by_case
+    ]
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        json.dumps(judged, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     return judged
 
 
@@ -1312,26 +1523,75 @@ def aggregate_experiment_cost(source: dict) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="OpenAI generation -> RAG pipeline -> OpenAI judge")
-    parser.add_argument("--stage", choices=["generate", "pipeline", "judge", "export", "all"], default="all")
+    parser.add_argument(
+        "--stage",
+        choices=["generate", "pipeline", "judge", "export", "evaluate", "all"],
+        default="all",
+    )
     parser.add_argument("--work-dir", type=Path, default=Path(__file__).parent / "runs" / "openai_experiment")
+    parser.add_argument(
+        "--dataset-path",
+        type=Path,
+        help="Reuse an existing generated dataset instead of work-dir/01_generated_dataset.json.",
+    )
+    parser.add_argument(
+        "--case-ids-file",
+        type=Path,
+        help="Run only these case IDs, one per line.",
+    )
+    parser.add_argument(
+        "--context-run",
+        type=Path,
+        help="Baseline pipeline or judged run used to restore selected-case context.",
+    )
+    parser.add_argument(
+        "--external-web",
+        action="store_true",
+        help="Enable freshness-aware external recovery for uncovered requirements.",
+    )
     parser.add_argument("--users", type=int, default=5)
     parser.add_argument("--conversations", type=int, default=2)
     parser.add_argument("--turns", type=int, default=10)
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
     args.work_dir.mkdir(parents=True, exist_ok=True)
-    generated = args.work_dir / "01_generated_dataset.json"
+    generated = args.dataset_path or args.work_dir / "01_generated_dataset.json"
     pipeline = args.work_dir / "02_pipeline_traces.json"
     judged = args.work_dir / "03_judged_traces.json"
     thesis = args.work_dir / "04_thesis_dataset.json"
 
     if args.stage in {"generate", "all"}:
         generate_dataset(generated, args.users, args.conversations, args.turns)
-    if args.stage in {"pipeline", "all"}:
-        execute_pipeline(generated, pipeline, args.limit)
-    if args.stage in {"judge", "all"}:
+    selected_case_ids = None
+    if args.case_ids_file:
+        selected_case_ids = {
+            line.strip()
+            for line in args.case_ids_file.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        }
+        if not selected_case_ids:
+            raise ValueError("--case-ids-file did not contain any case IDs")
+        if not args.context_run:
+            raise ValueError("--context-run is required with --case-ids-file")
+    context_cases = None
+    if args.context_run:
+        context_source = json.loads(args.context_run.read_text(encoding="utf-8"))
+        context_cases = {
+            case["case_id"]: case for case in context_source.get("cases", [])
+        }
+
+    if args.stage in {"pipeline", "evaluate", "all"}:
+        execute_pipeline(
+            generated,
+            pipeline,
+            args.limit,
+            selected_case_ids=selected_case_ids,
+            context_cases=context_cases,
+            use_external_web=args.external_web,
+        )
+    if args.stage in {"judge", "evaluate", "all"}:
         judge_run(pipeline, judged, args.limit)
-    if args.stage in {"export", "all"}:
+    if args.stage in {"export", "evaluate", "all"}:
         dataset = export_thesis_dataset(judged, thesis)
         rows = []
         for case in dataset.cases:
@@ -1345,10 +1605,38 @@ def main() -> None:
             for key in rows[0]
         } if rows else {}
         judged_source = json.loads(judged.read_text(encoding="utf-8"))
+        response_mode_counts: dict[str, int] = {}
+        completed_answer_rows = []
+        for case, row in zip(judged_source.get("cases", []), rows):
+            response_mode = case.get("response_mode", "internal_answer")
+            response_mode_counts[response_mode] = (
+                response_mode_counts.get(response_mode, 0) + 1
+            )
+            if response_mode != "clarification_required":
+                completed_answer_rows.append(row)
+        completed_answer_metric_means = {
+            key: sum(row[key] for row in completed_answer_rows)
+            / len(completed_answer_rows)
+            for key in completed_answer_rows[0]
+        } if completed_answer_rows else {}
+        external_recovery_status_counts: dict[str, int] = {}
+        for case in judged_source.get("cases", []):
+            status = (
+                case.get("retrieval", {})
+                .get("external_recovery", {})
+                .get("status", "not_recorded")
+            )
+            external_recovery_status_counts[status] = (
+                external_recovery_status_counts.get(status, 0) + 1
+            )
         pipeline_telemetry = aggregate_pipeline_telemetry(judged_source)
         summary_payload = {
             "metric_means": summary,
+            "completed_answer_metric_means": completed_answer_metric_means,
             "case_count": len(rows),
+            "completed_answer_count": len(completed_answer_rows),
+            "response_mode_counts": response_mode_counts,
+            "external_recovery_status_counts": external_recovery_status_counts,
             "coverage_sufficient_rate": (
                 sum(
                     bool(case.get("retrieval", {}).get("coverage_check", {}).get("sufficient"))

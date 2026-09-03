@@ -26,7 +26,7 @@ export class ChatService {
       content:
         'Hi! I am your **Vietnam Travel Guide Assistant**.\n\n' +
         'Ask me about destinations, activities, transport, food, or trip planning. ' +
-        'You can inspect how retrieval works from **Retrieval Debug** in the sidebar.',
+        'Uncovered requirements and reviewed web sources are available under **External Knowledge**.',
     },
   ]);
 
@@ -41,6 +41,7 @@ export class ChatService {
     'checking',
     'recovery',
     'rechecking',
+    'external_search',
     'generating',
   ];
   readonly pipelineSteps = [
@@ -51,6 +52,7 @@ export class ChatService {
     'Checking information coverage',
     'Finding additional information',
     'Rechecking information coverage',
+    'Searching external sources when needed',
     'Generating your answer',
   ] as const;
   readonly conversationId = signal<string | null>(null);

@@ -1,0 +1,21 @@
+{
+  "dataset": "E:\\Thesis_all\\be\\evaluation\\runs\\v25_official_100\\04_thesis_dataset.json",
+  "summary": "E:\\Thesis_all\\be\\evaluation\\runs\\v25_official_100\\05_metric_summary.json",
+  "case_count": 100,
+  "user_count": 5,
+  "intent_count": 7,
+  "generated_files": [
+    "01_metric_overview.png",
+    "02_answer_score_distributions.png",
+    "03_per_user_heatmap.png",
+    "04_per_intent_heatmap.png",
+    "05_retrieval_answer_relationships.png",
+    "06_pipeline_efficiency.png",
+    "case_metrics.csv",
+    "per_intent_metric_means_normalized.csv",
+    "per_user_metric_means_normalized.csv",
+    "retrieval_answer_correlations.csv",
+    "telemetry_by_stage.csv",
+    "visualization_manifest.json"
+  ]
+}

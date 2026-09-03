@@ -76,11 +76,22 @@
                 @if (message.sources?.length) {
                   <div class="mt-4 flex flex-wrap gap-2">
                     @for (source of message.sources; track source.id) {
-                      <span
-                        class="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-zinc-500"
-                      >
-                        {{ source.title }}
-                      </span>
+                      @if (source.url) {
+                        <a
+                          class="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-zinc-500 hover:border-emerald-400/30 hover:text-emerald-300"
+                          [href]="source.url"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {{ source.title }}
+                        </a>
+                      } @else {
+                        <span
+                          class="rounded-full border border-white/8 bg-white/[0.035] px-2.5 py-1 text-[11px] text-zinc-500"
+                        >
+                          {{ source.title }}
+                        </span>
+                      }
                     }
                   </div>
                 }

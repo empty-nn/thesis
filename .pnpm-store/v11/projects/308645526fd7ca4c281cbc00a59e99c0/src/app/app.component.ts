@@ -10,7 +10,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import {
   LucideBot,
-  LucideDatabase,
+  LucideDatabaseZap,
   LucideMenu,
   LucideMessageSquare,
   LucideLogIn,
@@ -28,7 +28,7 @@ import { ChatService } from './core/services/chat.service';
     RouterLink,
     RouterLinkActive,
     LucideBot,
-    LucideDatabase,
+    LucideDatabaseZap,
     LucideMenu,
     LucideMessageSquare,
     LucideLogIn,

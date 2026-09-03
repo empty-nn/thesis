@@ -118,11 +118,11 @@ Outputs include per-case JSON/CSV traces, failures, component summaries, a Markd
 
 The evaluator requires the same database, model, and API-key environment variables as the backend. It imports backend services directly and does not require Angular, Google login, or HTTP cookies.
 
-## Nine-metric thesis evaluation
+## Ten-metric thesis evaluation
 
 `run_thesis_evaluation.py` implements the agreed primary metrics:
 
-- Understanding: Intent Accuracy, Operation Accuracy, and Query Constraint F1
+- Understanding: Intent Accuracy, Operation Accuracy, Query Constraint F1, and Retrieval Facet F1
 - Retrieval: graded chunk relevance (0–3), nDCG@5, and Precision@5 using relevance ≥ 2
 - Final answer: Correctness, Faithfulness, Personalization Adherence, Completeness
 
@@ -166,7 +166,7 @@ seeing the LLM scores.
 2. The existing application pipeline performs understanding, planning, retrieval, checking,
    recovery, and final-answer generation. Complete stage traces are saved.
 3. A separate OpenAI judge grades pooled retrieval candidates and final answers.
-4. The run is exported into the validated nine-metric thesis schema.
+4. The run is exported into the validated ten-metric thesis schema.
 
 Configure these values in `be/.env`:
 
@@ -200,7 +200,61 @@ python evaluation/run_openai_experiment.py --stage export
 
 Artifacts are written under `evaluation/runs/openai_experiment/` as
 `01_generated_dataset.json`, `02_pipeline_traces.json`, `03_judged_traces.json`, and
-`04_thesis_dataset.json`. The nine aggregate metrics are saved in `05_metric_summary.json`.
+`04_thesis_dataset.json`. The ten aggregate metrics are saved in `05_metric_summary.json`.
+
+### Separate Da Nang-focused experiment
+
+`run_danang_experiment.py` preserves the general experiment runner and creates a separate
+one-user dataset containing two 10-turn conversations focused on Da Nang. In CMD:
+
+```cmd
+%PYTHON_RUNNER% evaluation\run_danang_experiment.py --stage generate --work-dir evaluation\runs\danang_20
+%PYTHON_RUNNER% evaluation\run_danang_experiment.py --stage pipeline --work-dir evaluation\runs\danang_20
+%PYTHON_RUNNER% evaluation\run_danang_experiment.py --stage judge --work-dir evaluation\runs\danang_20
+%PYTHON_RUNNER% evaluation\run_danang_experiment.py --stage export --work-dir evaluation\runs\danang_20
+```
+
+This focused run should be reported as a destination-specific case study rather than merged into
+the geographically varied primary benchmark, because Da Nang has stronger corpus coverage.
+
+The finalized `v25_official_100` run contains 100 generated, pipeline-complete, and judge-complete
+cases covering five user profiles. Judging resumed from a partial checkpoint with the same run ID,
+pipeline version, schema, and `gpt-5.6-terra` evaluator; no scores from another judge were mixed
+into the final dataset.
+
+Generate thesis-ready figures without making API calls:
+
+```powershell
+python evaluation/visualize_thesis_results.py `
+  --dataset evaluation/runs/v25_official_100/04_thesis_dataset.json `
+  --summary evaluation/runs/v25_official_100/05_metric_summary.json `
+  --output-dir ../figures/results
+```
+
+The visualization runner creates metric overview, answer-distribution, per-user, per-intent,
+retrieval--answer correlation, and pipeline-efficiency charts together with their source CSVs.
 
 Generated and LLM-judged annotations remain marked `llm_annotated`. Change the status to
 `human_annotated` only after independent human review.
+The finalized `v25_official_100` artifacts remain `llm_annotated`; no completed human-validation
+sample is claimed in the thesis results.
+
+### Low-coverage external-recovery stress test
+
+Export the 20 lowest post-recovery coverage cases while preserving their original context:
+
+```cmd
+%PYTHON_RUNNER% evaluation\select_low_coverage_cases.py --source evaluation\runs\v25_official_100\03_judged_traces.json --output-dir evaluation\runs\low_coverage_20 --count 20
+```
+
+Rerun only those cases through retrieval, freshness-aware external recovery, the independent
+judge, and export:
+
+```cmd
+%PYTHON_RUNNER% evaluation\run_openai_experiment.py --stage evaluate --dataset-path evaluation\runs\v25_official_100\01_generated_dataset.json --case-ids-file evaluation\runs\low_coverage_20\case_ids.txt --context-run evaluation\runs\v25_official_100\03_judged_traces.json --external-web --work-dir evaluation\runs\low_coverage_20_external
+```
+
+The baseline context run is required because many selected queries are later turns in multi-turn
+conversations. The exported summary reports all response modes and also calculates completed-answer
+means excluding `clarification_required` turns. Report this as a paired diagnostic stress test,
+not as a replacement for the representative 100-case benchmark.

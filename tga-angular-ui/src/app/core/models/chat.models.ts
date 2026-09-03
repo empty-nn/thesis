@@ -23,6 +23,7 @@ export type PipelineStage =
   | 'checking'
   | 'recovery'
   | 'rechecking'
+  | 'external_search'
   | 'generating';
 
 export interface PipelineTraceItem {

@@ -197,6 +197,11 @@ class KnowledgeGapORM(Base):
     missing_requirements = Column(JSONB, nullable=False, default=list)
     recovery_queries = Column(JSONB, nullable=False, default=list)
     top_evidence = Column(JSONB, nullable=False, default=list)
+    external_sources = Column(JSONB, nullable=False, default=list)
+    external_recovery = Column(JSONB, nullable=False, default=dict)
+    ingestion_status = Column(
+        String, nullable=False, default="pending_review", index=True
+    )
     status = Column(String, nullable=False, default="open", index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(

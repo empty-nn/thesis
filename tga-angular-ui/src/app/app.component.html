@@ -62,23 +62,14 @@
       </a>
 
       <a
-        routerLink="/retrieval-debug"
+        routerLink="/external-knowledge"
         routerLinkActive="bg-white/8 text-white"
         class="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-zinc-400 transition hover:bg-white/5 hover:text-white"
         (click)="closeSidebar()"
       >
-        <svg lucideDatabase class="size-4"></svg>
-        Retrieval Debug
-      </a>
-
-      <a
-        routerLink="/memory"
-        routerLinkActive="bg-white/8 text-white"
-        class="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-zinc-400 transition hover:bg-white/5 hover:text-white"
-        (click)="closeSidebar()"
-      >
-        <svg lucideDatabase class="size-4"></svg>
-        Travel Memory
+        <svg lucideDatabaseZap class="size-4"></svg>
+        <span class="flex-1">External Knowledge</span>
+        <span class="rounded-md bg-emerald-400/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-emerald-400">Review</span>
       </a>
 
       @if (chat.conversations().length) {

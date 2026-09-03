@@ -81,7 +81,7 @@ def extract_memories(message: str) -> list[ExtractedMemory]:
 You extract explicit, durable travel preferences for personalization.
 
 Return JSON only in this shape:
-{"memories":[{"memory_type":"travel_style|activity|budget|avoid|constraint|interest|expertise|answer_length|tone|explanation_style|personal_fact","content":"short normalized value","importance":0.0}]}
+{{"memories":[{{"memory_type":"travel_style|activity|budget|avoid|constraint|interest|expertise|answer_length|tone|explanation_style|personal_fact","content":"short normalized value","importance":0.0}}]}}
 
 Save only information the user explicitly states about themselves that is likely useful in future trips.
 Examples: preferred travel style, favorite activity, usual budget, things they avoid, durable

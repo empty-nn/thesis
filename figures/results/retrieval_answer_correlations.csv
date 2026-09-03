@@ -1,0 +1,4 @@
+﻿retrieval_metric,answer_metric,pearson_r
+ndcg_at_5,correctness,0.13383942648124145
+precision_at_5,faithfulness,-0.11464165473546199
+ndcg_at_5,completeness,0.20281552168187675

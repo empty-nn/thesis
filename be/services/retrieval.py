@@ -9,7 +9,7 @@ import numpy as np
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
 from sqlalchemy import func, text
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 
 from core.model_registry import (
     get_embedding_model,
@@ -19,7 +19,7 @@ from schemas.pipeline import (
     ParsedQuery,
     UserTravelMemory,
 )
-from db.full_model import RagChunkORM
+from db.full_model import Document as DocumentORM, RagChunkORM
 from db.session import SessionLocal
 
 
@@ -356,11 +356,30 @@ def bm25_search(
 
     try:
         query_builder = (
-            db.query(RagChunkORM)
-            .options(
-                joinedload(
-                    RagChunkORM.document
-                )
+            db.query(
+                RagChunkORM.id.label("id"),
+                RagChunkORM.document_id.label("document_id"),
+                RagChunkORM.chunk_text.label("chunk_text"),
+                RagChunkORM.section_heading.label("section_heading"),
+                RagChunkORM.country.label("country"),
+                RagChunkORM.city.label("city"),
+                RagChunkORM.province.label("province"),
+                RagChunkORM.place_name.label("place_name"),
+                RagChunkORM.place_type.label("place_type"),
+                RagChunkORM.latitude.label("latitude"),
+                RagChunkORM.longitude.label("longitude"),
+                RagChunkORM.ai_summary.label("ai_summary"),
+                RagChunkORM.ai_topic.label("ai_topic"),
+                RagChunkORM.ai_tags.label("ai_tags"),
+                RagChunkORM.ai_activities.label("ai_activities"),
+                RagChunkORM.ai_travel_styles.label("ai_travel_styles"),
+                RagChunkORM.ai_suitable_for.label("ai_suitable_for"),
+                RagChunkORM.updated_at.label("updated_at"),
+                DocumentORM.source_location.label("source_location"),
+            )
+            .outerjoin(
+                DocumentORM,
+                DocumentORM.id == RagChunkORM.document_id,
             )
         )
 

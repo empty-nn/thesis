@@ -1,0 +1,240 @@
+<section class="min-h-screen bg-[#1d1d1d] px-4 py-7 sm:px-6 lg:px-10">
+  <div class="mx-auto max-w-7xl">
+    <header class="overflow-hidden rounded-3xl border border-white/8 bg-[#232323]">
+      <div class="relative px-6 py-7 sm:px-8">
+        <div class="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-emerald-400/10 blur-3xl"></div>
+        <div class="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">
+              <svg lucideDatabaseZap class="size-4"></svg>
+              Knowledge operations
+            </div>
+            <h1 class="mt-3 text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
+              External knowledge review
+            </h1>
+            <p class="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+              A review queue of unanswered travel requirements and the current web sources discovered for them. Sources remain unverified until they pass human review and corpus ingestion.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-zinc-200 transition hover:border-emerald-400/30 hover:bg-emerald-400/10"
+            [disabled]="externalKnowledge.loading()"
+            (click)="externalKnowledge.load()"
+          >
+            <svg lucideRefreshCw class="size-4" [class.animate-spin]="externalKnowledge.loading()"></svg>
+            Refresh data
+          </button>
+        </div>
+      </div>
+    </header>
+
+    @if (externalKnowledge.loading() && !externalKnowledge.dashboard()) {
+      <div class="grid min-h-[420px] place-items-center">
+        <div class="text-center">
+          <svg lucideRefreshCw class="mx-auto size-6 animate-spin text-emerald-400"></svg>
+          <p class="mt-3 text-sm text-zinc-500">Loading external knowledge records...</p>
+        </div>
+      </div>
+    } @else if (externalKnowledge.error()) {
+      <div class="mt-6 rounded-2xl border border-red-400/15 bg-red-400/5 p-5 text-sm text-red-300">
+        {{ externalKnowledge.error() }}
+      </div>
+    } @else if (externalKnowledge.dashboard(); as dashboard) {
+      <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <article class="rounded-2xl border border-white/8 bg-[#232323] p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-zinc-500">Knowledge gaps</span>
+            <span class="grid size-9 place-items-center rounded-xl bg-sky-400/10 text-sky-300">
+              <svg lucideSearch class="size-4"></svg>
+            </span>
+          </div>
+          <div class="mt-4 text-3xl font-semibold text-zinc-100">{{ dashboard.summary.totalRecords }}</div>
+          <p class="mt-1 text-xs text-zinc-600">{{ dashboard.summary.uncoveredRequirements }} unresolved requirements</p>
+        </article>
+
+        <article class="rounded-2xl border border-white/8 bg-[#232323] p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-zinc-500">Web recoveries</span>
+            <span class="grid size-9 place-items-center rounded-xl bg-emerald-400/10 text-emerald-300">
+              <svg lucideCheckCircle2 class="size-4"></svg>
+            </span>
+          </div>
+          <div class="mt-4 text-3xl font-semibold text-zinc-100">{{ dashboard.summary.successfulRecoveries }}</div>
+          <p class="mt-1 text-xs text-zinc-600">completed with a sourced answer</p>
+        </article>
+
+        <article class="rounded-2xl border border-white/8 bg-[#232323] p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-zinc-500">Candidate sources</span>
+            <span class="grid size-9 place-items-center rounded-xl bg-violet-400/10 text-violet-300">
+              <svg lucideGlobe2 class="size-4"></svg>
+            </span>
+          </div>
+          <div class="mt-4 text-3xl font-semibold text-zinc-100">{{ dashboard.summary.uniqueSources }}</div>
+          <p class="mt-1 text-xs text-zinc-600">unique URLs and real-time feeds</p>
+        </article>
+
+        <article class="rounded-2xl border border-white/8 bg-[#232323] p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-zinc-500">Pending review</span>
+            <span class="grid size-9 place-items-center rounded-xl bg-amber-400/10 text-amber-300">
+              <svg lucideClock3 class="size-4"></svg>
+            </span>
+          </div>
+          <div class="mt-4 text-3xl font-semibold text-zinc-100">{{ dashboard.summary.pendingReview }}</div>
+          <p class="mt-1 text-xs text-zinc-600">not yet eligible for ingestion</p>
+        </article>
+      </div>
+
+      <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.75fr)]">
+        <div class="min-w-0">
+          <div class="flex flex-col gap-3 rounded-2xl border border-white/8 bg-[#232323] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 class="text-sm font-semibold text-zinc-200">Knowledge-gap queue</h2>
+              <p class="mt-1 text-xs text-zinc-600">Select a view to inspect recovery outcomes.</p>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              @for (filter of [
+                { key: 'all', label: 'All gaps' },
+                { key: 'completed', label: 'Web completed' },
+                { key: 'pending_review', label: 'Pending review' },
+                { key: 'stable', label: 'Stable gaps' }
+              ]; track filter.key) {
+                <button
+                  type="button"
+                  [class]="'rounded-lg px-3 py-1.5 text-xs font-medium transition ' + (activeFilter() === filter.key ? 'bg-emerald-400 text-zinc-950' : 'bg-white/5 text-zinc-500 hover:bg-white/8 hover:text-zinc-300')"
+                  (click)="setFilter($any(filter.key))"
+                >
+                  {{ filter.label }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="mt-3 space-y-3">
+            @for (record of filteredRecords(); track record.id) {
+              <article class="rounded-2xl border border-white/8 bg-[#232323] p-5 transition hover:border-white/12 hover:bg-[#252525]">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span [class]="'rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ' + statusClass(record)">
+                      {{ statusLabel(record.externalStatus) }}
+                    </span>
+                    <span class="rounded-full border border-white/8 bg-white/[0.025] px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-zinc-500">
+                      {{ record.ingestionStatus.replaceAll('_', ' ') }}
+                    </span>
+                  </div>
+                  <time class="text-[11px] text-zinc-600">{{ record.createdAt | date: 'MMM d, y, HH:mm' }}</time>
+                </div>
+
+                <h3 class="mt-4 text-base font-medium leading-6 text-zinc-100">{{ record.query }}</h3>
+                @if (record.rewrittenQuery && record.rewrittenQuery !== record.query) {
+                  <p class="mt-2 line-clamp-2 text-xs leading-5 text-zinc-600">
+                    Standalone query: {{ record.rewrittenQuery }}
+                  </p>
+                }
+
+                @if (record.missingRequirements.length) {
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    @for (requirement of record.missingRequirements.slice(0, 4); track requirement) {
+                      <span class="rounded-lg border border-amber-300/10 bg-amber-300/[0.055] px-2.5 py-1.5 text-[11px] text-amber-100/70">
+                        {{ requirement }}
+                      </span>
+                    }
+                    @if (record.missingRequirements.length > 4) {
+                      <span class="rounded-lg bg-white/5 px-2.5 py-1.5 text-[11px] text-zinc-500">
+                        +{{ record.missingRequirements.length - 4 }} more
+                      </span>
+                    }
+                  </div>
+                }
+
+                <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/6 pt-4 text-[11px] text-zinc-500">
+                  <span class="inline-flex items-center gap-1.5">
+                    <svg lucideGlobe2 class="size-3.5 text-violet-400"></svg>
+                    {{ record.sourceCount }} sources
+                  </span>
+                  <span class="inline-flex items-center gap-1.5">
+                    <svg lucideShieldCheck class="size-3.5 text-emerald-400"></svg>
+                    {{ record.citedSourceCount }} cited
+                  </span>
+                  @if (record.externalModel) {
+                    <span class="inline-flex items-center gap-1.5">
+                      <svg lucideSparkles class="size-3.5 text-sky-400"></svg>
+                      {{ record.externalModel }}
+                    </span>
+                  }
+                </div>
+              </article>
+            } @empty {
+              <div class="rounded-2xl border border-dashed border-white/10 bg-[#222222] p-10 text-center">
+                <svg lucideCircleAlert class="mx-auto size-6 text-zinc-600"></svg>
+                <p class="mt-3 text-sm font-medium text-zinc-400">No records in this view</p>
+                <p class="mt-1 text-xs text-zinc-600">New uncovered requirements will appear here automatically.</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <aside class="min-w-0">
+          <div class="rounded-2xl border border-white/8 bg-[#232323] p-5 xl:sticky xl:top-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-sm font-semibold text-zinc-200">Candidate source library</h2>
+                <p class="mt-1 text-xs text-zinc-600">Most frequently retained external evidence.</p>
+              </div>
+              <span class="grid size-9 place-items-center rounded-xl bg-violet-400/10 text-violet-300">
+                <svg lucideGlobe2 class="size-4"></svg>
+              </span>
+            </div>
+
+            <div class="mt-5 space-y-2.5">
+              @for (source of sourceSummaries(); track source.url || source.domain + source.title) {
+                <div class="group rounded-xl border border-white/7 bg-white/[0.025] p-3.5">
+                  <div class="flex items-start gap-3">
+                    <span class="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg bg-white/5 text-zinc-500 group-hover:text-violet-300">
+                      <svg lucideExternalLink class="size-3.5"></svg>
+                    </span>
+                    <div class="min-w-0 flex-1">
+                      @if (source.url) {
+                        <a
+                          class="line-clamp-2 text-xs font-medium leading-5 text-zinc-300 hover:text-emerald-300"
+                          [href]="source.url"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >{{ source.title }}</a>
+                      } @else {
+                        <div class="line-clamp-2 text-xs font-medium leading-5 text-zinc-300">{{ source.title }}</div>
+                      }
+                      <div class="mt-1 truncate text-[10px] text-zinc-600">{{ source.domain }}</div>
+                    </div>
+                  </div>
+                  <div class="mt-3 flex items-center justify-between text-[10px]">
+                    <span class="rounded-md bg-white/5 px-2 py-1 font-medium text-zinc-500">
+                      {{ sourceTypeLabel(source.sourceType) }}
+                    </span>
+                    <span class="text-zinc-600">{{ source.citationCount }} citations / {{ source.recordCount }} gaps</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-xs text-zinc-600">
+                  No external sources have been retained yet.
+                </div>
+              }
+            </div>
+
+            <div class="mt-5 rounded-xl border border-emerald-400/10 bg-emerald-400/[0.055] p-4">
+              <div class="flex items-center gap-2 text-xs font-semibold text-emerald-300">
+                <svg lucideShieldCheck class="size-4"></svg>
+                Verification boundary
+              </div>
+              <p class="mt-2 text-[11px] leading-5 text-emerald-100/50">
+                External sources support immediate answers but remain outside normal RAG retrieval until reviewed and ingested.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    }
+  </div>
+</section>

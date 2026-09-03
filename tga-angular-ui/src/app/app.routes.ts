@@ -26,20 +26,20 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'retrieval-debug',
+    path: 'external-knowledge',
     canActivate: [authGuard],
     loadComponent: () =>
       import(
-        './features/retrieval-debug/retrieval-debug-page.component'
-      ).then((module) => module.RetrievalDebugPageComponent),
+        './features/external-knowledge/external-knowledge-page.component'
+      ).then((module) => module.ExternalKnowledgePageComponent),
+  },
+  {
+    path: 'retrieval-debug',
+    redirectTo: 'external-knowledge',
   },
   {
     path: 'memory',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/memory/memory-page.component').then(
-        (module) => module.MemoryPageComponent,
-      ),
+    redirectTo: 'external-knowledge',
   },
   {
     path: '',

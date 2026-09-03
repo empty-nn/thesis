@@ -43,6 +43,19 @@ def _usage_dict(response: Any) -> dict[str, Any]:
     }
 
 
+def _response_dict(response: Any) -> dict[str, Any]:
+    if hasattr(response, "to_dict"):
+        value = response.to_dict(warnings=False)
+        return value if isinstance(value, dict) else {}
+    if hasattr(response, "model_dump"):
+        try:
+            value = response.model_dump(warnings=False)
+        except TypeError:
+            value = response.model_dump()
+        return value if isinstance(value, dict) else {}
+    return response if isinstance(response, dict) else {}
+
+
 def normalize_usage(response: Any) -> dict[str, int]:
     usage = _usage_dict(response)
     input_tokens = int(usage.get("prompt_tokens", usage.get("input_tokens", 0)) or 0)
@@ -93,11 +106,17 @@ class LLMTelemetryCollector:
     def record(self, stage: str, model: str, response: Any, latency_ms: float) -> None:
         try:
             usage = normalize_usage(response)
+            payload = _response_dict(response)
+            web_search_call_count = sum(
+                isinstance(item, dict) and item.get("type") == "web_search_call"
+                for item in (payload.get("output") or [])
+            ) if isinstance(payload, dict) else 0
             self.stages.append({
                 "stage": stage,
                 "model": model,
                 "latency_ms": round(latency_ms, 3),
                 **usage,
+                "web_search_call_count": web_search_call_count,
                 "estimated_cost_usd": estimate_cost_usd(model, usage, self.pricing),
             })
         except Exception as exc:
@@ -180,5 +199,13 @@ def create_chat_completion(stage: str, client: Any, **kwargs: Any) -> Any:
         kwargs["extra_body"] = extra_body
     started = perf_counter()
     response = client.chat.completions.create(**kwargs)
+    record_llm_response(stage, model, response, started)
+    return response
+
+
+def create_response(stage: str, client: Any, **kwargs: Any) -> Any:
+    model = str(kwargs.get("model") or "unknown")
+    started = perf_counter()
+    response = client.responses.create(**kwargs)
     record_llm_response(stage, model, response, started)
     return response
