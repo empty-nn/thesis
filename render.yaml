@@ -23,6 +23,8 @@ services:
         value: "true"
       - key: USER_TIMEZONE
         value: Asia/Ho_Chi_Minh
+      - key: RERANKER_ENABLED
+        value: "false"
       - key: DEEPSEEK_API_KEY
         sync: false
       - key: GOOGLE_CLIENT_ID

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
@@ -7,6 +9,14 @@ RERANKER_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 _embedding_model: SentenceTransformer | None = None
 _reranker: CrossEncoder | None = None
+
+
+def reranker_enabled() -> bool:
+    return os.getenv("RERANKER_ENABLED", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+    }
 
 
 def load_models() -> None:
@@ -17,7 +27,7 @@ def load_models() -> None:
             EMBEDDING_MODEL_NAME
         )
 
-    if _reranker is None:
+    if reranker_enabled() and _reranker is None:
         _reranker = CrossEncoder(
             RERANKER_MODEL_NAME
         )

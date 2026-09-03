@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from core.model_registry import (
     get_embedding_model,
     get_reranker,
+    reranker_enabled,
 )
 from schemas.pipeline import (
     ParsedQuery,
@@ -825,6 +826,12 @@ def rerank_documents(
 ) -> list[Document]:
     if not documents:
         return []
+
+    if not reranker_enabled():
+        # The candidates already arrive in reciprocal-rank-fusion order. Keep
+        # that ordering on memory-constrained deployments where loading a
+        # second transformer model would exceed the instance limit.
+        return documents[:top_k]
 
     pairs = [
         (
