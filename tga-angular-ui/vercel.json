@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://empty-nn-travel-rag-api.onrender.com/api/:path*"
+      "destination": "https://travel-rag-api-636198143323.asia-southeast1.run.app/api/:path*"
     },
     {
       "source": "/(.*)",

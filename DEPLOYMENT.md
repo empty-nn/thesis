@@ -34,7 +34,9 @@ Configure these runtime variables in Cloud Run:
 - `CORS_ORIGINS=https://thesis-wheat-one.vercel.app`
 
 Allow unauthenticated invocation because application authentication is handled
-by the API session. Confirm the Cloud Run `/api/health` endpoint returns
+by the API session. The deployed API is
+`https://travel-rag-api-636198143323.asia-southeast1.run.app`. Confirm its
+`/api/health` endpoint returns
 `{"status":"ok","service":"travel-rag-api"}`.
 
 ## 4. Create the Vercel frontend
