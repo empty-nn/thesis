@@ -4,7 +4,10 @@ services:
     runtime: python
     rootDir: be
     plan: free
-    buildCommand: pip install -r requirements-deploy.txt
+    # Install CPU-only PyTorch first. The default Linux wheel pulls large CUDA
+    # packages that are unusable on Render's CPU instances and can exhaust the
+    # free-tier build/runtime limits.
+    buildCommand: pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 && pip install -r requirements-deploy.txt
     startCommand: alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
