@@ -19,7 +19,7 @@ The Render database free tier expires after 30 days.
 
 Build from `be/Dockerfile` and configure the service with one CPU, 2 GiB RAM,
 request-based billing, minimum instances 0, maximum instances 1, and concurrency
-1. The container uses CPU-only PyTorch, caches both models during its build, runs
+4. The container uses CPU-only PyTorch, caches both models during its build, runs
 database migrations on startup, and enables the cross-encoder reranker.
 
 Configure these runtime variables in Cloud Run:
