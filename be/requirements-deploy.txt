@@ -15,3 +15,10 @@ langchain-core==1.4.0
 langchain-community==0.4.2
 rank-bm25==0.2.2
 sentence-transformers==3.0.1
+python-multipart==0.0.32
+PyMuPDF==1.27.2.3
+trafilatura==2.0.0
+beautifulsoup4==4.14.3
+markdownify==1.2.2
+langchain-text-splitters==1.1.2
+urllib3==2.7.0

@@ -34,6 +34,12 @@ export const routes: Routes = [
       ).then((module) => module.ExternalKnowledgePageComponent),
   },
   {
+    path: 'data-building',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/data-building/data-building-page.component')
+      .then((module) => module.DataBuildingPageComponent),
+  },
+  {
     path: 'retrieval-debug',
     redirectTo: 'external-knowledge',
   },
