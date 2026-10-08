@@ -31,6 +31,7 @@ export class ChatService {
   ]);
 
   readonly isGenerating = signal(false);
+  readonly webSearchEnabled = signal(true);
   readonly activePipelineStep = signal(0);
   readonly pipelineTrace = signal<PipelineTraceItem[]>([]);
   readonly pipelineStepKeys: readonly PipelineStage[] = [
@@ -64,6 +65,7 @@ export class ChatService {
     if (!trimmed || this.isGenerating()) {
       return;
     }
+    const webSearchEnabled = this.webSearchEnabled();
 
     this.messages.update((messages) => [
       ...messages,
@@ -72,6 +74,7 @@ export class ChatService {
         role: 'user',
         content: trimmed,
         createdAt: new Date(),
+        webSearchEnabled,
       },
     ]);
 
@@ -82,7 +85,7 @@ export class ChatService {
     try {
       const response = environment.useMockApi
         ? await this.mockResponse(trimmed)
-        : await this.streamResponse(trimmed);
+        : await this.streamResponse(trimmed, webSearchEnabled);
 
       this.conversationId.set(response.conversation_id ?? null);
       if (response.conversation_id) {
@@ -101,6 +104,8 @@ export class ChatService {
           content: response.answer,
           sources: response.sources,
           pipelineTrace: [...this.pipelineTrace()],
+          webSearchEnabled,
+          webSearchUsed: response.web_search_used ?? false,
           createdAt: new Date(),
         },
       ]);
@@ -187,7 +192,7 @@ export class ChatService {
     this.activePipelineStep.set(Math.min(index + 1, this.pipelineStepKeys.length - 1));
   }
 
-  private async streamResponse(query: string): Promise<ChatApiResponse> {
+  private async streamResponse(query: string, webSearchEnabled: boolean): Promise<ChatApiResponse> {
     const response = await fetch(
       `${environment.apiBaseUrl}/chat/stream`,
       {
@@ -196,6 +201,7 @@ export class ChatService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: query,
+          web_search_enabled: webSearchEnabled,
           conversation_id: this.conversationId(),
           conversation_history: this.messages()
             .slice(0, -1)
@@ -224,6 +230,7 @@ export class ChatService {
       } else if (event['type'] === 'complete') {
         completed = {
           answer: String(event['answer'] ?? ''),
+          web_search_used: event['web_search_used'] === true,
           sources: (event['sources'] ?? []) as ChatApiResponse['sources'],
           conversation_id: event['conversation_id'] as string | undefined,
         };

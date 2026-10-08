@@ -17,6 +17,7 @@ class ChatRequest(BaseModel):
     )
     user_id: str | None = None
     conversation_id: str | None = None
+    web_search_enabled: bool = True
 
 
 class ChatSource(BaseModel):
@@ -27,6 +28,7 @@ class ChatSource(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
+    web_search_used: bool = False
     conversation_id: str | None = None
     sources: list[ChatSource] = Field(
         default_factory=list

@@ -81,6 +81,7 @@ def chat_stream(
                         "answer": result.answer,
                         "sources": [source.model_dump() for source in result.sources],
                         "conversation_id": result.conversation_id,
+                        "web_search_used": result.web_search_used,
                     })
                 except Exception as exc:
                     telemetry.mark_failed(exc)

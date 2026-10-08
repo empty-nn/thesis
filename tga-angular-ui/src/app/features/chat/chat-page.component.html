@@ -31,7 +31,7 @@
     </div>
   </div>
 
-  <div class="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 pb-36 pt-8 sm:px-6 md:pt-14">
+  <div class="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 pb-52 pt-8 sm:px-6 md:pt-14">
     @if (chat.messages().length === 0) {
       <div class="grid flex-1 place-items-center">
         <div class="max-w-lg text-center">
@@ -69,6 +69,11 @@
                   {{ message.content }}
                 </div>
               } @else {
+                @if (message.webSearchEnabled !== undefined) {
+                  <div class="mb-2 text-[11px] text-zinc-400">
+                    {{ message.webSearchUsed ? 'Web evidence used' : message.webSearchEnabled ? 'Web search on · no web evidence used' : 'Web search off · database only' }}
+                  </div>
+                }
                 <div class="assistant-markdown text-[15px] leading-7 text-zinc-200">
                   <markdown [data]="message.content"></markdown>
                 </div>
@@ -187,7 +192,8 @@
                 @for (step of chat.pipelineSteps; track step; let index = $index) {
                   @if (
                     (chat.pipelineStepKeys[index] !== 'recovery' &&
-                      chat.pipelineStepKeys[index] !== 'rechecking') ||
+                      chat.pipelineStepKeys[index] !== 'rechecking' &&
+                      (chat.pipelineStepKeys[index] !== 'external_search' || chat.webSearchEnabled())) ||
                     chat.pipelineHasStage(chat.pipelineStepKeys[index])
                   ) {
                   <div
@@ -235,6 +241,24 @@
     class="fixed inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#212121] via-[#212121] to-transparent px-4 pb-4 pt-10 md:left-[276px]"
   >
     <div class="mx-auto max-w-3xl">
+      <div class="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-2">
+        <button
+          type="button"
+          role="switch"
+          aria-label="Web search when database evidence is insufficient"
+          [attr.aria-checked]="chat.webSearchEnabled()"
+          [disabled]="chat.isGenerating()"
+          (click)="chat.webSearchEnabled.set(!chat.webSearchEnabled())"
+          class="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-200 transition hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+          [class.bg-emerald-500/15]="chat.webSearchEnabled()"
+          [class.border-emerald-400/40]="chat.webSearchEnabled()"
+        >
+          Web search: {{ chat.webSearchEnabled() ? 'On' : 'Off' }}
+        </button>
+        <span class="text-[11px] text-zinc-400">
+          {{ chat.webSearchEnabled() ? 'Search missing current information on the web' : 'Answer using database evidence only' }}
+        </span>
+      </div>
       <div
         class="rounded-[26px] border border-white/10 bg-[#303030] shadow-2xl shadow-black/20 focus-within:border-white/15"
       >

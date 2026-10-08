@@ -13,6 +13,8 @@ export interface ChatMessage {
   createdAt: Date;
   sources?: ChatSource[];
   pipelineTrace?: PipelineTraceItem[];
+  webSearchEnabled?: boolean;
+  webSearchUsed?: boolean;
 }
 
 export type PipelineStage =
@@ -35,6 +37,7 @@ export interface PipelineTraceItem {
 
 export interface ChatApiResponse {
   answer: string;
+  web_search_used?: boolean;
   sources?: ChatSource[];
   conversation_id?: string;
 }

@@ -39,6 +39,21 @@ by the API session. The deployed API is
 `/api/health` endpoint returns
 `{"status":"ok","service":"travel-rag-api"}`.
 
+### Optional web-search fallback
+
+The chat composer's **Web search** switch sends `web_search_enabled` on each
+request (default: on). Off skips the external provider completely. On allows
+the existing fallback after database retrieval and recovery leave eligible gaps;
+it does not force a search when database evidence is sufficient. By default,
+only time-sensitive gaps are searched. Each new answer indicates whether web
+evidence was used.
+
+For web search in production, configure `OPENAI_API_KEY` and a supported
+`OPENAI_WEB_SEARCH_MODEL` on Cloud Run. The server-level
+`EXTERNAL_WEB_FALLBACK_ENABLED=false` setting still disables the fallback for
+all requests, regardless of the UI switch. The switch does not change provider
+billing. Deploy both the backend and frontend to publish this control.
+
 ## 4. Create the Vercel frontend
 
 1. Import the same GitHub repository into Vercel.

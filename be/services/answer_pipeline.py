@@ -344,7 +344,16 @@ def run_chat_pipeline(
         }
 
     external_web_result = None
-    if not artifacts.coverage.sufficient:
+    if not artifacts.coverage.sufficient and not request.web_search_enabled:
+        if knowledge_gap is not None:
+            knowledge_gap["external_recovery"]["status"] = "disabled_by_user"
+        if progress_callback:
+            progress_callback("external_search", {
+                "summary": "Web search is off for this message. Using database evidence only.",
+                "status": "disabled_by_user",
+                "highlights": ["No external API call was made"],
+            })
+    if not artifacts.coverage.sufficient and request.web_search_enabled:
         external_requirements = classify_external_requirements(
             artifacts.coverage.missing_requirements
         )
@@ -511,6 +520,7 @@ def run_chat_pipeline(
                 })
             return ChatResponse(
                 answer=external_web_result.answer or "",
+                web_search_used=True,
                 sources=[
                     *_chat_sources(evidence),
                     *[
